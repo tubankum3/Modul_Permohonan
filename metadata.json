@@ -1,0 +1,5 @@
+{
+  "name": "Sistem Permohonan Bantuan Hukum",
+  "description": "A web application for managing legal aid requests, allowing employees to submit, monitor, and manage their applications, and administrators to oversee the process. This system is inspired by the Kemenkeu internal application interface.",
+  "requestFramePermissions": []
+}
