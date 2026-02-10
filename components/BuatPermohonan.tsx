@@ -1,24 +1,39 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JenisPermohonan, Permohonan, FileData } from '../types';
 import { ArrowLeftIcon, UploadIcon } from './icons';
 
 interface BuatPermohonanProps {
-  onSaveDraft: (permohonan: Omit<Permohonan, 'id' | 'status' | 'tanggal' | 'unit' | 'history' | 'pemohon'>) => void;
+  onSaveDraft?: (permohonan: Omit<Permohonan, 'id' | 'status' | 'tanggal' | 'unit' | 'history' | 'pemohon'>) => void;
+  onUpdateDraft?: (permohonan: Permohonan) => void;
   onCancel: () => void;
+  initialData?: Permohonan | null;
+  onNavigateToNadine: () => void;
 }
 
-const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }) => {
-  const [step, setStep] = useState(1);
-  const [jenisPermohonan, setJenisPermohonan] = useState<JenisPermohonan | ''>('');
+const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onUpdateDraft, onCancel, initialData, onNavigateToNadine }) => {
+  const isEditing = !!initialData;
+
+  const [step, setStep] = useState(isEditing ? 2 : 1);
+  const [jenisPermohonan, setJenisPermohonan] = useState<JenisPermohonan | ''>(isEditing ? initialData.jenis : '');
   const [perihal, setPerihal] = useState('');
   const [uraian, setUraian] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [existingFiles, setExistingFiles] = useState<FileData[]>([]);
+
+  useEffect(() => {
+    if (isEditing && initialData) {
+        setPerihal(initialData.perihal);
+        setUraian(initialData.uraian);
+        setExistingFiles(initialData.files || []);
+        setJenisPermohonan(initialData.jenis);
+        setStep(2); // Ensure we are on the form step
+    }
+  }, [initialData, isEditing]);
+
 
   const handleNext = () => {
     if (jenisPermohonan === JenisPermohonan.PENANGANAN_PERKARA) {
-      alert('Redirecting to Modul Naskah Dinas page...');
-      // In a real app, this would be a redirect.
+      onNavigateToNadine();
     } else if (jenisPermohonan === JenisPermohonan.PENDAMPINGAN) {
       setStep(2);
     } else {
@@ -41,23 +56,35 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }
         alert('Perihal dan Uraian tidak boleh kosong.');
         return;
     }
-    const fileData: FileData[] = files.map(file => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    }));
+    
+    if (isEditing && onUpdateDraft && initialData) {
+        // NOTE: File handling in edit mode is simplified. This only keeps existing files.
+        // A more complex implementation would handle new uploads and removals.
+        const updatedPermohonan = {
+            ...initialData,
+            perihal,
+            uraian,
+        };
+        onUpdateDraft(updatedPermohonan);
+    } else if (!isEditing && onSaveDraft) {
+        const fileData: FileData[] = files.map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+        }));
 
-    onSaveDraft({
-      jenis: 'Pendampingan',
-      perihal,
-      uraian,
-      files: fileData
-    });
+        onSaveDraft({
+            jenis: JenisPermohonan.PENDAMPINGAN,
+            perihal,
+            uraian,
+            files: fileData
+        });
+    }
   };
 
-  if (step === 1) {
+  if (step === 1 && !isEditing) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50">
         <div className="w-full max-w-2xl">
             <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">Buat Permohonan Bantuan Hukum</h2>
             <p className="text-gray-600 text-center mb-8">Pilih jenis permohonan yang Anda butuhkan:</p>
@@ -66,15 +93,15 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }
                     onClick={() => setJenisPermohonan(JenisPermohonan.PENANGANAN_PERKARA)}
                     className={`bg-white p-6 border rounded-lg cursor-pointer transition-all duration-200 ${jenisPermohonan === JenisPermohonan.PENANGANAN_PERKARA ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-300 hover:border-gray-400'}`}
                 >
-                    <h3 className="font-bold text-lg text-gray-900">Penanganan Perkara</h3>
-                    <p className="text-sm text-gray-600 mt-1">Untuk permohonan yang akan diproses melalui Nota Dinas.</p>
+                    <h3 className="font-bold text-lg text-gray-900">Penanganan Perkara (Litigasi)</h3>
+                    <p className="text-sm text-gray-600 mt-1">Bantuan Hukum Penyelesaian Perkara Pra Peradilan, Perdata, Niaga, Peradilan Agama, Tata Usaha Negara, Pengujian Peraturan Perundang-Undangan, Sengketa Perpajakan, dan Perkara Lainnya.</p>
                 </div>
                 <div
                     onClick={() => setJenisPermohonan(JenisPermohonan.PENDAMPINGAN)}
                     className={`bg-white p-6 border rounded-lg cursor-pointer transition-all duration-200 ${jenisPermohonan === JenisPermohonan.PENDAMPINGAN ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-300 hover:border-gray-400'}`}
                 >
-                    <h3 className="font-bold text-lg text-gray-900">Pendampingan</h3>
-                    <p className="text-sm text-gray-600 mt-1">Untuk permohonan pendampingan atau konsultasi hukum.</p>
+                    <h3 className="font-bold text-lg text-gray-900">Pendampingan (Non-Litigasi)</h3>
+                    <p className="text-sm text-gray-600 mt-1">Bantuan hukum kepada Menteri/Mantan Menteri, Wamen/Mantan Wamen, Pejabat, Pegawai, Pensiunan, atau Mantan Pegawai sebagai saksi atau ahli dalam perkara tindak pidana yang terkait dengan tugas kedinasan di Kementerian Keuangan.</p>
                 </div>
             </div>
             <div className="mt-10 flex justify-center space-x-4">
@@ -89,10 +116,10 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }
   return (
     <div className="p-8 bg-white h-full">
       <div className="flex items-center mb-6">
-        <button onClick={() => setStep(1)} className="p-2 mr-4 rounded-full hover:bg-gray-100">
+        <button onClick={isEditing ? onCancel : () => setStep(1)} className="p-2 mr-4 rounded-full hover:bg-gray-100">
             <ArrowLeftIcon className="h-6 w-6 text-gray-600"/>
         </button>
-        <h2 className="text-2xl font-bold text-gray-800">Buat Permohonan Pendampingan</h2>
+        <h2 className="text-2xl font-bold text-gray-800">{isEditing ? `Edit Permohonan: ${initialData?.Nomor || `Draft-${initialData?.id}`}` : 'Buat Permohonan Pendampingan'}</h2>
       </div>
       <div className="space-y-6 max-w-4xl mx-auto">
         <div>
@@ -132,10 +159,15 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }
                     <p className="text-xs text-gray-500">PNG, JPG, PDF hingga 10MB</p>
                 </div>
             </div>
-            {files.length > 0 && (
+            {(files.length > 0 || existingFiles.length > 0) && (
               <div className="mt-4">
                 <h4 className="font-semibold text-gray-700">File yang akan diunggah:</h4>
                 <ul className="mt-2 list-disc list-inside space-y-1">
+                  {existingFiles.map((file, index) => (
+                    <li key={index} className="text-sm text-gray-600 flex justify-between items-center">
+                      <span>{file.name} (tersimpan)</span>
+                    </li>
+                  ))}
                   {files.map((file, index) => (
                     <li key={index} className="text-sm text-gray-600 flex justify-between items-center">
                       <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
@@ -148,7 +180,7 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onCancel }
         </div>
         <div className="flex justify-end space-x-4 pt-4">
             <button onClick={onCancel} className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition">Batal</button>
-            <button onClick={handleSubmit} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">Simpan Draft</button>
+            <button onClick={handleSubmit} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">{isEditing ? 'Update Draft' : 'Simpan Draft'}</button>
         </div>
       </div>
     </div>

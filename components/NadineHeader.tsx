@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BellIcon, ViewGridIcon } from './icons';
 import { View } from '../types';
 
-interface HeaderProps {
+interface NadineHeaderProps {
     onNavigate: (view: View) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
+const NadineHeader: React.FC<NadineHeaderProps> = ({ onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -24,11 +24,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   }, []);
 
   return (
-    <header className="bg-[#0055A5] text-white flex items-center justify-between p-3 shadow-md z-20">
+    <header className="bg-white text-gray-800 flex items-center justify-between p-3 border-b border-gray-200 z-20">
       <div className="flex items-center">
-        <div className="relative" ref={menuRef}>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 mr-2 rounded-full hover:bg-white/20" aria-label="Application Menu">
-                <ViewGridIcon className="h-6 w-6" />
+         <div className="relative" ref={menuRef}>
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 mr-2 rounded-full hover:bg-gray-100" aria-label="Application Menu">
+                <ViewGridIcon className="h-6 w-6 text-gray-600" />
             </button>
             {isMenuOpen && (
                 <div className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-lg py-1 text-gray-800 ring-1 ring-black ring-opacity-5">
@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                     >
                         Modul Nadine
                     </a>
-                    <a
+                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); onNavigate('eAdvokasiInbox'); setIsMenuOpen(false); }}
                         className="block px-4 py-3 text-sm font-medium hover:bg-gray-100"
@@ -56,19 +56,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                 </div>
             )}
         </div>
-        <h1 className="text-xl font-bold">satu kemenkeu</h1>
+        <h1 className="text-xl font-bold text-[#0055A5]">satu kemenkeu</h1>
       </div>
       <div className="flex items-center space-x-4">
-        <button className="p-2 rounded-full hover:bg-white/20">
-          <BellIcon className="h-6 w-6" />
+        <button className="p-2 rounded-full hover:bg-gray-100">
+          <BellIcon className="h-6 w-6 text-gray-600" />
         </button>
         <div className="flex items-center space-x-2">
            <img src="https://i.pravatar.cc/40?img=1" alt="User" className="h-8 w-8 rounded-full" />
-           <span className="hidden md:block">User Name</span>
         </div>
       </div>
     </header>
   );
 };
 
-export default Header;
+export default NadineHeader;
