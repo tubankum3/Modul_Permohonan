@@ -1,8 +1,10 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { SearchIcon, XIcon, PlusIcon } from './icons';
 
-export interface TeamMember {
+// FIX: Rename TeamMember to Personnel to avoid conflicts with the global TeamMember type.
+export interface Personnel {
   id: string;
   name: string;
   eselon1: string;
@@ -15,11 +17,14 @@ export interface TeamMember {
 interface AssignTeamModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (team: TeamMember[]) => void;
-    initialSelectedMembers: TeamMember[];
+    // FIX: Update onSave to use the local Personnel type.
+    onSave: (team: Personnel[]) => void;
+    // FIX: Update initialSelectedMembers to use the local Personnel type.
+    initialSelectedMembers: Personnel[];
 }
 
-const ALL_PERSONNEL: TeamMember[] = [
+// FIX: Export ALL_PERSONNEL so it can be used for mapping in the parent component.
+export const ALL_PERSONNEL: Personnel[] = [
   { id: '001', name: 'Andi Pratama', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Pusat', eselon3: 'KPP Pratama Jakarta Menteng Satu', role: 'Analis Hukum' },
   { id: '002', name: 'Budi Santoso', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Selatan I', eselon3: 'KPP Pratama Jakarta Setiabudi Dua', role: 'Penelaah Kebijakan' },
   { id: '003', name: 'Citra Lestari', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'Kantor Pusat DJBC', eselon3: 'Direktorat Teknis Kepabeanan', role: 'Kepala Seksi' },
@@ -44,7 +49,8 @@ const AssignTeamModal: React.FC<AssignTeamModalProps> = ({ isOpen, onClose, onSa
     const [eselon2, setEselon2] = useState('Semua');
     const [eselon3, setEselon3] = useState('Semua');
     const [eselon4, setEselon4] = useState('Semua');
-    const [selectedMembers, setSelectedMembers] = useState<TeamMember[]>([]);
+    // FIX: Use the renamed Personnel type for state.
+    const [selectedMembers, setSelectedMembers] = useState<Personnel[]>([]);
 
     useEffect(() => {
         setSelectedMembers(initialSelectedMembers);
@@ -91,7 +97,8 @@ const AssignTeamModal: React.FC<AssignTeamModalProps> = ({ isOpen, onClose, onSa
         setEselon4('Semua');
     };
 
-    const handleAddMember = (member: TeamMember) => {
+    // FIX: Use the renamed Personnel type for the member parameter.
+    const handleAddMember = (member: Personnel) => {
         setSelectedMembers(prev => [...prev, member]);
     };
 

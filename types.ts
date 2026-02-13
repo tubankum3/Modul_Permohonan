@@ -1,3 +1,4 @@
+
 export enum StatusPermohonan {
   DRAFT = 'Draft',
   BARU = 'Baru',
@@ -50,6 +51,60 @@ export interface Permohonan {
   disposisi?: Disposisi[];
 }
 
+export enum StatusPendampingan {
+  AKTIF = 'Aktif',
+  SELESAI = 'Selesai',
+}
+
+export interface PosisiUpdate {
+    id: number;
+    suratTugas: string;
+    tanggalSuratTugas?: string;
+    agenda: string;
+    tanggalAgenda?: string;
+    pemanggilDanSurat: { pemanggil: string; surat: string };
+    lokasi: string;
+    durasi: number; // in minutes
+    rincian: string;
+    timestamp: Date;
+}
+
+export interface TeamMember {
+    id: string;
+    nama: string;
+    nip: string;
+    unit: string;
+    role: string; // Job title
+    teamRole: 'Editor' | 'Viewer';
+}
+
+export interface AuditTrailEntry {
+  id: number;
+  timestamp: Date;
+  user: string;
+  action: string;
+  details: string;
+}
+
+export interface PendampinganRecord extends Permohonan {
+  statusPendampingan: StatusPendampingan;
+  posisi?: PosisiUpdate[];
+  abstraksi?: {
+      tahunMasuk: number;
+      nomorTiket: string;
+      unitPemanggil: string;
+      unitPemohon: string;
+      pihakDipanggil: string;
+      wilayah: string;
+      pokokPermasalahan: string;
+      keterangan: string;
+  };
+  team?: TeamMember[];
+  picId?: string;
+  auditTrail?: AuditTrailEntry[];
+}
+
+
 export interface SuratMasukNadine {
   naskahId: string;
   nomorSurat: string;
@@ -99,4 +154,5 @@ export type View =
   'eAdvokasiInbox' | 'eAdvokasiPengelolaan' | 'eAdvokasiProses' |
   'eAdvokasiBeranda' | 'eAdvokasiPendampingan' | 'eAdvokasiPenangananPerkara' | 'eAdvokasiPenangananPutusan' |
   'eAdvokasiKalender' | 'eAdvokasiMonitoring' | 'eAdvokasiLaporan' |
-  'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq';
+  'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq' |
+  'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi';

@@ -75,11 +75,19 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     if (managementView === 'detail' && selectedPermohonan) {
         return (
             <div className="h-full flex flex-col bg-gray-50">
-                <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-center">
-                    <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+                <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
+                    <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1">
                         <ArrowLeftIcon className="h-5 w-5" />
                     </button>
-                    <h2 className="text-lg font-bold text-gray-800 ml-2">Rincian Permohonan</h2>
+                    <div className="ml-3">
+                        <h2 className="text-lg font-bold text-gray-800">Rincian Permohonan</h2>
+                        <p className="text-base font-semibold text-gray-700 mt-1">
+                            {selectedPermohonan?.Nomor || selectedPermohonan?.id || 'N/A'}
+                        </p>
+                        {selectedPermohonan?.perihal && (
+                            <p className="text-sm text-gray-600 mt-1">{selectedPermohonan.perihal}</p>
+                        )}
+                    </div>
                 </header>
                 <div className="flex-1 overflow-y-auto">
                     <DetailPermohonan
@@ -97,14 +105,23 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     if (managementView === 'team' && selectedPermohonan) {
          return (
             <div className="h-full flex flex-col bg-gray-50">
-                <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-center">
-                     <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+                <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
+                    <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1">
                         <ArrowLeftIcon className="h-5 w-5" />
                     </button>
-                    <h2 className="text-lg font-bold text-gray-800 ml-2">Manage Team: {selectedPermohonan.Nomor || selectedPermohonan.id}</h2>
+                    <div className="ml-3">
+                        <h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2>
+                        <p className="text-base font-semibold text-gray-700 mt-1">{selectedPermohonan.Nomor}</p>
+                        <p className="text-sm text-gray-600 mt-1">{selectedPermohonan.perihal}</p>
+                    </div>
                 </header>
                 <div className="flex-1 overflow-y-auto">
-                    <AssignTeam />
+                    <AssignTeam
+                        team={[]}
+                        picId={null}
+                        onUpdateTeam={() => console.warn('Team updates from this view are not implemented.')}
+                        onSetPic={() => console.warn('PIC updates from this view are not implemented.')}
+                    />
                 </div>
             </div>
         );

@@ -26,11 +26,19 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   return (
     <div className="h-full flex flex-col bg-gray-50">
       <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <button onClick={onBack} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-bold text-gray-800">Proses Permohonan: {permohonan.Nomor || permohonan.id}</h2>
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">Proses Permohonan</h2>
+            <p className="text-base font-semibold text-gray-700 mt-1">
+                {permohonan?.Nomor || permohonan?.id || 'N/A'}
+            </p>
+            {permohonan?.perihal && (
+                <p className="text-sm text-gray-600 mt-1">{permohonan.perihal}</p>
+            )}
+          </div>
         </div>
         <button
           onClick={() => onAccept(permohonan.id)}
@@ -75,7 +83,14 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
             currentUserRole="Administrator"
           />
         ) : (
-          <AssignTeam />
+          // FIX: Pass required props to AssignTeam to resolve type error.
+          // Using placeholder values as the team assignment logic is not yet fully implemented for this view.
+          <AssignTeam 
+            team={[]}
+            picId={null}
+            onUpdateTeam={() => console.warn('Team updates from this view are not implemented.')}
+            onSetPic={() => console.warn('PIC updates from this view are not implemented.')}
+          />
         )}
       </div>
     </div>

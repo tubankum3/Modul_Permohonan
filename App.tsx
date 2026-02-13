@@ -1,4 +1,5 @@
 
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import DaftarPermohonan from './components/DaftarPermohonan';
@@ -16,8 +17,13 @@ import PengelolaanPermohonan from './components/PengelolaanPermohonan';
 import ProsesPermohonan from './components/ProsesPermohonan';
 import PengelolaanInformasi from './components/PengelolaanInformasi';
 import PengelolaanFaq from './components/PengelolaanFaq';
+import Pendampingan from './components/Pendampingan';
+import DetailPendampingan from './components/DetailPendampingan';
+import AssignTeam from './components/AssignTeam';
+import PosisiPendampingan from './components/PosisiPendampingan';
 
-import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory } from './types';
+import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember } from './types';
+import { ArrowLeftIcon } from './components/icons';
 
 const generateRandomId = () => {
     return Math.floor(10000000 + Math.random() * 90000000).toString();
@@ -148,466 +154,511 @@ const initialPermohonan: Permohonan[] = [
     id: '77889900',
     Nomor: '20240601-5xyz',
     pemohon: 'Kepala Bidang Hukum',
+    // FIX: Add missing 'unit' property
+    unit: 'Direktorat Jenderal Pajak',
     jenis: JenisPermohonan.PENANGANAN_PERKARA,
     perihal: 'Gugatan Selesai Terkait Sengketa Tanah',
-    uraian: 'Kasus sengketa tanah telah selesai dengan putusan pengadilan yang menguntungkan.',
-    files: [{ name: 'putusan_final.pdf', size: 300000, type: 'application/pdf' }],
+    uraian: 'Gugatan terkait sengketa tanah di wilayah X telah selesai dengan putusan yang menguntungkan.',
+    files: [{ name: 'putusan.pdf', size: 54321, type: 'application/pdf' }],
     status: StatusPermohonan.SELESAI,
     tanggal: '01/06/2024',
-    unit: 'Direktorat Jenderal Kekayaan Negara',
-    history: [
-        { id: 1, author: 'Pegawai', message: 'Permohonan bantuan hukum.', files: [], timestamp: new Date('2024-01-10T10:00:00') },
-        { id: 2, author: 'Administrator', message: 'Permohonan diterima, tim sedang dibentuk.', files: [], timestamp: new Date('2024-01-11T15:00:00') },
-        { id: 3, author: 'Administrator', message: 'Kasus telah selesai. Dokumen putusan terlampir.', files: [{ name: 'putusan_final.pdf', size: 300000, type: 'application/pdf' }], timestamp: new Date('2024-06-01T14:00:00') }
-    ],
+    history: [],
     sumber: 'Internal',
   },
 ];
 
 const initialBerandaContent: BerandaContent = {
-    pageTitle: 'Modul Permohonan Bantuan Hukum',
-    flowTitle: 'ALUR PERMOHONAN BANTUAN HUKUM',
-    flowSteps: [
-        { step: 1, title: 'Ajukan Permohonan', description: 'Mengajukan permohonan bantuan hukum melalui modul Permohonan Bantuan Hukum aplikasi Satu Kemenkeu.' },
-        { step: 2, title: 'Pilih Jenis Bantuan', description: 'Pilih salah satu dari dua jenis permohonan: Penanganan Perkara atau Pendampingan.' },
-        { step: 3, title: 'Lengkapi Dokumen', description: 'Sertakan uraian terkait permohonan dan softcopy dokumen pendukung.' },
-        { step: 4, title: 'Kelola Konsep', description: 'Gunakan opsi "Edit", "Hapus", atau "Kirim" untuk mengelola konsep permohonan Anda.' },
-        { step: 5, title: 'Proses Biro Advokasi', description: 'Biro Advokasi akan menerima dan menindaklanjuti permohonan bantuan hukum tersebut.' },
-    ],
-    eAdvokasiTitle: 'E-Advokasi',
-    eAdvokasiParagraph1: 'Merupakan aplikasi yang dapat diakses oleh unit-unit di lingkungan Kementerian Keuangan sesuai PMK Nomor 233/PMK.01/2022 tentang Bantuan Hukum di Lingkungan Kementerian Keuangan, guna menyampaikan permohonan bantuan hukum dan konsultasi hukum dengan Biro Advokasi.',
-    eAdvokasiParagraph2: 'Permohonan Bantuan Hukum dan Konsultasi Hukum dimaksud terkait dengan masalah hukum yang timbul sebagai akibat dari pelaksanaan tugas dan fungsi Kementerian Keuangan baik yang mengarah pada proses pengadilan,sedang dalam proses pengadilan maupun setelah adanya putusan pengadilan.'
+  pageTitle: "Selamat Datang di Sistem Permohonan Bantuan Hukum",
+  flowTitle: "Alur Permohonan Bantuan Hukum",
+  flowSteps: [
+    { step: 1, title: "Akses e-Advokasi", description: "Pegawai mengakses aplikasi e-Advokasi melalui portal Satu Kemenkeu." },
+    { step: 2, title: "Pilih Jenis Permohonan", description: "Memilih jenis permohonan bantuan hukum (Penanganan Perkara/Pendampingan)." },
+    { step: 3, title: "Isi Formulir & Unggah Dokumen", description: "Mengisi formulir permohonan dan mengunggah dokumen pendukung." },
+    { step: 4, title: "Kirim Permohonan", description: "Permohonan dikirim ke Biro Advokasi untuk diproses lebih lanjut." },
+    { step: 5, title: "Terima Bantuan Hukum", description: "Pegawai menerima pendampingan atau bantuan penanganan perkara dari Tim Biro Advokasi." },
+  ],
+  eAdvokasiTitle: "Tentang E-Advokasi",
+  eAdvokasiParagraph1: "E-Advokasi adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan. Aplikasi ini bertujuan untuk menyederhanakan alur, meningkatkan transparansi, dan mempercepat respons terhadap permohonan yang masuk.",
+  eAdvokasiParagraph2: "Melalui e-Advokasi, pegawai dapat dengan mudah mengajukan permohonan, melacak status, dan berkomunikasi dengan tim dari Biro Advokasi. Sistem ini merupakan bagian dari komitmen Kementerian Keuangan untuk memberikan dukungan hukum yang optimal bagi seluruh jajarannya.",
 };
 
 const initialFaqData: FaqCategory[] = [
   {
-    id: 'cat1',
-    category: 'Definisi',
+    id: 'cat-1',
+    category: 'Umum',
     questions: [
-      { id: 'q1', question: 'Apa itu Biro Advokasi?', answer: 'Biro Advokasi adalah unit yang bertanggung jawab untuk memberikan bantuan, pertimbangan, dan perlindungan hukum kepada Kementerian Keuangan.' },
-      { id: 'q2', question: 'Apa itu E-Advokasi?', answer: 'E-Advokasi adalah sistem aplikasi berbasis web yang digunakan untuk mengelola permohonan bantuan hukum secara elektronik di lingkungan Kementerian Keuangan.' },
-      { id: 'q3', question: 'Apa yang dimaksud dengan Penanganan Perkara?', answer: 'Penanganan Perkara adalah bantuan hukum yang diberikan kepada:\n\n1. Unit atau Pegawai yang menghadapi permohonan pra peradilan sebagai termohon;\n2. Unit, Menteri/Mantan Menteri, Wamen/Mantan Wamen, Pejabat, Pegawai, Pensiunan dan/atau Mantan Pegawai yang mendapatkan Masalah Hukum bidang hukum perdata, niaga atau agama terkait dengan tugas kedinasan di Kementerian yang telah terdaftar dan diproses melalui badan peradilan baik sebagai penggugat/pelawan/pembantah maupun tergugat/terlawan/terbantah;\n3. Menteri, pimpinan Unit atau Pejabat yang menghadapi gugatan tata usaha negara sebagai tergugat;\n4. Menteri, pimpinan Unit atau Pejabat sebagai penggugat dalam kedudukannya sebagai badan hukum perdata;\n5. Menteri, pimpinan Unit atau Pejabat sebagai pemohon intervensi;\n6. Unit yang menghadapi permohonan uji materiil undang-undang di Mahkamah Konstitusi dan permohonan uji materiil perundang-undangan di bawah undang-undang di Mahkamah Agung yang terkait bidang tugas Kementerian;\n7. Unit yang menghadapi sengketa perpajakan;\n8. Serta penanganan perkara lain yang terdapat pada lembaga peradilan yang diatur dalam peraturan perundang-undangan.' },
-      { id: 'q4', question: 'Apa yang dimaksud dengan Telaahan Kasus Hukum?', answer: 'Telaahan Kasus Hukum adalah analisis mendalam terhadap suatu kasus hukum untuk memberikan pandangan dan rekomendasi hukum yang komprehensif.' },
-      { id: 'q5', question: 'Apa yang dimaksud dengan Pendampingan?', answer: 'Pendampingan adalah layanan bantuan hukum yang diberikan dalam bentuk konsultasi, mediasi, atau kehadiran fisik dalam proses hukum non-litigasi.' }
+      { id: 'q-1-1', question: 'Apa itu e-Advokasi?', answer: 'E-Advokasi adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan.' },
+      { id: 'q-1-2', question: 'Siapa saja yang dapat menggunakan layanan ini?', answer: 'Layanan ini dapat digunakan oleh seluruh pegawai aktif di lingkungan Kementerian Keuangan yang memerlukan bantuan hukum terkait tugas kedinasan.' },
+      { id: 'q-1-3', question: 'Apakah layanan ini berbayar?', answer: 'Tidak, layanan bantuan hukum yang disediakan melalui e-Advokasi tidak dipungut biaya bagi pegawai Kementerian Keuangan.' },
     ]
   },
   {
-    id: 'cat2',
-    category: 'Dasar Hukum',
+    id: 'cat-2',
+    category: 'Teknis',
     questions: [
-        { id: 'q6', question: 'Apa dasar hukum layanan bantuan hukum ini?', answer: 'Dasar hukum utama adalah Peraturan Menteri Keuangan Nomor 123/PMK.01/2023 tentang Bantuan Hukum di Lingkungan Kementerian Keuangan.' }
-    ]
-  },
-  {
-    id: 'cat3',
-    category: 'Standar Layanan',
-    questions: [
-        { id: 'q7', question: 'Berapa lama proses permohonan diproses?', answer: 'Standar waktu layanan adalah 3 hari kerja sejak permohonan diterima secara lengkap untuk review awal, dan akan diinformasikan lebih lanjut untuk proses penanganan.' }
-    ]
-  },
-  {
-    id: 'cat4',
-    category: 'Pengelolaan Akun',
-     questions: [
-        { id: 'q8', question: 'Bagaimana cara mengubah kata sandi?', answer: 'Anda dapat mengubah kata sandi melalui menu "Profil" > "Ubah Kata Sandi" dan mengikuti instruksi yang diberikan.' }
-    ]
-  },
-  {
-    id: 'cat5',
-    category: 'Troubleshooting',
-     questions: [
-        { id: 'q9', question: 'Saya tidak bisa mengunggah dokumen, apa yang harus dilakukan?', answer: 'Pastikan format file adalah PDF, DOCX, atau JPG dan ukurannya tidak melebihi 5MB. Jika masalah berlanjut, hubungi helpdesk IT.' }
+      { id: 'q-2-1', question: 'Bagaimana cara mengajukan permohonan baru?', answer: 'Anda dapat mengajukan permohonan baru dengan mengklik tombol "Buat Permohonan Baru" di halaman Daftar Permohonan, kemudian ikuti langkah-langkah yang tertera.' },
+      { id: 'q-2-2', question: 'Format dokumen apa saja yang didukung untuk diunggah?', answer: 'Sistem mendukung format dokumen umum seperti PDF, DOCX, dan JPG. Ukuran maksimal per file adalah 10MB.' },
+      { id: 'q-2-3', question: 'Bagaimana cara melacak status permohonan saya?', answer: 'Status permohonan dapat dilihat pada halaman "Daftar Permohonan". Status akan diperbarui secara real-time sesuai dengan progres dari tim Biro Advokasi.' },
     ]
   }
 ];
 
-const PlaceholderContent: React.FC<{ title: string }> = ({ title }) => (
-    <div className="p-8 h-full">
-        <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
-        <div className="border-b-4 border-blue-600 w-16 my-4"></div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <p className="text-gray-600">This is a placeholder page. The content for the <span className="font-semibold">{title}</span> module is under development.</p>
-        </div>
-    </div>
-);
+const initialPendampinganRecords: PendampinganRecord[] = [
+    {
+        id: 'pd-1',
+        Nomor: 'ND22/IT/2022',
+        pemohon: 'Analis Hukum - Seksi Pembinaan Proses Bisnis dan Hukum II',
+        unit: 'Direktorat Jenderal Pajak',
+        jenis: JenisPermohonan.PENDAMPINGAN,
+        perihal: 'Permohonan pendampingan ahli hukum keuangan negara di PN Jakarta Pusat',
+        uraian: 'Mohon pendampingan hukum terkait penyusunan dan review dokumen penganggaran TA 2025.',
+        files: [{ name: 'suratKPK.pdf', size: 123456, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '23/10/2025',
+        history: [],
+        statusPendampingan: StatusPendampingan.AKTIF,
+        abstraksi: {
+            tahunMasuk: 2021,
+            nomorTiket: 'ND22/IT/2022',
+            unitPemanggil: 'Kejaksaan',
+            unitPemohon: 'Direktorat Jenderal Pajak',
+            pihakDipanggil: 'Pihak',
+            wilayah: 'Riau',
+            pokokPermasalahan: 'lorem ipsum',
+            keterangan: 'keterangan'
+        },
+        posisi: [
+            { id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-08-11', agenda: 'Pemeriksaan saksi', tanggalAgenda: '2021-08-11', pemanggilDanSurat: { pemanggil: 'Joko bareskrim mabes polri', surat: 'SPGL-12' }, lokasi: 'RR Rapat Bareskrim', durasi: 180, rincian: 'di cecar pertanyaan menjebak', timestamp: new Date('2021-08-11') },
+        ],
+        team: [
+            { id: '19XXXXX-XXXXXX-XXXXX-MADE', nama: 'Made', nip: '19XXXXX XXXXXX XXXXX', unit: 'Subbagian Advokasi IIIA, Bagian Advokasi III, Biro Advokasi, Sekretariat Jenderal', role: 'Analis Hukum', teamRole: 'Editor' },
+            { id: 'k1', nama: 'Joko', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Analis Hukum', teamRole: 'Editor' },
+            { id: 'k2', nama: 'Supeno', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Penelaah Kebijakan', teamRole: 'Editor' },
+            { id: 'k3', nama: 'Marjuki', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Kepala Seksi', teamRole: 'Viewer' },
+        ],
+        picId: '19XXXXX-XXXXXX-XXXXX-MADE',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2021-08-10T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Pendampingan dari Permohonan #pd-1' },
+            { id: 2, timestamp: new Date('2021-08-11T09:30:00Z'), user: 'Made', action: 'menambahkan', details: 'Posisi Pendampingan "Pemeriksaan saksi"' },
+            { id: 3, timestamp: new Date('2021-08-12T14:00:00Z'), user: 'Admin System', action: 'memperbarui', details: 'Susunan Anggota Tim' },
+        ],
+    }
+];
+
 
 const App: React.FC = () => {
-  const [permohonanList, setPermohonanList] = useState<Permohonan[]>(initialPermohonan);
   const [currentView, setCurrentView] = useState<View>('beranda');
+  const [permohonanList, setPermohonanList] = useState<Permohonan[]>(initialPermohonan);
   const [selectedPermohonan, setSelectedPermohonan] = useState<Permohonan | null>(null);
-  const [editingPermohonan, setEditingPermohonan] = useState<Permohonan | null>(null);
   const [notification, setNotification] = useState<NotificationProps | null>(null);
-  const [modalState, setModalState] = useState<{
-      isOpen: boolean;
-      targetId: string | null;
-      action: 'delete' | 'send' | null;
-    }>({ isOpen: false, targetId: null, action: null });
-  
+  const [currentPermohonanToProses, setCurrentPermohonanToProses] = useState<Permohonan | null>(null);
   const [berandaContent, setBerandaContent] = useState<BerandaContent>(initialBerandaContent);
   const [faqData, setFaqData] = useState<FaqCategory[]>(initialFaqData);
+  const [pendampinganRecords, setPendampinganRecords] = useState<PendampinganRecord[]>(initialPendampinganRecords);
+  const [selectedPendampingan, setSelectedPendampingan] = useState<PendampinganRecord | null>(null);
 
-  const showNotification = useCallback((message: string, type: NotificationType) => {
+  const showNotification = (message: string, type: NotificationType = 'success') => {
     setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  }, []);
-  
-  const handleNavigateToProses = (permohonan: Permohonan) => {
-    setSelectedPermohonan(permohonan);
-    setCurrentView('eAdvokasiProses');
-  };
-
-  const handleAcceptPermohonan = (id: string) => {
-    let acceptedNomor = '';
-    setPermohonanList(prevList =>
-      prevList.map(p => {
-        if (p.id === id) {
-          acceptedNomor = p.Nomor || p.id;
-          return { ...p, status: StatusPermohonan.DIPROSES };
-        }
-        return p;
-      })
-    );
-    showNotification(`Permohonan ${acceptedNomor} telah diterima dan siap diproses.`, 'success');
-    handleNavigate('eAdvokasiPengelolaan');
   };
   
-  const handleUpdateStatus = (id: string, newStatus: StatusPermohonan) => {
-     let updatedNomor = '';
-     setPermohonanList(prevList =>
-        prevList.map(p => {
-          if (p.id === id) {
-            updatedNomor = p.Nomor || p.id;
-            return { ...p, status: newStatus };
-          }
-          return p;
-        })
-      );
-      setSelectedPermohonan(prev => prev && prev.id === id ? { ...prev, status: newStatus } : prev);
-      showNotification(`Status permohonan ${updatedNomor} berhasil diubah menjadi "${newStatus}".`, 'success');
-  };
-
-  const handleTarikDataNadine = (surat: SuratMasukNadine, jenis: JenisPermohonan) => {
-    const newPermohonan: Permohonan = {
-        id: surat.naskahId, // Use naskahId as the unique ID
-        Nomor: surat.nomorSurat,
-        pemohon: surat.unitPengirim,
-        unit: surat.unitPengirim,
-        tanggal: surat.tanggal,
-        jenis: jenis,
-        perihal: surat.perihal,
-        uraian: `Surat masuk dari Nadine. Mohon diproses. Perihal: ${surat.perihal}`,
-        files: [],
-        status: StatusPermohonan.BARU,
-        history: [],
-        sumber: 'Nadine',
-    };
-
-    setPermohonanList(prevList => [newPermohonan, ...prevList.filter(p => p.id !== newPermohonan.id)]);
-    showNotification(`Data dari Nadine dengan ID ${surat.naskahId} berhasil ditarik.`, 'success');
-  };
-
-
-  useEffect(() => {
-    // This simulation can be removed if status updates are fully manual for admins
-    // For now, it shows that the system can have background updates
-    const timer = setTimeout(() => {
-        const target = permohonanList.find(p => p.Nomor === 'ND-123/PB.01/2026' && p.status === StatusPermohonan.TERKIRIM);
-        if (target) {
-            handleUpdateStatus(target.id, StatusPermohonan.DIPROSES);
-        }
-    }, 7000);
-
-    return () => clearTimeout(timer);
-  }, [permohonanList]);
-
-
-  const handleNavigate = (view: View) => {
-    setCurrentView(view);
-     if (['list', 'beranda', 'eAdvokasiInbox', 'eAdvokasiPengelolaan'].includes(view) || view.startsWith('eAdvokasi')) {
-        setSelectedPermohonan(null);
-        setEditingPermohonan(null);
-     }
-  };
-
-  const handleSelectPermohonan = (permohonan: Permohonan | null) => {
+  const handleSelectPermohonan = (permohonan: Permohonan) => {
     setSelectedPermohonan(permohonan);
-    if (currentView !== 'eAdvokasiPengelolaan' && permohonan) {
+    if(currentView !== 'eAdvokasiPengelolaan') {
         setCurrentView('detail');
     }
   };
+  
+  const handleNavigate = useCallback((view: View) => {
+    if (view === 'list' || view === 'eAdvokasiPengelolaan') {
+      setSelectedPermohonan(null);
+    }
+    if (!['eAdvokasiPendampinganDetail', 'eAdvokasiPendampinganPosisi', 'eAdvokasiPendampinganTim'].includes(view)) {
+        setSelectedPendampingan(null);
+    }
+    setCurrentView(view);
+  }, []);
 
-  const handleBackToList = () => {
+  const handleSaveDraft = (draft: Omit<Permohonan, 'id' | 'status' | 'tanggal' | 'unit' | 'history' | 'pemohon'>) => {
+    const newDraft: Permohonan = {
+      ...draft,
+      id: generateRandomId(),
+      status: StatusPermohonan.DRAFT,
+      tanggal: new Date().toLocaleDateString('en-GB'),
+      unit: 'Direktorat Sistem Perbendaharaan, Ditjen Perbendaharaan',
+      pemohon: 'Analis Hukum - Seksi Pembinaan Proses Bisnis dan Hukum II',
+      history: [],
+      sumber: 'Internal'
+    };
+    setPermohonanList([newDraft, ...permohonanList]);
+    showNotification('Draft permohonan berhasil disimpan.');
+    handleNavigate('list');
+  };
+  
+  const handleUpdateDraft = (updatedDraft: Permohonan) => {
+    setPermohonanList(permohonanList.map(p => p.id === updatedDraft.id ? updatedDraft : p));
+    showNotification('Draft permohonan berhasil diperbarui.');
+    handleNavigate('list');
+    setSelectedPermohonan(updatedDraft);
+  };
+  
+  const handleDelete = (id: string) => {
+    setPermohonanList(permohonanList.filter(p => p.id !== id));
+    showNotification('Draft berhasil dihapus.', 'info');
+    if (selectedPermohonan?.id === id) {
+      setSelectedPermohonan(null);
+      handleNavigate('list');
+    }
+  };
+  
+  const handleSend = (id: string) => {
+    setPermohonanList(permohonanList.map(p => 
+      p.id === id 
+        ? { ...p, status: StatusPermohonan.TERKIRIM, Nomor: p.Nomor || generateTiketNomor() } 
+        : p
+    ));
+    showNotification('Permohonan berhasil dikirim.');
+    setSelectedPermohonan(null);
     handleNavigate('list');
   };
 
-  const handleCreateNew = () => {
-    setEditingPermohonan(null);
-    setCurrentView('create');
-  };
-  
-  const handleEditPermohonan = (permohonan: Permohonan) => {
-    setEditingPermohonan(permohonan);
-    setCurrentView('edit');
-  };
-  
-  const handleNavigateToNadine = () => {
-    setCurrentView('pilihTemplate');
-  };
-  
-  const handleTemplateSelected = () => {
-    setCurrentView('formNaskah');
-  };
-
-  const handleBackToTemplate = () => {
-    setCurrentView('pilihTemplate');
-  };
-
-  const handleSaveDraft = (permohonan: Omit<Permohonan, 'id' | 'status' | 'tanggal' | 'unit' | 'history' | 'pemohon'>) => {
-    let newId;
-    do {
-        newId = generateRandomId();
-    } while (permohonanList.some(p => p.id === newId));
-
-    const newPermohonan: Permohonan = {
-      ...permohonan,
-      id: newId,
-      pemohon: 'Analis Hukum - Seksi Pembinaan Proses Bisnis dan Hukum II',
-      status: StatusPermohonan.DRAFT,
-      tanggal: new Date().toLocaleDateString('id-ID'),
-      unit: 'Direktorat Sistem Perbendaharaan, Ditjen Perbendaharaan',
-      history: [],
-      sumber: 'Internal',
-    };
-    setPermohonanList(prev => [newPermohonan, ...prev]);
-    setCurrentView('list');
-    showNotification('Draft permohonan berhasil disimpan.', 'success');
-  };
-
-  const handleUpdateDraft = (updatedPermohonan: Permohonan) => {
-    setPermohonanList(list => list.map(p => p.id === updatedPermohonan.id ? updatedPermohonan : p));
-    setCurrentView('list');
-    setEditingPermohonan(null);
-    showNotification('Draft permohonan berhasil diperbarui.', 'success');
-  };
-  
-  const handleDeletePermohonan = (id: string) => {
-    const deletedNomor = permohonanList.find(p => p.id === id)?.id;
-    setPermohonanList(prev => prev.filter(p => p.id !== id));
-    showNotification(`Draft permohonan ${deletedNomor} berhasil dihapus.`, 'success');
-  };
-  
-  const handleSendPermohonan = (id: string) => {
-    let sentNomor = '';
-    setPermohonanList(prev => prev.map(p => {
-        if (p.id === id) {
-            const newNomor = p.status === StatusPermohonan.DRAFT ? generateTiketNomor() : p.Nomor;
-            sentNomor = newNomor || p.id;
-            return { ...p, status: StatusPermohonan.TERKIRIM, Nomor: newNomor };
-        }
-        return p;
-    }));
-    showNotification(`Permohonan ${sentNomor} berhasil dikirim.`, 'success');
-  };
-  
-  const requestDeletePermohonan = (id: string) => {
-    setModalState({ isOpen: true, targetId: id, action: 'delete' });
-  };
-
-  const requestSendPermohonan = (id: string) => {
-    setModalState({ isOpen: true, targetId: id, action: 'send' });
-  };
-
-  const handleCloseModal = () => {
-    setModalState({ isOpen: false, targetId: null, action: null });
-  };
-
-  const handleConfirmAction = () => {
-    if (modalState.targetId && modalState.action) {
-      if (modalState.action === 'delete') {
-        handleDeletePermohonan(modalState.targetId);
-      } else if (modalState.action === 'send') {
-        handleSendPermohonan(modalState.targetId);
-      }
-    }
-    handleCloseModal();
-  };
-
   const handleAddReply = (permohonanId: string, reply: Riwayat) => {
-    const updatedList = permohonanList.map(p => {
-      if (p.id === permohonanId) {
-        const newHistory = [...p.history, reply];
-        let newStatus = p.status;
-        
-        // If user replies to a 'Terkirim' status, it becomes 'Diproses'
-        if (p.status === StatusPermohonan.TERKIRIM && reply.author === 'Pegawai') {
-          newStatus = StatusPermohonan.DIPROSES;
-          showNotification(`Status permohonan ${p.Nomor || p.id} diupdate menjadi "Diproses".`, 'info');
-        }
-        
-        return { ...p, history: newHistory, status: newStatus };
-      }
-      return p;
-    });
-    setPermohonanList(updatedList);
-    setSelectedPermohonan(updatedList.find(p => p.id === permohonanId) || null);
-    showNotification('Tanggapan berhasil dikirim.', 'success');
-  };
+    const updateList = (list: Permohonan[]) => list.map(p => 
+      p.id === permohonanId 
+        ? { ...p, history: [...p.history, reply] } 
+        : p
+    );
+    setPermohonanList(updateList);
+    setPendampinganRecords(prev => updateList(prev) as PendampinganRecord[]);
 
+    if (selectedPermohonan?.id === permohonanId) {
+        setSelectedPermohonan(prev => prev ? { ...prev, history: [...prev.history, reply] } : null);
+    }
+    if (currentPermohonanToProses?.id === permohonanId) {
+        setCurrentPermohonanToProses(prev => prev ? { ...prev, history: [...prev.history, reply] } : null);
+    }
+  };
+  
   const handleUpdateReply = (permohonanId: string, historyId: number, newMessage: string) => {
-    const updatedList = permohonanList.map(p => {
-        if (p.id === permohonanId) {
-            const newHistory = p.history.map(h => 
-                h.id === historyId ? { ...h, message: newMessage } : h
-            );
-            return { ...p, history: newHistory };
-        }
-        return p;
-    });
-    setPermohonanList(updatedList);
-    setSelectedPermohonan(updatedList.find(p => p.id === permohonanId) || null);
-    showNotification('Tanggapan berhasil diperbarui.', 'success');
+      const updateHistory = (history: Riwayat[]) => history.map(h => h.id === historyId ? { ...h, message: newMessage } : h);
+      
+      const updateList = (list: Permohonan[]) => list.map(p => 
+        p.id === permohonanId 
+          ? { ...p, history: updateHistory(p.history) } 
+          : p
+      );
+      setPermohonanList(updateList);
+      setPendampinganRecords(prev => updateList(prev) as PendampinganRecord[]);
+
+      if (selectedPermohonan?.id === permohonanId) {
+          setSelectedPermohonan(prev => prev ? { ...prev, history: updateHistory(prev.history) } : null);
+      }
+      if (currentPermohonanToProses?.id === permohonanId) {
+          setCurrentPermohonanToProses(prev => prev ? { ...prev, history: updateHistory(prev.history) } : null);
+      }
   };
 
   const handleDeleteReply = (permohonanId: string, historyId: number) => {
-    const updatedList = permohonanList.map(p => {
-        if (p.id === permohonanId) {
-            const newHistory = p.history.filter(h => h.id !== historyId);
-            return { ...p, history: newHistory };
-        }
-        return p;
-    });
-    setPermohonanList(updatedList);
-    setSelectedPermohonan(updatedList.find(p => p.id === permohonanId) || null);
-    showNotification('Tanggapan berhasil dihapus.', 'success');
+      const updateHistory = (history: Riwayat[]) => history.filter(h => h.id !== historyId);
+
+      const updateList = (list: Permohonan[]) => list.map(p => 
+        p.id === permohonanId 
+          ? { ...p, history: updateHistory(p.history) } 
+          : p
+      );
+      setPermohonanList(updateList);
+      setPendampinganRecords(prev => updateList(prev) as PendampinganRecord[]);
+
+      if (selectedPermohonan?.id === permohonanId) {
+          setSelectedPermohonan(prev => prev ? { ...prev, history: updateHistory(prev.history) } : null);
+      }
+      if (currentPermohonanToProses?.id === permohonanId) {
+          setCurrentPermohonanToProses(prev => prev ? { ...prev, history: updateHistory(prev.history) } : null);
+      }
+  };
+  
+  const handleProses = (permohonan: Permohonan) => {
+    setCurrentPermohonanToProses(permohonan);
+    handleNavigate('eAdvokasiProses');
+  };
+  
+  const handleAcceptPermohonan = (id: string) => {
+    setPermohonanList(permohonanList.map(p => p.id === id ? { ...p, status: StatusPermohonan.DIPROSES } : p));
+    showNotification('Permohonan telah diterima dan dipindahkan ke Pengelolaan Permohonan.');
+    handleNavigate('eAdvokasiPengelolaan');
   };
 
+  const handleUpdateStatus = (id: string, newStatus: StatusPermohonan | StatusPendampingan) => {
+      setPermohonanList(permohonanList.map(p => p.id === id ? { ...p, status: newStatus as StatusPermohonan } : p));
+      setPendampinganRecords(pendampinganRecords.map(p => p.id === id ? { ...p, statusPendampingan: newStatus as StatusPendampingan } : p));
+      showNotification('Status berhasil diperbarui.', 'info');
+  };
+  
+  const handleTarikDataNadine = (surat: SuratMasukNadine, jenis: JenisPermohonan) => {
+      const newPermohonan: Permohonan = {
+          id: surat.naskahId,
+          Nomor: surat.nomorSurat,
+          pemohon: surat.unitPengirim,
+          unit: surat.unitPengirim,
+          tanggal: surat.tanggal,
+          jenis: jenis,
+          perihal: surat.perihal,
+          uraian: `Permohonan dari Nadine dengan perihal: ${surat.perihal}`,
+          files: [],
+          status: StatusPermohonan.BARU,
+          history: [],
+          sumber: 'Nadine'
+      };
+      setPermohonanList([newPermohonan, ...permohonanList]);
+      showNotification('Data dari Nadine berhasil ditarik.');
+  };
+  
   const handleSaveBerandaContent = (newContent: BerandaContent) => {
     setBerandaContent(newContent);
-    showNotification('Informasi Beranda berhasil diperbarui.', 'success');
+    showNotification('Informasi beranda berhasil diperbarui.');
   };
 
-  const handleSaveFaqData = (newFaqData: FaqCategory[]) => {
+  const handleSaveFaq = (newFaqData: FaqCategory[]) => {
     setFaqData(newFaqData);
-    showNotification('Data FAQ berhasil diperbarui.', 'success');
+    showNotification('FAQ berhasil diperbarui.');
   };
 
+  const handleSavePendampingan = (record: PendampinganRecord) => {
+    const index = record.id ? pendampinganRecords.findIndex(r => r.id === record.id) : -1;
+    
+    if (index > -1) {
+        // Update existing PendampinganRecord
+        setPendampinganRecords(prev => prev.map(r => r.id === record.id ? record : r));
+        showNotification('Data pendampingan berhasil diperbarui.');
+    } else {
+        // Add new PendampinganRecord
+        const isRecording = record.id && permohonanList.some(p => p.id === record.id);
+        const newRecord = { ...record, id: record.id || `pd-${generateRandomId()}` };
+        setPendampinganRecords(prev => [newRecord, ...prev]);
+        
+        if (isRecording) {
+            showNotification('Permohonan berhasil direkam sebagai Pendampingan Aktif.');
+        } else {
+            showNotification('Pendampingan baru berhasil ditambahkan.');
+        }
+    }
+  };
 
-  const renderContent = () => {
-    const listProps = {
-        permohonanList: permohonanList,
-        onSelect: handleSelectPermohonan,
-        onCreateNew: handleCreateNew,
-        onEdit: handleEditPermohonan,
-        onDelete: requestDeletePermohonan,
-        onSend: requestSendPermohonan,
-        currentView: currentView,
-        viewMode: 'user' as const
-    };
+  const handleDeletePendampingan = (id: string) => {
+    setPendampinganRecords(prev => prev.filter(r => r.id !== id));
+    showNotification('Data pendampingan berhasil dihapus.', 'info');
+  };
 
+  const handleAddPosisiUpdate = (recordId: string, posisi: Omit<PosisiUpdate, 'id' | 'timestamp'>) => {
+    setPendampinganRecords(prev => prev.map(r => {
+        if (r.id === recordId) {
+            const newPosisi: PosisiUpdate = {
+                ...posisi,
+                id: (r.posisi?.length || 0) + 1,
+                timestamp: new Date(),
+            };
+            const updatedRecord = { ...r, posisi: [...(r.posisi || []), newPosisi] };
+            if(selectedPendampingan?.id === recordId) {
+                setSelectedPendampingan(updatedRecord);
+            }
+            return updatedRecord;
+        }
+        return r;
+    }));
+    showNotification('Posisi pendampingan berhasil ditambahkan.');
+  };
+
+  const handleUpdatePosisiUpdate = (recordId: string, posisiId: number, updatedPosisiData: Omit<PosisiUpdate, 'id' | 'timestamp' | 'timestamp'>) => {
+    setPendampinganRecords(prev => prev.map(r => {
+        if (r.id === recordId) {
+            const updatedPosisiArray = r.posisi?.map(p => p.id === posisiId ? { ...p, ...updatedPosisiData } : p) || [];
+            const updatedRecord = { ...r, posisi: updatedPosisiArray };
+             if(selectedPendampingan?.id === recordId) {
+                setSelectedPendampingan(updatedRecord);
+            }
+            return updatedRecord;
+        }
+        return r;
+    }));
+    showNotification('Posisi pendampingan berhasil diperbarui.');
+};
+
+  const handleDeletePosisiUpdate = (recordId: string, posisiId: number) => {
+      setPendampinganRecords(prev => prev.map(r => {
+          if (r.id === recordId) {
+              const updatedPosisiArray = r.posisi?.filter(p => p.id !== posisiId) || [];
+              const updatedRecord = { ...r, posisi: updatedPosisiArray };
+              if(selectedPendampingan?.id === recordId) {
+                  setSelectedPendampingan(updatedRecord);
+              }
+              return updatedRecord;
+          }
+          return r;
+      }));
+      showNotification('Posisi pendampingan berhasil dihapus.', 'info');
+  };
+  
+  const handleUpdatePendampinganTeam = (recordId: string, team: TeamMember[]) => {
+    setPendampinganRecords(prev => prev.map(r => {
+        if (r.id === recordId) {
+            const newEntry = { id: Date.now(), timestamp: new Date(), user: 'Admin User', action: 'memperbarui', details: 'susunan anggota tim' };
+            const updatedRecord = { ...r, team, auditTrail: [...(r.auditTrail || []), newEntry] };
+            if (selectedPendampingan?.id === recordId) {
+                setSelectedPendampingan(updatedRecord);
+            }
+            return updatedRecord;
+        }
+        return r;
+    }));
+    showNotification('Tim advokasi berhasil diperbarui.');
+  };
+
+  const handleSetPendampinganPic = (recordId: string, picId: string | null) => {
+      setPendampinganRecords(prev => prev.map(r => {
+          if (r.id === recordId) {
+              const picName = r.team?.find(m => m.id === picId)?.nama || 'None';
+              const newEntry = { id: Date.now(), timestamp: new Date(), user: 'Admin User', action: 'menetapkan', details: `PIC baru: ${picName}` };
+              const updatedRecord = { ...r, picId: picId || undefined, auditTrail: [...(r.auditTrail || []), newEntry] };
+              if (selectedPendampingan?.id === recordId) {
+                  setSelectedPendampingan(updatedRecord);
+              }
+              return updatedRecord;
+          }
+          return r;
+      }));
+      showNotification('PIC berhasil diperbarui.');
+  };
+
+  const renderMainContent = () => {
     switch (currentView) {
       case 'beranda':
         return <BerandaPage content={berandaContent} />;
+      case 'list':
+      case 'detail':
+      case 'create':
+      case 'edit':
+        return (
+          <div className="flex h-full">
+            <DaftarPermohonan 
+              permohonanList={permohonanList} 
+              selectedId={selectedPermohonan?.id} 
+              onSelect={handleSelectPermohonan}
+              onCreateNew={() => handleNavigate('create')}
+              onEdit={(p) => { setSelectedPermohonan(p); handleNavigate('edit'); }}
+              onDelete={handleDelete}
+              onSend={handleSend}
+              currentView={currentView}
+              viewMode="user"
+            />
+            {currentView === 'detail' && selectedPermohonan && <DetailPermohonan permohonan={selectedPermohonan} onAddReply={handleAddReply} onUpdateReply={handleUpdateReply} onDeleteReply={handleDeleteReply} currentUserRole="Pegawai" />}
+            {currentView === 'create' && <BuatPermohonan onSaveDraft={handleSaveDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />}
+            {currentView === 'edit' && selectedPermohonan && <BuatPermohonan initialData={selectedPermohonan} onUpdateDraft={handleUpdateDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />}
+          </div>
+        );
+      case 'pilihTemplate':
+        return <PilihTemplateNaskah onBack={() => handleNavigate('beranda')} onNext={() => handleNavigate('formNaskah')} />;
+      case 'formNaskah':
+        return <FormNaskahDinas onBack={() => handleNavigate('pilihTemplate')} onNext={() => showNotification("Fitur ini belum diimplementasikan", "info")} />;
       case 'faq':
         return <FaqPage faqData={faqData} />;
-      case 'pilihTemplate':
-        return <PilihTemplateNaskah onBack={handleBackToList} onNext={handleTemplateSelected} />;
-      case 'formNaskah':
-        return <FormNaskahDinas onBack={handleBackToTemplate} onNext={() => alert("Form Submitted!")} />;
-      case 'create':
-        return <BuatPermohonan onSaveDraft={handleSaveDraft} onCancel={handleBackToList} onNavigateToNadine={handleNavigateToNadine}/>;
-      case 'edit':
-        return <BuatPermohonan onUpdateDraft={handleUpdateDraft} onCancel={handleBackToList} initialData={editingPermohonan} onNavigateToNadine={handleNavigateToNadine}/>;
-      case 'detail':
-        return selectedPermohonan ? (
-            <div className="flex h-full">
-                <DaftarPermohonan {...listProps} selectedId={selectedPermohonan.id} />
-                <div className="flex-1 overflow-y-auto">
-                    <DetailPermohonan 
-                        permohonan={selectedPermohonan} 
-                        onBack={handleBackToList} 
-                        onAddReply={handleAddReply}
-                        onUpdateReply={handleUpdateReply}
-                        onDeleteReply={handleDeleteReply}
-                        currentUserRole='Pegawai'
-                    />
-                </div>
-            </div>
-        ) : <DaftarPermohonan {...listProps} />;
-      // E-Advokasi Views
       case 'eAdvokasiInbox':
-        return <EAdvokasiInbox permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.BARU || p.status === StatusPermohonan.TERKIRIM)} onProses={handleNavigateToProses} onTarikData={handleTarikDataNadine} />;
-       case 'eAdvokasiProses':
-        return selectedPermohonan ? (
-            <ProsesPermohonan
-                permohonan={selectedPermohonan}
-                onBack={() => handleNavigate('eAdvokasiInbox')}
-                onAccept={handleAcceptPermohonan}
-                onAddReply={handleAddReply}
-                onUpdateReply={handleUpdateReply}
-                onDeleteReply={handleDeleteReply}
-            />
-        ) : (
-            <EAdvokasiInbox permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.BARU || p.status === StatusPermohonan.TERKIRIM)} onProses={handleNavigateToProses} onTarikData={handleTarikDataNadine} />
-        );
+        return <EAdvokasiInbox permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.TERKIRIM || p.status === StatusPermohonan.BARU)} onProses={handleProses} onTarikData={handleTarikDataNadine} />;
       case 'eAdvokasiPengelolaan':
-         return <PengelolaanPermohonan 
-            permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES || p.status === StatusPermohonan.SELESAI)}
+        return <PengelolaanPermohonan 
+            permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES || p.status === StatusPermohonan.SELESAI)} 
             selectedPermohonan={selectedPermohonan}
-            onSelectPermohonan={handleSelectPermohonan}
+            onSelectPermohonan={setSelectedPermohonan}
             onAddReply={handleAddReply}
             onUpdateReply={handleUpdateReply}
             onDeleteReply={handleDeleteReply}
             onUpdateStatus={handleUpdateStatus}
             onNavigate={handleNavigate}
-         />;
-      
-      // New E-Advokasi Placeholder Views
-      case 'eAdvokasiBeranda': return <PlaceholderContent title="Beranda E-Advokasi" />;
-      case 'eAdvokasiPendampingan': return <PlaceholderContent title="Pendampingan" />;
-      case 'eAdvokasiPenangananPerkara': return <PlaceholderContent title="Penanganan Perkara" />;
-      case 'eAdvokasiPenangananPutusan': return <PlaceholderContent title="Penanganan Putusan" />;
-      case 'eAdvokasiKalender': return <PlaceholderContent title="Kalender Sidang" />;
-      case 'eAdvokasiMonitoring': return <PlaceholderContent title="Monitoring" />;
-      case 'eAdvokasiLaporan': return <PlaceholderContent title="Laporan" />;
-      case 'eAdvokasiUser': return <PlaceholderContent title="Manajemen User" />;
-      case 'eAdvokasiArsip': return <PlaceholderContent title="Arsip" />;
-      case 'eAdvokasiRecycleBin': return <PlaceholderContent title="Recycle Bin" />;
-      case 'eAdvokasiReferensi': return <PlaceholderContent title="Referensi" />;
-      case 'eAdvokasiTim': return <PlaceholderContent title="Pengelolaan Tim" />;
-      case 'eAdvokasiInfo': return <PengelolaanInformasi content={berandaContent} onSave={handleSaveBerandaContent} />;
-      case 'eAdvokasiFaq': return <PengelolaanFaq faqData={faqData} onSave={handleSaveFaqData} />;
-      
-      case 'list':
+        />;
+      case 'eAdvokasiProses':
+        return currentPermohonanToProses ? (
+            <ProsesPermohonan 
+                permohonan={currentPermohonanToProses} 
+                onBack={() => handleNavigate('eAdvokasiInbox')} 
+                onAccept={handleAcceptPermohonan} 
+                onAddReply={handleAddReply}
+                onUpdateReply={handleUpdateReply}
+                onDeleteReply={handleDeleteReply}
+            />
+        ) : <div className="p-8">Permohonan tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiInbox')} className="text-blue-600 underline">Inbox</button>.</div>;
+      case 'eAdvokasiInfo':
+        return <PengelolaanInformasi content={berandaContent} onSave={handleSaveBerandaContent} />;
+      case 'eAdvokasiFaq':
+        return <PengelolaanFaq faqData={faqData} onSave={handleSaveFaq} />;
+      case 'eAdvokasiPendampingan':
+        const pendampinganBaruList = permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES && p.jenis === JenisPermohonan.PENDAMPINGAN && !pendampinganRecords.some(r => r.id === p.id));
+        return <Pendampingan 
+            pendampinganBaruList={pendampinganBaruList}
+            daftarPendampingan={pendampinganRecords}
+            onUpdateStatus={(id, status) => handleUpdateStatus(id, status)}
+            onSave={handleSavePendampingan}
+            onDelete={handleDeletePendampingan}
+            onView={(record) => { setSelectedPendampingan(record); handleNavigate('eAdvokasiPendampinganDetail'); }}
+            onNavigate={(view: View, record?: PendampinganRecord) => {
+                if (record) setSelectedPendampingan(record);
+                handleNavigate(view);
+            }}
+            onManagePosisi={(record) => { setSelectedPendampingan(record); handleNavigate('eAdvokasiPendampinganPosisi'); }}
+        />;
+      case 'eAdvokasiPendampinganDetail':
+        return selectedPendampingan ? <DetailPendampingan record={selectedPendampingan} onBack={() => handleNavigate('eAdvokasiPendampingan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
+       case 'eAdvokasiPendampinganTim':
+        return selectedPendampingan ? (
+            <div className="h-full flex flex-col bg-gray-50">
+                <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
+                    <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1">
+                        <ArrowLeftIcon className="h-5 w-5" />
+                    </button>
+                    <div className="ml-3">
+                        <h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            {selectedPendampingan.Nomor} - {selectedPendampingan.perihal}
+                        </p>
+                    </div>
+                </header>
+                <div className="flex-1 overflow-y-auto">
+                    <AssignTeam
+                        team={selectedPendampingan.team || []}
+                        picId={selectedPendampingan.picId || null}
+                        onUpdateTeam={(team) => handleUpdatePendampinganTeam(selectedPendampingan.id, team)}
+                        onSetPic={(picId) => handleSetPendampinganPic(selectedPendampingan.id, picId)}
+                    />
+                </div>
+            </div>
+        ) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
+      case 'eAdvokasiPendampinganPosisi':
+        return selectedPendampingan ? (
+            <PosisiPendampingan
+                record={selectedPendampingan}
+                onBack={() => handleNavigate('eAdvokasiPendampingan')}
+                onAddPosisi={(posisi) => handleAddPosisiUpdate(selectedPendampingan.id, posisi)}
+                onUpdatePosisi={(posisiId, posisi) => handleUpdatePosisiUpdate(selectedPendampingan.id, posisiId, posisi)}
+                onDeletePosisi={(posisiId) => handleDeletePosisiUpdate(selectedPendampingan.id, posisiId)}
+                onNavigate={handleNavigate}
+            />
+        ) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
       default:
-        return <DaftarPermohonan {...listProps} />;
+        return <div className="p-8">Tampilan <span className="font-semibold">{currentView}</span> belum diimplementasikan.</div>
     }
   };
-  
-  const MainLayout = ['pilihTemplate', 'formNaskah'].includes(currentView) ? NadineLayout : Layout;
-  
-  const targetPermohonan = permohonanList.find(p => p.id === modalState.targetId);
-  const displayIdentifier = targetPermohonan?.Nomor || targetPermohonan?.id;
+
+  const isNadineView = ['pilihTemplate', 'formNaskah'].includes(currentView);
 
   return (
     <>
-      {notification && <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification(null)} />}
-      <ConfirmationModal
-          isOpen={modalState.isOpen}
-          onClose={handleCloseModal}
-          onConfirm={handleConfirmAction}
-          title={modalState.action === 'delete' ? 'Konfirmasi Hapus' : 'Konfirmasi Kirim'}
-          message={
-            modalState.action === 'delete'
-              ? `Apakah Anda yakin ingin menghapus draft permohonan dengan ID: ${displayIdentifier}? Tindakan ini tidak dapat diurungkan.`
-              : `Apakah Anda yakin ingin mengirim permohonan dengan ID: ${displayIdentifier}? Setelah dikirim, draft tidak dapat diubah lagi.`
-          }
-          confirmText={modalState.action === 'delete' ? 'Hapus' : 'Kirim'}
-        />
-      <MainLayout onNavigate={handleNavigate} currentView={currentView}>
-        {renderContent()}
-      </MainLayout>
+      {notification && <Notification {...notification} onDismiss={() => setNotification(null)} />}
+      {isNadineView ? (
+        <NadineLayout onNavigate={handleNavigate} currentView={currentView}>
+          {renderMainContent()}
+        </NadineLayout>
+      ) : (
+        <Layout onNavigate={handleNavigate} currentView={currentView}>
+          {renderMainContent()}
+        </Layout>
+      )}
     </>
   );
 };
