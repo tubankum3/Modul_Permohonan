@@ -24,8 +24,13 @@ import PenangananPerkara from './components/PenangananPerkara';
 import DetailPerkara from './components/DetailPerkara';
 import EditPerkara from './components/EditPerkara';
 import UpdatePosisiPerkara from './components/UpdatePosisiPerkara';
+import EAdvokasiKalender from './components/EAdvokasiKalender';
+import DaftarAgendaBerikutnya from './components/DaftarAgendaBerikutnya';
+import PenangananPutusan from './components/PenangananPutusan';
+import DetailPutusan from './components/DetailPutusan';
+import UpdateTindakLanjut from './components/UpdateTindakLanjut';
 
-import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, PerkaraRecord, StatusPerkara } from './types';
+import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, PerkaraRecord, StatusPerkara, StatusPutusan } from './types';
 import { ArrowLeftIcon } from './components/icons';
 
 const generateRandomId = () => {
@@ -295,9 +300,9 @@ const initialPerkaraRecords: PerkaraRecord[] = [
         ],
         posisiSidang: {
             tkPertama: [
-                {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-11-18', agendaSidang: 'Mediasi', tanggalSidang: '2021-11-19', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2021-11-26', kehadiran: 'Hadir'},
-                {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2021-11-26', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2021-11-31', kehadiran: 'Tidak Hadir'},
-                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2021-11-31', agendaSidang: 'Replik', tanggalSidang: '2021-11-31', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2021-12-26', kehadiran: 'Hadir'},
+                {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2026-02-11', agendaSidang: 'Mediasi', tanggalSidang: '2026-02-12', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2026-02-18', kehadiran: 'Hadir'},
+                {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2026-02-18', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2026-02-22', kehadiran: 'Tidak Hadir'},
+                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', kehadiran: 'Hadir'},
             ],
             tkBanding: [], tkKasasi: [], tkPK: []
         },
@@ -334,6 +339,26 @@ const App: React.FC = () => {
   const [selectedPendampingan, setSelectedPendampingan] = useState<PendampinganRecord | null>(null);
   const [perkaraRecords, setPerkaraRecords] = useState<PerkaraRecord[]>(initialPerkaraRecords);
   const [selectedPerkara, setSelectedPerkara] = useState<PerkaraRecord | Partial<PerkaraRecord> | null>(null);
+  const [putusanRecords, setPutusanRecords] = useState<PerkaraRecord[]>([]);
+  const [selectedPutusan, setSelectedPutusan] = useState<PerkaraRecord | null>(null);
+
+  useEffect(() => {
+    const recordsToMove = perkaraRecords.filter(p => 
+        p.statusPerkara === StatusPerkara.AKTIF && 
+        p.statusBHT?.status === 'Inkracht' && 
+        p.putusan?.some(put => put.status === 'Kalah')
+    );
+
+    if (recordsToMove.length > 0) {
+        const newPutusanRecords = recordsToMove.map(p => ({ ...p, statusPutusan: StatusPutusan.AKTIF }));
+        
+        setPutusanRecords(prev => {
+            const existingIds = new Set(prev.map(r => r.id));
+            const uniqueNewRecords = newPutusanRecords.filter(r => !existingIds.has(r.id));
+            return [...prev, ...uniqueNewRecords];
+        });
+    }
+  }, [perkaraRecords]);
 
 
   const showNotification = (message: string, type: NotificationType = 'success') => {
@@ -357,9 +382,13 @@ const App: React.FC = () => {
     if (!view.startsWith('eAdvokasiPerkara')) {
         setSelectedPerkara(null);
     }
+    if (!view.startsWith('eAdvokasiPutusan')) {
+        setSelectedPutusan(null);
+    }
     if (data) {
         if(view.startsWith('eAdvokasiPendampingan')) setSelectedPendampingan(data);
         if(view.startsWith('eAdvokasiPerkara')) setSelectedPerkara(data);
+        if(view.startsWith('eAdvokasiPutusan')) setSelectedPutusan(data);
     }
     setCurrentView(view);
   }, []);
@@ -629,7 +658,19 @@ const App: React.FC = () => {
     };
     
     const handleForwardPerkara = (id: string) => {
-        showNotification(`Perkara ${id} berhasil diteruskan ke Penanganan Putusan (Fitur belum diimplementasikan).`, 'info');
+        const recordToForward = perkaraRecords.find(r => r.id === id);
+        if (recordToForward) {
+            const isAlreadyForwarded = putusanRecords.some(pr => pr.id === id);
+            if (isAlreadyForwarded) {
+                showNotification(`Perkara ${id} sudah ada di Penanganan Putusan.`, 'info');
+                return;
+            }
+            const newPutusanRecord = { ...recordToForward, statusPutusan: StatusPutusan.AKTIF };
+            setPutusanRecords(prev => [newPutusanRecord, ...prev]);
+            showNotification(`Perkara ${id} berhasil diteruskan ke Penanganan Putusan.`);
+        } else {
+            showNotification(`Perkara dengan ID ${id} tidak ditemukan.`, 'error');
+        }
     };
 
     const handleUpdatePerkaraTeam = (recordId: string, team: TeamMember[]) => {
@@ -657,6 +698,22 @@ const App: React.FC = () => {
             return r;
         }));
         showNotification('PIC perkara berhasil diperbarui.');
+    };
+
+    const handleSavePutusan = (record: PerkaraRecord) => {
+        setPutusanRecords(prev => prev.map(r => r.id === record.id ? record : r));
+        showNotification('Data putusan berhasil diperbarui.');
+        handleNavigate('eAdvokasiPenangananPutusan');
+    };
+
+    const handleDeletePutusan = (id: string) => {
+        setPutusanRecords(prev => prev.filter(r => r.id !== id));
+        showNotification('Data putusan berhasil dihapus.', 'info');
+    };
+
+    const handleSetPutusanSelesai = (id: string) => {
+        setPutusanRecords(prev => prev.map(r => r.id === id ? { ...r, statusPutusan: StatusPutusan.SELESAI } : r));
+        showNotification('Status putusan berhasil diubah menjadi "Selesai".');
     };
 
   const renderMainContent = () => {
@@ -695,6 +752,13 @@ const App: React.FC = () => {
       case 'eAdvokasiPerkaraEdit': return <EditPerkara initialData={selectedPerkara} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} />;
       case 'eAdvokasiPerkaraUpdatePosisi': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <UpdatePosisiPerkara record={selectedPerkara as PerkaraRecord} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraTim': return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{selectedPerkara.abstraksiPerkara?.noPerkara || selectedPerkara.Nomor} - {selectedPerkara.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPerkara.team || []} picId={selectedPerkara.picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
+      case 'eAdvokasiKalender': return <EAdvokasiKalender daftarPerkara={perkaraRecords} onNavigate={handleNavigate} />;
+      case 'eAdvokasiAgendaBerikutnya': return <DaftarAgendaBerikutnya daftarPerkara={perkaraRecords} onBack={() => handleNavigate('eAdvokasiKalender')} />;
+      case 'eAdvokasiPenangananPutusan': return <PenangananPutusan daftarPutusan={putusanRecords} onView={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDetail'); }} onEdit={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanEdit'); }} onUpdateTindakLanjut={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanUpdateTindakLanjut'); }} onManageTim={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanTim'); }} onDelete={handleDeletePutusan} onSetSelesai={handleSetPutusanSelesai} />;
+      case 'eAdvokasiPutusanDetail': return selectedPutusan ? <DetailPutusan record={selectedPutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+      case 'eAdvokasiPutusanEdit': return <EditPerkara initialData={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} />;
+      case 'eAdvokasiPutusanUpdateTindakLanjut': return selectedPutusan ? <UpdateTindakLanjut record={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+      case 'eAdvokasiPutusanTim': return selectedPutusan ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi Putusan</h2><p className="text-sm text-gray-500 mt-1">{selectedPutusan.abstraksiPerkara?.noPerkara || selectedPutusan.Nomor} - {selectedPutusan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPutusan.team || []} picId={selectedPutusan.picId || null} onUpdateTeam={(team) => { const updatedRecord = { ...selectedPutusan, team }; handleSavePutusan(updatedRecord); }} onSetPic={(picId) => { const updatedRecord = { ...selectedPutusan, picId: picId || undefined }; handleSavePutusan(updatedRecord); }}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       default: return <div className="p-8">Tampilan <span className="font-semibold">{currentView}</span> belum diimplementasikan.</div>
     }
   };

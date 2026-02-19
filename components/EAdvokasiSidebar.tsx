@@ -60,6 +60,9 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
         if (view === 'eAdvokasiPenangananPerkara') {
             return currentView.startsWith('eAdvokasiPerkara');
         }
+        if (view === 'eAdvokasiPenangananPutusan') {
+            return currentView.startsWith('eAdvokasiPutusan') || currentView === 'eAdvokasiPenangananPutusan';
+        }
         return currentView === view;
     };
 

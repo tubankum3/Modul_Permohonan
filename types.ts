@@ -104,6 +104,18 @@ export interface PendampinganRecord extends Permohonan {
   auditTrail?: AuditTrailEntry[];
 }
 
+export enum StatusPutusan {
+  AKTIF = 'Aktif',
+  SELESAI = 'Selesai',
+}
+
+export interface TindakLanjut {
+  id: number;
+  tanggal: string;
+  tindakLanjut: string;
+  uraian: string;
+}
+
 export enum StatusPerkara {
   AKTIF = 'Aktif',
   SELESAI = 'Selesai',
@@ -191,6 +203,8 @@ export interface DokumenLitigasi {
 
 export interface PerkaraRecord extends Permohonan {
   statusPerkara: StatusPerkara;
+  statusPutusan?: StatusPutusan;
+  tindakLanjut?: TindakLanjut[];
   abstraksiPerkara?: AbstraksiPerkara;
   pihakP?: Pihak[];
   pihakT?: Pihak[];
@@ -259,4 +273,5 @@ export type View =
   'eAdvokasiKalender' | 'eAdvokasiMonitoring' | 'eAdvokasiLaporan' |
   'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq' |
   'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' |
-  'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim';
+  'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' |
+  'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim';
