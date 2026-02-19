@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PendampinganRecord, Permohonan, StatusPendampingan } from '../types';
 import { XIcon } from './icons';
@@ -34,6 +33,7 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
             // For new record from scratch
             setFormData({
                  statusPendampingan: StatusPendampingan.AKTIF, // Default status
+                 perihal: '',
                  abstraksi: {
                     tahunMasuk: new Date().getFullYear(),
                     nomorTiket: '',
@@ -50,13 +50,23 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            abstraksi: {
-                ...prev.abstraksi,
-                [name]: value,
+        setFormData(prev => {
+            const newAbstraksi = {
+                ...(prev.abstraksi || {}),
+                [name]: value
+            };
+
+            const newState: Partial<PendampinganRecord> = {
+                ...prev,
+                abstraksi: newAbstraksi,
+            };
+            
+            if (name === 'pokokPermasalahan') {
+                newState.perihal = value;
             }
-        }));
+
+            return newState;
+        });
     };
     
     const handleSubmit = (e: React.FormEvent) => {

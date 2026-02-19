@@ -53,7 +53,15 @@ const menuGroups = [
 
 const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, currentView }) => {
   
-  const isActive = (view: View) => currentView === view;
+    const isActive = (view: View) => {
+        if (view === 'eAdvokasiPendampingan') {
+            return currentView.startsWith('eAdvokasiPendampingan');
+        }
+        if (view === 'eAdvokasiPenangananPerkara') {
+            return currentView.startsWith('eAdvokasiPerkara');
+        }
+        return currentView === view;
+    };
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-4 space-y-4">

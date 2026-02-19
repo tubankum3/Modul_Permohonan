@@ -111,7 +111,7 @@ const DaftarPermohonan: React.FC<DaftarPermohonanProps> = ({ permohonanList, sel
         const lowerCaseSearch = searchTerm.toLowerCase();
         const displayId = p.Nomor || p.id;
         return (
-            p.perihal.toLowerCase().includes(lowerCaseSearch) ||
+            (p.perihal || '').toLowerCase().includes(lowerCaseSearch) ||
             displayId.toLowerCase().includes(lowerCaseSearch)
         );
     });
