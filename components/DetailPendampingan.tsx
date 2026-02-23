@@ -100,33 +100,70 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
     );
 };
 
-const DokumenTab: React.FC<{ files: FileData[] }> = ({ files }) => {
-    if (!files || files.length === 0) return <p className="text-center text-gray-500 py-8">Tidak ada dokumen.</p>;
+const DokumenTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
+    const { files } = record;
 
-    return (
+    const DokumenPermohonanTable = () => (
+        <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
+            <h3 className="px-4 py-3 bg-gray-100 font-semibold text-gray-700 border-b border-gray-200">Dokumen Permohonan</h3>
+            {files && files.length > 0 ? (
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama File</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ukuran</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {files.map((file, index) => (
+                            <tr key={index}>
+                                <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
+                                <td className="px-4 py-4 text-sm text-gray-900">{file.name}</td>
+                                <td className="px-4 py-4 text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</td>
+                                <td className="px-4 py-4 text-sm text-gray-500">{file.type}</td>
+                                <td className="px-4 py-4 text-sm">
+                                    <button className="text-blue-600 hover:text-blue-900"><DownloadIcon className="h-5 w-5" /></button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <p className="text-center text-gray-500 py-4">Tidak ada dokumen permohonan.</p>
+            )}
+        </div>
+    );
+
+    const DokumenPendampinganTable = () => (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+            <h3 className="px-4 py-3 bg-gray-100 font-semibold text-gray-700 border-b border-gray-200">Dokumen Pendampingan</h3>
+             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Naskah/Tiket/ID</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi Dokumen</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {files.map((file, index) => (
-                        <tr key={index}>
-                            <td className="px-4 py-4 text-sm">{index + 1}</td>
-                            <td className="px-4 py-4 text-sm">DOC-{index+1}</td>
-                            <td className="px-4 py-4 text-sm">{file.name}</td>
-                            <td className="px-4 py-4 text-sm">{new Date().toLocaleString('id-ID')}</td>
-                            <td className="px-4 py-4 text-sm"><button className="p-2 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                        </tr>
-                    ))}
+                    {/* Placeholder for Dokumen Pendampingan data */}
+                    <tr>
+                        <td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen pendampingan.</td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+    );
+
+    return (
+        <div>
+            <DokumenPermohonanTable />
+            <DokumenPendampinganTable />
         </div>
     );
 }
@@ -268,7 +305,7 @@ const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack 
         <main className="flex-1 overflow-y-auto pr-4">
             {activeTab === 'informasi' && <InformasiUmumTab record={record} />}
             {activeTab === 'posisi' && <PosisiPendampinganTab posisi={record.posisi || []} />}
-            {activeTab === 'dokumen' && <DokumenTab files={record.files || []} />}
+            {activeTab === 'dokumen' && <DokumenTab record={record} />}
             {activeTab === 'riwayat' && <RiwayatTab record={record} />}
         </main>
     </div>

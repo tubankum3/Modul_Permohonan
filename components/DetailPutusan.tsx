@@ -216,6 +216,38 @@ const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
   const renderDokumen = () => (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Dokumen Permohonan</h3>
+        {record.files && record.files.length > 0 ? (
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                    <tr>
+                        <th className="px-4 py-2 text-left font-medium text-gray-500">No</th>
+                        <th className="px-4 py-2 text-left font-medium text-gray-500">Nama File</th>
+                        <th className="px-4 py-2 text-left font-medium text-gray-500">Ukuran</th>
+                        <th className="px-4 py-2 text-left font-medium text-gray-500">Tipe</th>
+                        <th className="px-4 py-2 text-left font-medium text-gray-500">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                    {record.files.map((file, index) => (
+                        <tr key={index}>
+                            <td className="px-4 py-2">{index + 1}</td>
+                            <td className="px-4 py-2">{file.name}</td>
+                            <td className="px-4 py-2">{(file.size / 1024).toFixed(2)} KB</td>
+                            <td className="px-4 py-2">{file.type}</td>
+                            <td className="px-4 py-2">
+                                <button className="text-blue-600 hover:text-blue-900"><EyeIcon className="h-5 w-5" /></button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        ) : (
+            <p className="text-center text-gray-500 py-4">Tidak ada dokumen permohonan.</p>
+        )}
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Dokumen Putusan</h3>
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
@@ -228,7 +260,7 @@ const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {record.dokumenLitigasi?.map((d, i) => (
+            {record.dokumenLitigasi?.filter(d => d.jenis.toLowerCase().includes('putusan')).map((d, i) => (
               <tr key={i}>
                 <td className="px-4 py-2">{i + 1}</td>
                 <td className="px-4 py-2">{d.noNaskah}</td>
@@ -237,7 +269,7 @@ const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
                 <td className="px-4 py-2">{d.timestamp}</td>
               </tr>
             ))}
-            {(!record.dokumenLitigasi || record.dokumenLitigasi.length === 0) && (
+            {(!record.dokumenLitigasi || record.dokumenLitigasi.filter(d => d.jenis.toLowerCase().includes('putusan')).length === 0) && (
                 <tr><td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen putusan.</td></tr>
             )}
           </tbody>

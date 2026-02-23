@@ -182,25 +182,96 @@ const PutusanTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => (
     </div>
 );
 
-const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => (
-    <DetailSection title="Dokumen">
-        <table className="min-w-full text-sm">
-            <thead className="bg-gray-50"><tr>
-                {['No', 'No Naskah/Tiket/ID', 'Jenis Dokumen', 'Deskripsi Dokumen', 'Timestamp', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-gray-200">
-                {(record.dokumenLitigasi || []).map(d => <tr key={d.id}>
-                    <td className="px-3 py-2">{d.id}</td>
-                    <td className="px-3 py-2">{d.noNaskah}</td>
-                    <td className="px-3 py-2">{d.jenis}</td>
-                    <td className="px-3 py-2">{d.deskripsi}</td>
-                    <td className="px-3 py-2">{d.timestamp}</td>
-                    <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                </tr>)}
-            </tbody>
-        </table>
-    </DetailSection>
-);
+const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
+    const { files, dokumenLitigasi } = record;
+
+    const DokumenPermohonanTable = () => (
+        <DetailSection title="Dokumen Permohonan">
+            {files && files.length > 0 ? (
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">No</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">Nama File</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">Ukuran</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">Tipe</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-600">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {files.map((file, index) => (
+                            <tr key={index}>
+                                <td className="px-3 py-2">{index + 1}</td>
+                                <td className="px-3 py-2">{file.name}</td>
+                                <td className="px-3 py-2">{(file.size / 1024).toFixed(2)} KB</td>
+                                <td className="px-3 py-2">{file.type}</td>
+                                <td className="px-3 py-2">
+                                    <button className="text-blue-600 hover:text-blue-900"><EyeIcon className="h-5 w-5" /></button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <p className="text-center text-gray-500 py-4">Tidak ada dokumen permohonan.</p>
+            )}
+        </DetailSection>
+    );
+
+    const DokumenLitigasiTable = () => (
+        <DetailSection title="Dokumen Litigasi">
+            <table className="min-w-full text-sm">
+                <thead className="bg-gray-50"><tr>
+                    {['No', 'No Naskah/Tiket/ID', 'Jenis Dokumen', 'Deskripsi Dokumen', 'Timestamp', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-gray-200">
+                    {(dokumenLitigasi || []).filter(d => !d.jenis.toLowerCase().includes('putusan')).map((d, i) => <tr key={d.id}>
+                        <td className="px-3 py-2">{i+1}</td>
+                        <td className="px-3 py-2">{d.noNaskah}</td>
+                        <td className="px-3 py-2">{d.jenis}</td>
+                        <td className="px-3 py-2">{d.deskripsi}</td>
+                        <td className="px-3 py-2">{d.timestamp}</td>
+                        <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                    </tr>)}
+                    {(!dokumenLitigasi || dokumenLitigasi.filter(d => !d.jenis.toLowerCase().includes('putusan')).length === 0) && (
+                        <tr><td colSpan={6} className="text-center py-4 text-gray-500">Belum ada dokumen litigasi.</td></tr>
+                    )}
+                </tbody>
+            </table>
+        </DetailSection>
+    );
+
+    const DokumenPutusanTable = () => (
+        <DetailSection title="Dokumen Putusan">
+            <table className="min-w-full text-sm">
+                <thead className="bg-gray-50"><tr>
+                    {['No', 'No Naskah/Tiket/ID', 'Jenis Dokumen', 'Deskripsi Dokumen', 'Timestamp', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-gray-200">
+                    {(dokumenLitigasi || []).filter(d => d.jenis.toLowerCase().includes('putusan')).map((d, i) => <tr key={d.id}>
+                        <td className="px-3 py-2">{i+1}</td>
+                        <td className="px-3 py-2">{d.noNaskah}</td>
+                        <td className="px-3 py-2">{d.jenis}</td>
+                        <td className="px-3 py-2">{d.deskripsi}</td>
+                        <td className="px-3 py-2">{d.timestamp}</td>
+                        <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                    </tr>)}
+                     {(!dokumenLitigasi || dokumenLitigasi.filter(d => d.jenis.toLowerCase().includes('putusan')).length === 0) && (
+                        <tr><td colSpan={6} className="text-center py-4 text-gray-500">Belum ada dokumen putusan.</td></tr>
+                    )}
+                </tbody>
+            </table>
+        </DetailSection>
+    );
+
+    return (
+        <div>
+            <DokumenPermohonanTable />
+            <DokumenLitigasiTable />
+            <DokumenPutusanTable />
+        </div>
+    );
+};
 
 const RiwayatTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
     const { team, picId, auditTrail } = record;
