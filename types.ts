@@ -109,11 +109,22 @@ export enum StatusPutusan {
   SELESAI = 'Selesai',
 }
 
+export interface TuntutanAkhir {
+    id: number;
+    objek: string;
+    jenis: string;
+    jumlahNominal: string;
+    satuan: string;
+    keterangan: string;
+}
+
 export interface TindakLanjut {
   id: number;
   tanggal: string;
+  jenisTindakLanjut?: string;
   tindakLanjut: string;
   uraian: string;
+  file?: FileData;
 }
 
 export enum StatusPerkara {
@@ -209,6 +220,7 @@ export interface PerkaraRecord extends Permohonan {
   pihakP?: Pihak[];
   pihakT?: Pihak[];
   tuntutan?: Tuntutan[];
+  tuntutanAkhir?: TuntutanAkhir[];
   susunanMajelis?: Majelis[];
   posisiSidang?: PosisiSidang;
   putusan?: Putusan[];
