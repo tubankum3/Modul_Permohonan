@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { PerkaraRecord, PosisiSidangEntry, Putusan, View, StatusPerkara } from '../types';
+import { PerkaraRecord, PosisiSidangEntry, Putusan, View, StatusPerkara, Majelis } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, ChevronDownIcon, ChevronUpIcon, PrintIcon, DocumentTextIcon, EyeIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -89,6 +89,9 @@ const UpdatePosisiPerkara: React.FC<UpdatePosisiPerkaraProps> = ({ record, onSav
         } else if (type === 'putusan') {
             list = formData.putusan || [];
             setList = (newList) => setFormData(prev => ({ ...prev, putusan: newList }));
+        } else if (type === 'majelis') {
+            list = formData.susunanMajelis || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, susunanMajelis: newList }));
         }
         
         if (data.id) { // Edit
@@ -110,6 +113,9 @@ const UpdatePosisiPerkara: React.FC<UpdatePosisiPerkaraProps> = ({ record, onSav
         } else if (type === 'putusan') {
             list = formData.putusan || [];
             setList = (newList) => setFormData(prev => ({ ...prev, putusan: newList }));
+        } else if (type === 'majelis') {
+            list = formData.susunanMajelis || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, susunanMajelis: newList }));
         }
 
         setList(list.filter(item => item.id !== data.id));
@@ -168,11 +174,12 @@ const UpdatePosisiPerkara: React.FC<UpdatePosisiPerkaraProps> = ({ record, onSav
         <div className="h-full flex flex-col bg-gray-100">
              {modal.isOpen && (
                 <CrudModal isOpen={modal.isOpen} onClose={() => setModal({ type: '', isOpen: false, data: null })} onSave={handleCrudSave}
-                    title={`${modal.data.id ? 'Edit' : 'Tambah'} ${ { 'sidang': 'Posisi Sidang', 'putusan': 'Posisi Putusan'}[modal.type] }`}
+                    title={`${modal.data.id ? 'Edit' : 'Tambah'} ${ { 'sidang': 'Posisi Sidang', 'putusan': 'Posisi Putusan', 'majelis': 'Majelis & Panitera' }[modal.type] }`}
                     initialData={modal.data}
                     fields={
                         modal.type === 'sidang' ? [ { name: 'suratTugas', label: 'Nomor Surat Tugas', type: 'text' }, { name: 'tanggalSuratTugas', label: 'Tanggal Surat Tugas', type: 'date' }, { name: 'agendaSidang', label: 'Agenda Sidang', type: 'text' }, { name: 'tanggalSidang', label: 'Tanggal Sidang', type: 'date' }, { name: 'agendaBerikutnya', label: 'Agenda Berikutnya', type: 'text' }, { name: 'tanggalSidangBerikutnya', label: 'Tanggal Sidang Berikutnya', type: 'date' }, { name: 'keterangan', label: 'Keterangan Beracara/Persidangan', type: 'textarea' } ]
                         : modal.type === 'putusan' ? [ { name: 'posisi', label: 'Posisi Putusan', type: 'select', options: ['Pertama', 'Banding', 'Kasasi', 'PK'] }, { name: 'nomor', label: 'Nomor Putusan', type: 'text' }, { name: 'tanggal', label: 'Tanggal Putusan', type: 'date' }, { name: 'pertimbanganHakim', label: 'Pertimbangan Hakim', type: 'textarea' }, { name: 'amar', label: 'Amar Putusan', type: 'textarea' }, { name: 'keterangan', label: 'Keterangan', type: 'textarea' }, { name: 'status', label: 'Status Putusan', type: 'radio', options: ['Menang', 'Kalah'] } ]
+                        : modal.type === 'majelis' ? [ { name: 'jabatan', label: 'Jabatan Majelis', type: 'select', options: ['Hakim Ketua', 'Hakim Anggota', 'Hakim Mediator'] }, { name: 'identitas', label: 'Nama Identitas', type: 'text' } ]
                         : []
                     }
                 />
@@ -208,24 +215,49 @@ const UpdatePosisiPerkara: React.FC<UpdatePosisiPerkaraProps> = ({ record, onSav
                         </div>
                     )}
                     {activeTab === 'putusan' && (
-                        <div>
-                            <div className="flex justify-between items-center mb-2"><h3 className="font-semibold text-lg">Posisi Putusan</h3><button type="button" onClick={() => setModal({ type: 'putusan', isOpen: true, data: {} })} className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center ml-auto"><PlusIcon className="h-4 w-4 mr-1"/>Putusan</button></div>
-                            <table className="min-w-full bg-white border">
-                                <thead className="bg-gray-50"><tr>{['No', 'Nomor Putusan', 'Tanggal Putusan', 'Amar Putusan', 'Status Putusan', 'Aksi'].map(h => <th key={h} className="py-2 px-3 border-b text-left text-sm font-medium text-gray-600">{h}</th>)}</tr></thead>
-                                <tbody>
-                                    {(formData.putusan || []).map((p, i) => (
-                                        <tr key={p.id}>
-                                            <td className="py-2 px-3 border-b">{i + 1}</td><td className="py-2 px-3 border-b">{p.nomor}</td><td className="py-2 px-3 border-b">{p.tanggal}</td><td className="py-2 px-3 border-b">{p.amar}</td><td className="py-2 px-3 border-b">{p.status}</td>
-                                            <td className="py-2 px-3 border-b space-x-1">
-                                                <button type="button" onClick={() => {}} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><EyeIcon className="h-4 w-4"/></button>
-                                                <button type="button" onClick={() => setModal({type: 'putusan', isOpen: true, data: p})} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><PencilIcon className="h-4 w-4"/></button>
-                                                <button type="button" onClick={() => setDeleteConfirm({type: 'putusan', isOpen: true, data: p})} className="text-red-500 p-1 hover:bg-gray-200 rounded-full"><TrashIcon className="h-4 w-4"/></button>
-                                                <button type="button" onClick={() => alert('Print action!')} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><PrintIcon className="h-4 w-4"/></button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-center mb-2"><h3 className="font-semibold text-lg">Posisi Putusan</h3><button type="button" onClick={() => setModal({ type: 'putusan', isOpen: true, data: {} })} className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center ml-auto"><PlusIcon className="h-4 w-4 mr-1"/>Putusan</button></div>
+                                <table className="min-w-full bg-white border">
+                                    <thead className="bg-gray-50"><tr>{['No', 'Nomor Putusan', 'Tanggal Putusan', 'Amar Putusan', 'Status Putusan', 'Aksi'].map(h => <th key={h} className="py-2 px-3 border-b text-left text-sm font-medium text-gray-600">{h}</th>)}</tr></thead>
+                                    <tbody>
+                                        {(formData.putusan || []).map((p, i) => (
+                                            <tr key={p.id}>
+                                                <td className="py-2 px-3 border-b">{i + 1}</td><td className="py-2 px-3 border-b">{p.nomor}</td><td className="py-2 px-3 border-b">{p.tanggal}</td><td className="py-2 px-3 border-b">{p.amar}</td><td className="py-2 px-3 border-b">{p.status}</td>
+                                                <td className="py-2 px-3 border-b space-x-1">
+                                                    <button type="button" onClick={() => {}} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><EyeIcon className="h-4 w-4"/></button>
+                                                    <button type="button" onClick={() => setModal({type: 'putusan', isOpen: true, data: p})} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><PencilIcon className="h-4 w-4"/></button>
+                                                    <button type="button" onClick={() => setDeleteConfirm({type: 'putusan', isOpen: true, data: p})} className="text-red-500 p-1 hover:bg-gray-200 rounded-full"><TrashIcon className="h-4 w-4"/></button>
+                                                    <button type="button" onClick={() => alert('Print action!')} className="text-gray-500 p-1 hover:bg-gray-200 rounded-full"><PrintIcon className="h-4 w-4"/></button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <hr />
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <h3 className="font-semibold text-lg text-gray-700">Majelis & Panitera</h3>
+                                    <button type="button" onClick={() => setModal({ type: 'majelis', isOpen: true, data: { jabatan: '', identitas: '' }})} className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center"><PlusIcon className="h-4 w-4 mr-1"/>Majelis</button>
+                                </div>
+                                <table className="min-w-full bg-white border">
+                                    <thead className="bg-gray-50"><tr>{['No', 'Jabatan Majelis', 'Identitas', 'Aksi'].map(h => <th key={h} className="py-2 px-4 border-b text-left text-sm font-medium text-gray-600">{h}</th>)}</tr></thead>
+                                    <tbody>
+                                        {(formData.susunanMajelis || []).map((m, i) => (
+                                            <tr key={m.id}>
+                                                <td className="py-2 px-4 border-b text-sm">{i + 1}</td>
+                                                <td className="py-2 px-4 border-b text-sm">{m.jabatan}</td>
+                                                <td className="py-2 px-4 border-b text-sm">{m.identitas}</td>
+                                                <td className="py-2 px-4 border-b text-sm space-x-2">
+                                                    <button type="button" onClick={() => setModal({type: 'majelis', isOpen: true, data: m})} className="text-yellow-500"><PencilIcon className="h-5 w-5"/></button>
+                                                    <button type="button" onClick={() => setDeleteConfirm({type: 'majelis', isOpen: true, data: m})} className="text-red-500"><TrashIcon className="h-5 w-5"/></button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
                     {activeTab === 'bht' && (

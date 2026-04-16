@@ -49,6 +49,7 @@ export interface Permohonan {
   history: Riwayat[];
   sumber?: 'Nadine' | 'Internal';
   disposisi?: Disposisi[];
+  assignedTo?: string;
 }
 
 export enum StatusPendampingan {

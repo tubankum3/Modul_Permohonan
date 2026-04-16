@@ -93,14 +93,14 @@ const BuatPermohonan: React.FC<BuatPermohonanProps> = ({ onSaveDraft, onUpdateDr
                     onClick={() => setJenisPermohonan(JenisPermohonan.PENANGANAN_PERKARA)}
                     className={`bg-white p-6 border rounded-lg cursor-pointer transition-all duration-200 ${jenisPermohonan === JenisPermohonan.PENANGANAN_PERKARA ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-300 hover:border-gray-400'}`}
                 >
-                    <h3 className="font-bold text-lg text-gray-900">Penanganan Perkara (Litigasi)</h3>
+                    <h3 className="font-bold text-lg text-gray-900">Penanganan Perkara</h3>
                     <p className="text-sm text-gray-600 mt-1">Bantuan Hukum Penyelesaian Perkara Pra Peradilan, Perdata, Niaga, Peradilan Agama, Tata Usaha Negara, Pengujian Peraturan Perundang-Undangan, Sengketa Perpajakan, dan Perkara Lainnya.</p>
                 </div>
                 <div
                     onClick={() => setJenisPermohonan(JenisPermohonan.PENDAMPINGAN)}
                     className={`bg-white p-6 border rounded-lg cursor-pointer transition-all duration-200 ${jenisPermohonan === JenisPermohonan.PENDAMPINGAN ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-300 hover:border-gray-400'}`}
                 >
-                    <h3 className="font-bold text-lg text-gray-900">Pendampingan (Non-Litigasi)</h3>
+                    <h3 className="font-bold text-lg text-gray-900">Pendampingan</h3>
                     <p className="text-sm text-gray-600 mt-1">Bantuan hukum kepada Menteri/Mantan Menteri, Wamen/Mantan Wamen, Pejabat, Pegawai, Pensiunan, atau Mantan Pegawai sebagai saksi atau ahli dalam perkara tindak pidana yang terkait dengan tugas kedinasan di Kementerian Keuangan.</p>
                 </div>
             </div>

@@ -134,7 +134,7 @@ interface EditPerkaraProps {
     onBack: () => void;
 }
 
-type EditTab = 'abstraksi' | 'pihak' | 'tuntutan' | 'majelis';
+type EditTab = 'abstraksi' | 'pihak' | 'tuntutan';
 
 const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
@@ -194,9 +194,6 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
         } else if (type === 'tuntutan') {
             list = formData.tuntutan || [];
             setList = (newList) => setFormData(prev => ({ ...prev, tuntutan: newList }));
-        } else if (type === 'majelis') {
-            list = formData.susunanMajelis || [];
-            setList = (newList) => setFormData(prev => ({ ...prev, susunanMajelis: newList }));
         }
         
         if (data.id) { // Edit
@@ -220,9 +217,6 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
         } else if (type === 'tuntutan') {
             list = formData.tuntutan || [];
             setList = (newList) => setFormData(prev => ({ ...prev, tuntutan: newList }));
-        } else if (type === 'majelis') {
-            list = formData.susunanMajelis || [];
-            setList = (newList) => setFormData(prev => ({ ...prev, susunanMajelis: newList }));
         }
 
         setList(list.filter(item => item.id !== data.id));
@@ -268,12 +262,11 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
         <div className="h-full flex flex-col bg-gray-100">
             {modal.isOpen && (
                 <CrudModal isOpen={modal.isOpen} onClose={() => setModal({ type: '', isOpen: false, data: null })} onSave={handleCrudSave}
-                    title={`${modal.data.id ? 'Edit' : 'Tambah'} ${ { 'pihak-P': 'Pihak P', 'pihak-T': 'Pihak T', 'tuntutan': 'Objek Tuntutan', 'majelis': 'Majelis & Panitera' }[modal.type] }`}
+                    title={`${modal.data.id ? 'Edit' : 'Tambah'} ${ { 'pihak-P': 'Pihak P', 'pihak-T': 'Pihak T', 'tuntutan': 'Objek Tuntutan' }[modal.type] }`}
                     initialData={modal.data}
                     fields={
                         modal.type.startsWith('pihak') ? [ { name: 'noUrut', label: 'No. Urut', type: 'text' }, { name: 'pihak', label: 'Jenis Pihak', type: 'select', options: ['Penggugat', 'Tergugat', 'Turut Tergugat'] }, { name: 'identitas', label: 'Nama Identitas', type: 'text' } ]
                         : modal.type === 'tuntutan' ? [ { name: 'objek', label: 'Objek', type: 'text' }, { name: 'jenis', label: 'Jenis Tuntutan', type: 'text' }, { name: 'satuan', label: 'Jenis Satuan/Mata Uang', type: 'text'}, { name: 'jumlahNominal', label: 'Jumlah/Nominal', type: 'text' }, { name: 'keterangan', label: 'Keterangan', type: 'textarea' } ]
-                        : modal.type === 'majelis' ? [ { name: 'jabatan', label: 'Jabatan Majelis', type: 'select', options: ['Hakim Ketua', 'Hakim Anggota', 'Hakim Mediator'] }, { name: 'identitas', label: 'Nama Identitas', type: 'text' } ]
                         : []
                     }
                 />
@@ -299,7 +292,6 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
                     <TabButton tab="abstraksi" label="Abstraksi" />
                     <TabButton tab="pihak" label="Para Pihak" />
                     <TabButton tab="tuntutan" label="Objek Tuntutan" />
-                    <TabButton tab="majelis" label="Majelis & Panitera" />
                 </div>
                 <div className="bg-white p-6 rounded-b-lg border-x border-b border-gray-200">
                     {activeTab === 'abstraksi' && (
@@ -307,7 +299,13 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
                             {Object.entries({ 'tahunMasuk': 'Tahun Masuk', 'noPerkara': 'Nomor Perkara', 'tanggalPendaftaranGugatan': 'Tanggal Pendaftaran Gugatan', 'wilayah': 'Wilayah', 'pengadilan': 'Pengadilan', 'jenisPerkara': 'Jenis Perkara', 'klasifikasiPerkara': 'Klasifikasi Perkara', 'subKlasifikasiPerkara': 'Sub Klasifikasi Perkara', 'subSubKlasifikasiPerkara': 'Sub-Sub Klasifikasi Perkara', 'jenisPokokPerkara': 'Jenis Pokok Perkara', 'subPokokPerkara': 'Sub Pokok Perkara', 'subSubPokokPerkara': 'Sub-Sub Pokok Perkara', 'nomorSuratKuasaKhusus': 'Nomor Surat Kuasa Khusus' }).map(([key, label]) => (
                                 <div key={key}>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                                    <input type={key.includes('tanggal') ? 'date' : 'text'} name={key} value={(formData.abstraksiPerkara as any)?.[key] || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
+                                    <input 
+                                        type={key.includes('tanggal') ? 'date' : 'text'} 
+                                        name={key} 
+                                        value={(formData.abstraksiPerkara as any)?.[key] ?? ''} 
+                                        onChange={handleInputChange} 
+                                        className="w-full p-2 border border-gray-300 rounded-md" 
+                                    />
                                 </div>
                             ))}
                             <div className="md:col-span-2">
@@ -348,23 +346,12 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
                             </table>
                         </div>
                     )}
-                    {activeTab === 'majelis' && (
-                        <div>
-                            <div className="flex justify-between items-center mb-2"><h3 className="font-semibold text-lg">Susunan Majelis & Panitera</h3><button type="button" onClick={() => setModal({ type: 'majelis', isOpen: true, data: {} })} className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center"><PlusIcon className="h-4 w-4 mr-1"/>Majelis</button></div>
-                            <table className="min-w-full bg-white border"><thead className="bg-gray-50"><tr>{['No', 'Jabatan', 'Identitas', 'Aksi'].map(h => <th key={h} className="py-2 px-4 border-b text-left text-sm font-medium text-gray-600">{h}</th>)}</tr></thead>
-                                <tbody>
-                                    {(formData.susunanMajelis || []).map((m, i) => (<tr key={m.id}><td className="py-2 px-4 border-b text-sm">{i + 1}</td><td className="py-2 px-4 border-b text-sm">{m.jabatan}</td><td className="py-2 px-4 border-b text-sm">{m.identitas}</td>
-                                        <td className="py-2 px-4 border-b text-sm space-x-2"><button type="button" onClick={() => setModal({type: 'majelis', isOpen: true, data: m})} className="text-yellow-500"><PencilIcon className="h-5 w-5"/></button><button type="button" onClick={() => setDeleteConfirm({type: 'majelis', isOpen: true, data: m})} className="text-red-500"><TrashIcon className="h-5 w-5"/></button></td></tr>))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
                 </div>
             </main>
             
             <footer className="flex-shrink-0 flex justify-end items-center p-4 bg-white border-t border-gray-200 space-x-3">
                 <button type="button" onClick={onBack} className="px-8 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700">Batal</button>
-                <button type="button" onClick={handleSave} className="px-8 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700">Simpan { {abstraksi: 'Abstraksi', pihak: 'Simpan Pihak', tuntutan: 'Simpan Tuntutan', majelis: 'Simpan Majelis'}[activeTab] }</button>
+                <button type="button" onClick={handleSave} className="px-8 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700">Simpan { {abstraksi: 'Abstraksi', pihak: 'Simpan Pihak', tuntutan: 'Simpan Tuntutan'}[activeTab as 'abstraksi' | 'pihak' | 'tuntutan'] }</button>
             </footer>
         </div>
     );

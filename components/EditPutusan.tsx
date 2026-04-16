@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, TuntutanAkhir, Putusan } from '../types';
+import { PerkaraRecord, Pihak, Tuntutan, TuntutanAkhir, Putusan, Majelis } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -308,7 +308,13 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack }
                                 {Object.entries({ 'tahunMasuk': 'Tahun Masuk', 'noPerkara': 'Nomor Perkara', 'tanggalPendaftaranGugatan': 'Tanggal Pendaftaran Gugatan', 'wilayah': 'Wilayah', 'pengadilan': 'Pengadilan', 'jenisPerkara': 'Jenis Perkara', 'klasifikasiPerkara': 'Klasifikasi Perkara', 'subKlasifikasiPerkara': 'Sub Klasifikasi Perkara', 'subSubKlasifikasiPerkara': 'Sub-Sub Klasifikasi Perkara', 'jenisPokokPerkara': 'Jenis Pokok Perkara', 'subPokokPerkara': 'Sub Pokok Perkara', 'subSubPokokPerkara': 'Sub-Sub Pokok Perkara', 'nomorSuratKuasaKhusus': 'Nomor Surat Kuasa Khusus' }).map(([key, label]) => (
                                     <div key={key}>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-                                        <input type={key.includes('tanggal') ? 'date' : 'text'} name={key} value={(formData.abstraksiPerkara as any)?.[key] || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
+                                        <input 
+                                            type={key.includes('tanggal') ? 'date' : 'text'} 
+                                            name={key} 
+                                            value={(formData.abstraksiPerkara as any)?.[key] ?? ''} 
+                                            onChange={handleInputChange} 
+                                            className="w-full p-2 border border-gray-300 rounded-md" 
+                                        />
                                     </div>
                                 ))}
                                 <div className="md:col-span-2">
