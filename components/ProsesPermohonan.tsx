@@ -174,8 +174,8 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{r.abstraksiPerkara?.noPerkara || r.Nomor || r.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.abstraksiPerkara?.tahunMasuk || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.abstraksiPerkara?.jenisPerkara?.join(', ')}>{r.abstraksiPerkara?.jenisPerkara?.join(', ') || '-'}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.abstraksiPerkara?.jenisPokokPerkara?.join(', ')}>{r.abstraksiPerkara?.jenisPokokPerkara?.join(', ') || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.abstraksiPerkara?.jenisPerkara}>{r.abstraksiPerkara?.jenisPerkara || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.abstraksiPerkara?.jenisPokokPerkara}>{r.abstraksiPerkara?.jenisPokokPerkara || '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getStatusPosisi(r)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPicName(r)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">{actionButton}</td>
@@ -188,7 +188,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{r.abstraksiPerkara?.noPerkara || r.Nomor}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.abstraksiPerkara?.tahunMasuk}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{r.abstraksiPerkara?.jenisPerkara?.join(', ')}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500">{r.abstraksiPerkara?.jenisPerkara}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.statusBHT?.status}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">{actionButton}</td>
               </tr>

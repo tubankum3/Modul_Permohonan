@@ -110,7 +110,7 @@ const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarP
                         <div className="flex-1">
                         <p className="font-semibold text-gray-800">{event.title}</p>
                         <p className="text-sm text-gray-500">{formatEventDate(event.date)}</p>
-                        <p className="text-sm text-gray-500">Nomor Perkara: {event.perkara.abstraksiPerkara?.noPerkara || event.perkara.Nomor || event.perkara.id} di {event.perkara.abstraksiPerkara?.pengadilan?.join(', ')}</p>
+                        <p className="text-sm text-gray-500">Nomor Perkara: {event.perkara.abstraksiPerkara?.noPerkara || event.perkara.Nomor || event.perkara.id} di {event.perkara.abstraksiPerkara?.pengadilan}</p>
                         <div className="mt-1 inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
                             PIC: {getPicName(event.perkara)}
                         </div>

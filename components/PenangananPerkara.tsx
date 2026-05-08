@@ -82,6 +82,7 @@ const ActionsDropdown: React.FC<{ record: PerkaraRecord, onAction: (action: stri
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('view') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">View</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('edit') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Edit</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('update') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Update Posisi</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('dokumen') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Dokumen</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('manage-tim') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Manage Tim</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('hapus') }} className="text-red-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Hapus</a>
                     </div>
@@ -120,6 +121,9 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                 break;
             case 'update':
                 onNavigate('eAdvokasiPerkaraUpdatePosisi', record);
+                break;
+            case 'dokumen':
+                onNavigate('eAdvokasiPerkaraDokumen', record);
                 break;
             case 'manage-tim':
                 onNavigate('eAdvokasiPerkaraTim', record);
@@ -255,8 +259,8 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.abstraksiPerkara?.noPerkara || p.Nomor || p.id}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.abstraksiPerkara?.tahunMasuk || '-'}</td>
-                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPerkara?.join(', ')}>{p.abstraksiPerkara?.jenisPerkara?.join(', ') || '-'}</td>
-                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPokokPerkara?.join(', ')}>{p.abstraksiPerkara?.jenisPokokPerkara?.join(', ') || '-'}</td>
+                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPerkara}>{p.abstraksiPerkara?.jenisPerkara || '-'}</td>
+                              <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPokokPerkara}>{p.abstraksiPerkara?.jenisPokokPerkara || '-'}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getStatusPosisi(p)}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPicName(p)}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">

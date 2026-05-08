@@ -30,6 +30,7 @@ import PenangananPutusan from './components/PenangananPutusan';
 import DetailPutusan from './components/DetailPutusan';
 import UpdateTindakLanjut from './components/UpdateTindakLanjut';
 import EditPutusan from './components/EditPutusan';
+import DokumenPerkara from './components/DokumenPerkara';
 
 import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, PerkaraRecord, StatusPerkara, StatusPutusan } from './types';
 import { ArrowLeftIcon } from './components/icons';
@@ -272,9 +273,9 @@ const initialPerkaraRecords: PerkaraRecord[] = [
             noPerkara: '37/PUU-XVII/2021',
             tanggalPendaftaranGugatan: '2021-11-18',
             wilayah: 'Aceh',
-            jenisPerkara: ['Perdata'],
-            pengadilan: ['Pengadilan Tinggi Sabang'],
-            jenisPokokPerkara: ['Kekayaan Negara'],
+            jenisPerkara: 'Perdata',
+            pengadilan: 'Pengadilan Tinggi Sabang',
+            jenisPokokPerkara: 'Kekayaan Negara',
             rincianPokokPerkara: 'lorem ipsum lorem ipsum',
             nomorSuratKuasaKhusus: 'SKU 666',
             tagsPerkara: ['Non-Strategis'],
@@ -289,26 +290,33 @@ const initialPerkaraRecords: PerkaraRecord[] = [
             { id: 'T3', noUrut: 'T3', pihak: 'Tergugat III', identitas: 'Pemda Aceh', keterangan: '', unitBerperkara: 'Tidak' },
         ],
         tuntutan: [
-            { id: 1, objek: 'TGR', jenis: 'Materiil', jumlahNominal: '1.000.000.000', satuan: 'IDR', keterangan: '-' },
-            { id: 2, objek: 'TGR', jenis: 'Immateriil', jumlahNominal: '1.000.000.000.000', satuan: 'IDR', keterangan: '-' },
-            { id: 3, objek: 'TGR', jenis: 'Dwangsom', jumlahNominal: '-', satuan: '-', keterangan: 'Lorem Ipsum' },
-            { id: 4, objek: 'BMN', jenis: 'Tanah', jumlahNominal: '100', satuan: 'm2', keterangan: 'SHM No. XX' },
-        ],
-        susunanMajelis: [
-            { id: 1, jabatan: 'Hakim Ketua', identitas: 'Joko' },
-            { id: 2, jabatan: 'Hakim Anggota', identitas: 'Wi' },
-            { id: 3, jabatan: 'Hakim Anggota', identitas: 'Dodo' },
+            { id: 1, objek: 'TGR', jenis: 'Materiil', jumlahNominal: 1000000000, satuan: 'IDR', keterangan: '-' },
+            { id: 2, objek: 'TGR', jenis: 'Immateriil', jumlahNominal: 1000000000000, satuan: 'IDR', keterangan: '-' },
+            { id: 3, objek: 'TGR', jenis: 'Dwangsom', jumlahNominal: 0, satuan: '-', keterangan: 'Lorem Ipsum' },
+            { id: 4, objek: 'BMN', jenis: 'Tanah', jumlahNominal: 100, satuan: 'm2', keterangan: 'SHM No. XX' },
         ],
         posisiSidang: {
             tkPertama: [
-                {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2026-02-11', agendaSidang: 'Mediasi', tanggalSidang: '2026-02-12', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2026-02-18', kehadiran: 'Hadir'},
-                {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2026-02-18', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2026-02-22', kehadiran: 'Tidak Hadir'},
-                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', kehadiran: 'Hadir'},
+                {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2026-02-11', agendaSidang: 'Mediasi', tanggalSidang: '2026-02-12', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2026-02-18', kehadiranPihak: []},
+                {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2026-02-18', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2026-02-22', kehadiranPihak: []},
+                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', kehadiranPihak: []},
             ],
             tkBanding: [], tkKasasi: [], tkPK: []
         },
         putusan: [
-            { id: 1, nomor: '37/Pdt.G/2021/PN', tanggal: '2021-11-25', amar: 'Lorem ipsum', status: 'Menang', posisi: 'Pertama' }
+            { 
+                id: 1, 
+                nomor: '37/Pdt.G/2021/PN', 
+                tanggal: '2021-11-25', 
+                amar: 'Lorem ipsum', 
+                status: 'Menang', 
+                posisi: 'Pertama',
+                susunanMajelis: [
+                    { id: 1, jabatan: 'Hakim Ketua', identitas: 'Joko' },
+                    { id: 2, jabatan: 'Hakim Anggota', identitas: 'Wi' },
+                    { id: 3, jabatan: 'Hakim Anggota', identitas: 'Dodo' },
+                ]
+            }
         ],
         statusBHT: { status: 'Inkracht', keteranganDampak: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit.'},
         dokumenLitigasi: [
@@ -820,9 +828,10 @@ const App: React.FC = () => {
       case 'eAdvokasiPenangananPerkara':
         const perkaraBaruList = permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES && p.jenis === JenisPermohonan.PENANGANAN_PERKARA && !perkaraRecords.some(r => r.id === p.id) && !p.assignedTo);
         return <PenangananPerkara perkaraBaruList={perkaraBaruList} daftarPerkara={perkaraRecords} onUpdateStatus={handleUpdatePerkaraStatus} onSave={handleSavePerkara} onDelete={handleDeletePerkara} onView={(record) => { setSelectedPerkara(record); handleNavigate('eAdvokasiPerkaraDetail'); }} onNavigate={handleNavigate} onForward={handleForwardPerkara} />;
-      case 'eAdvokasiPerkaraDetail': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DetailPerkara record={selectedPerkara as PerkaraRecord} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
+      case 'eAdvokasiPerkaraDetail': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DetailPerkara record={selectedPerkara as PerkaraRecord} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraEdit': return <EditPerkara initialData={selectedPerkara} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} />;
       case 'eAdvokasiPerkaraUpdatePosisi': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <UpdatePosisiPerkara record={selectedPerkara as PerkaraRecord} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
+      case 'eAdvokasiPerkaraDokumen': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DokumenPerkara record={selectedPerkara as PerkaraRecord} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraTim': return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{selectedPerkara.abstraksiPerkara?.noPerkara || selectedPerkara.Nomor} - {selectedPerkara.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPerkara.team || []} picId={selectedPerkara.picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiKalender': return <EAdvokasiKalender daftarPerkara={perkaraRecords} onNavigate={handleNavigate} />;
       case 'eAdvokasiAgendaBerikutnya': return <DaftarAgendaBerikutnya daftarPerkara={perkaraRecords} onBack={() => handleNavigate('eAdvokasiKalender')} />;

@@ -16,6 +16,7 @@ export interface FileData {
   name: string;
   size: number;
   type: string;
+  url?: string;
 }
 
 export interface Riwayat {
@@ -99,6 +100,20 @@ export interface PendampinganRecord extends Permohonan {
       wilayah?: string;
       pokokPermasalahan?: string;
       keterangan?: string;
+      // New fields for Penyelidikan/Pendampingan redesign
+      statusPenyelidikan?: string;
+      dasar?: { nomorSuratPerintah: string; tanggalSurat: string };
+      pic?: { agency: string; unitSubdit: string };
+      focus?: string[];
+      locus?: { wilayah: string; spesifik: string };
+      tempus?: { dari: string; sampai: string };
+      actor?: string;
+      dolus?: string;
+      modus?: string;
+      informasiAwal?: string;
+      penyelidik?: string[];
+      pihakTerpanggil?: Array<{ id: string; nama: string; jabatan: string; poinPenjelasan: string[] }>;
+      administrasiDokumen?: Array<{ id: string; kategori: string; nomorSurat: string; tanggal: string; keterangan: string }>;
   };
   team?: TeamMember[];
   picId?: string;
@@ -140,15 +155,19 @@ export interface Pihak {
     identitas: string;
     keterangan?: string;
     unitBerperkara?: 'Ya' | 'Tidak';
+    kelompokPihak?: string;
+    urutan?: number;
+    jenisIdentitas?: string;
 }
 
 export interface Tuntutan {
     id: number;
     objek: string;
     jenis: string;
-    jumlahNominal: string;
+    jumlahNominal: number;
     satuan: string;
     keterangan: string;
+    jenisObjekTuntutan?: string;
 }
 
 export interface Majelis {
@@ -157,22 +176,40 @@ export interface Majelis {
     identitas: string;
 }
 
+export interface AnalisisPerkara {
+    isuKrusial?: string;
+    analisaHukum?: string;
+    potensiDampak?: string;
+    risiko?: 'Rendah' | 'Sedang' | 'Tinggi';
+    keteranganRisiko?: string;
+    analisisSementara?: string;
+    kesimpulanSementara?: string;
+}
+
 export interface AbstraksiPerkara {
     tahunMasuk?: number;
     noPerkara?: string;
     tanggalPendaftaranGugatan?: string;
     wilayah?: string;
-    pengadilan?: string[];
-    jenisPerkara?: string[];
+    pengadilan?: string;
+    jenisPerkara?: string;
     klasifikasiPerkara?: string;
     subKlasifikasiPerkara?: string;
     subSubKlasifikasiPerkara?: string;
-    jenisPokokPerkara?: string[];
+    jenisPokokPerkara?: string;
     subPokokPerkara?: string;
     subSubPokokPerkara?: string;
     rincianPokokPerkara?: string;
     nomorSuratKuasaKhusus?: string;
     tagsPerkara?: string[];
+    unitInternal?: string;
+}
+
+export interface KehadiranPihak {
+    pihakId: string;
+    identitas: string;
+    label: string; // e.g. PI, TI
+    status: 'Hadir' | 'Tidak Hadir';
 }
 
 export interface PosisiSidangEntry {
@@ -183,7 +220,7 @@ export interface PosisiSidangEntry {
     tanggalSidang: string;
     agendaBerikutnya?: string;
     tanggalSidangBerikutnya?: string;
-    kehadiran?: 'Hadir' | 'Tidak Hadir' | 'Diwakilkan';
+    kehadiranPihak?: KehadiranPihak[];
     keterangan?: string;
 }
 
@@ -203,6 +240,8 @@ export interface Putusan {
     pertimbanganHakim?: string;
     keterangan?: string;
     posisi?: 'Pertama' | 'Banding' | 'Kasasi' | 'PK';
+    susunanMajelis?: Majelis[];
+    dokumen?: string;
 }
 
 export interface DokumenLitigasi {
@@ -218,11 +257,11 @@ export interface PerkaraRecord extends Permohonan {
   statusPutusan?: StatusPutusan;
   tindakLanjut?: TindakLanjut[];
   abstraksiPerkara?: AbstraksiPerkara;
+  analisisPerkara?: AnalisisPerkara;
   pihakP?: Pihak[];
   pihakT?: Pihak[];
   tuntutan?: Tuntutan[];
   tuntutanAkhir?: TuntutanAkhir[];
-  susunanMajelis?: Majelis[];
   posisiSidang?: PosisiSidang;
   putusan?: Putusan[];
   statusBHT?: {
@@ -286,5 +325,5 @@ export type View =
   'eAdvokasiKalender' | 'eAdvokasiMonitoring' | 'eAdvokasiLaporan' |
   'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq' |
   'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' |
-  'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' |
+  'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' | 'eAdvokasiPerkaraDokumen' |
   'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim';

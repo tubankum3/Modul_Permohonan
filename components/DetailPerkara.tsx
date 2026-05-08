@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, Majelis, PosisiSidang, PosisiSidangEntry, Putusan, DokumenLitigasi, TeamMember, AuditTrailEntry } from '../types';
-import { EyeIcon } from './icons';
+import { PerkaraRecord, Pihak, Tuntutan, Majelis, PosisiSidang, PosisiSidangEntry, Putusan, DokumenLitigasi, TeamMember, AuditTrailEntry, View } from '../types';
+import { EyeIcon, DocumentTextIcon } from './icons';
 
 interface DetailPerkaraProps {
   record: PerkaraRecord;
   onBack: () => void;
+  onNavigate: (view: View, record?: PerkaraRecord) => void;
 }
 
 type DetailTab = 'informasi' | 'posisi' | 'putusan' | 'dokumen' | 'riwayat';
@@ -23,56 +24,64 @@ const TabButton: React.FC<{ name: DetailTab, label: string, activeTab: DetailTab
     </button>
 );
 
-const DetailSection: React.FC<{ title: string, children: React.ReactNode}> = ({ title, children }) => (
+const DetailSection: React.FC<{ title: string, children: React.ReactNode, action?: React.ReactNode }> = ({ title, children, action }) => (
     <div className="border border-gray-300 rounded-md mb-6">
-        <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">{title}</h3>
+        <div className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md flex justify-between items-center">
+            <h3>{title}</h3>
+            {action && <div className="flex items-center space-x-2">{action}</div>}
+        </div>
         <div className="p-4">{children}</div>
     </div>
 );
 
 const DetailRow: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
-    <div className="flex py-1.5">
-        <span className="text-sm font-medium text-gray-500 w-48 flex-shrink-0">:{label}</span>
-        <span className="text-sm text-gray-800">{value}</span>
+    <div className="flex border-b border-gray-100 last:border-0 py-2.5">
+        <span className="text-sm font-medium text-gray-500 w-64 flex-shrink-0">{label}</span>
+        <span className="text-sm text-gray-800 font-medium">{value || '-'}</span>
     </div>
 );
 
 const PihakTable: React.FC<{ title: string, data: Pihak[] }> = ({ title, data }) => (
     <DetailSection title={title}>
-        <table className="min-w-full text-sm">
-            <thead className="bg-gray-50"><tr>
-                {['No', 'Pihak', 'Identitas', 'Keterangan', 'Unit Berperkara'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-gray-200">
-                {data.map((p, i) => <tr key={p.id}>
-                    <td className="px-3 py-2">{p.id}</td>
-                    <td className="px-3 py-2">{p.pihak}</td>
-                    <td className="px-3 py-2 font-semibold">{p.identitas}</td>
-                    <td className="px-3 py-2">{p.keterangan}</td>
-                    <td className="px-3 py-2">{p.unitBerperkara}</td>
-                </tr>)}
-            </tbody>
-        </table>
+        <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+                <thead className="bg-gray-50"><tr>
+                    {['No', 'Pihak', 'Identitas', 'Keterangan'].map(h => <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600 uppercase tracking-wider text-xs">{h}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-gray-200">
+                    {data.map((p, i) => <tr key={p.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-2.5">{i + 1}</td>
+                        <td className="px-3 py-2.5 font-medium">{p.pihak}</td>
+                        <td className="px-3 py-2.5">{p.identitas}</td>
+                        <td className="px-3 py-2.5 text-gray-600">{p.keterangan || '-'}</td>
+                    </tr>)}
+                    {data.length === 0 && <tr><td colSpan={4} className="py-4 text-center text-gray-500 italic">Tidak ada data.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     </DetailSection>
 );
 
 const TuntutanTable: React.FC<{ data: Tuntutan[] }> = ({ data }) => (
     <DetailSection title="Tuntutan">
-        <table className="min-w-full text-sm">
-            <thead className="bg-gray-50"><tr>
-                {['No', 'Objek', 'Jenis', 'Jumlah/Nominal', 'Satuan/Matuan', 'Keterangan'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-gray-200">
-                {data.map(t => <tr key={t.id}>
-                    <td className="px-3 py-2">{t.id}</td>
-                    <td className="px-3 py-2">{t.objek}</td>
-                    <td className="px-3 py-2">{t.jenis}</td>
-                    <td className="px-3 py-2">{t.jumlahNominal}</td>
-                    <td className="px-3 py-2">{t.satuan}</td>
-                    <td className="px-3 py-2">{t.keterangan}</td>
-                </tr>)}
-            </tbody>
-        </table>
+        <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+                <thead className="bg-gray-50"><tr>
+                    {['No', 'Objek', 'Jenis', 'Jumlah/Nominal', 'Satuan', 'Keterangan'].map(h => <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600 uppercase tracking-wider text-xs">{h}</th>)}
+                </tr></thead>
+                <tbody className="divide-y divide-gray-200">
+                    {data.map((t, i) => <tr key={t.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-2.5">{i + 1}</td>
+                        <td className="px-3 py-2.5 font-medium">{t.objek}</td>
+                        <td className="px-3 py-2.5">{t.jenis}</td>
+                        <td className="px-3 py-2.5 font-mono text-blue-700">{t.jumlahNominal.toLocaleString('id-ID')}</td>
+                        <td className="px-3 py-2.5">{t.satuan}</td>
+                        <td className="px-3 py-2.5 text-gray-600">{t.keterangan || '-'}</td>
+                    </tr>)}
+                    {data.length === 0 && <tr><td colSpan={6} className="py-4 text-center text-gray-500 italic">Tidak ada data tuntutan.</td></tr>}
+                </tbody>
+            </table>
+        </div>
     </DetailSection>
 );
 
@@ -96,38 +105,101 @@ const MajelisTable: React.FC<{ data: Majelis[] }> = ({ data }) => (
 const InformasiUmumTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
     const a = record.abstraksiPerkara;
     return (
-        <div>
-            <DetailSection title="Abstraksi">
+        <div className="space-y-4">
+            <DetailSection title="Informasi Umum">
                 <DetailRow label="Tahun Masuk" value={a?.tahunMasuk} />
-                <DetailRow label="No Perkara" value={a?.noPerkara} />
-                <DetailRow label="Tanggal Gugatan" value={a?.tanggalPendaftaranGugatan} />
+                <DetailRow label="Nomor Perkara" value={a?.noPerkara} />
+                <DetailRow label="Tanggal Pendaftaran Perkara" value={a?.tanggalPendaftaranGugatan} />
+                <DetailRow label="Nomor Surat Kuasa Khusus" value={
+                    <div className="flex items-center space-x-3">
+                        <span className="font-semibold text-blue-700">{a?.nomorSuratKuasaKhusus || '-'}</span>
+                        {a?.nomorSuratKuasaKhusus && (
+                            <button className="flex items-center space-x-1 px-2.5 py-1 bg-white border border-blue-200 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm">
+                                <DocumentTextIcon className="h-3.5 w-3.5" />
+                                <span>Lihat Dokumen</span>
+                            </button>
+                        )}
+                    </div>
+                } />
                 <DetailRow label="Wilayah" value={a?.wilayah} />
-                <DetailRow label="Jenis Perkara" value={a?.jenisPerkara?.join(', ')} />
-                <DetailRow label="Pengadilan" value={a?.pengadilan?.join(', ')} />
-                <DetailRow label="Jenis Pokok Perkara" value={a?.jenisPokokPerkara?.join(', ')} />
+                <DetailRow label="Pengadilan" value={a?.pengadilan} />
+                <DetailRow label="Jenis Perkara" value={a?.jenisPerkara} />
+                
+                {a?.klasifikasiPerkara && <DetailRow label="Klasifikasi Perkara" value={a.klasifikasiPerkara} />}
+                {a?.subKlasifikasiPerkara && <DetailRow label="Sub Klasifikasi Perkara" value={a.subKlasifikasiPerkara} />}
+                {a?.subSubKlasifikasiPerkara && <DetailRow label="Sub-Sub Klasifikasi Perkara" value={a.subSubKlasifikasiPerkara} />}
+                
+                <DetailRow label="Jenis Pokok Perkara" value={a?.jenisPokokPerkara} />
+                
+                {a?.subPokokPerkara && <DetailRow label="Sub Pokok Perkara" value={a.subPokokPerkara} />}
+                {a?.subSubPokokPerkara && <DetailRow label="Sub-Sub Pokok Perkara" value={a.subSubPokokPerkara} />}
+                
                 <DetailRow label="Rincian Pokok Perkara" value={a?.rincianPokokPerkara} />
-                <DetailRow label="Nomor Surat Kuasa" value={a?.nomorSuratKuasaKhusus} />
-                 <DetailRow label="Tags Perkara" value={
+                <DetailRow label="Unit Principal" value={
+                    (() => {
+                        const principals = [
+                            ...(record.pihakP || []),
+                            ...(record.pihakT || [])
+                        ].filter(p => p.unitBerperkara === 'Ya');
+                        
+                        return principals.length > 0 
+                            ? principals.map(p => p.identitas).join(', ') 
+                            : '-';
+                    })()
+                } />
+                
+                <DetailRow label="Tags" value={
                     a?.tagsPerkara && a.tagsPerkara.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                             {a.tagsPerkara.map((tag, index) => (
-                                <span key={index} className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <span key={index} className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded border border-blue-200 bg-blue-50 text-blue-700">
                                     {tag}
                                 </span>
                             ))}
                         </div>
-                    ) : 'Tidak ada tag'
+                    ) : null
+                } />
+                
+                <DetailRow label="Status Perkara" value={
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-tight ${
+                        record.statusPerkara === 'Aktif' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-700 border border-gray-200'
+                    }`}>
+                        {record.statusPerkara}
+                    </span>
                 } />
             </DetailSection>
-            <PihakTable title="Pihak P" data={record.pihakP || []} />
-            <PihakTable title="Pihak T" data={record.pihakT || []} />
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <PihakTable title="Pihak Penggugat / Pemohon" data={record.pihakP || []} />
+                <PihakTable title="Pihak Tergugat / Termohon" data={record.pihakT || []} />
+            </div>
+            
             <TuntutanTable data={record.tuntutan || []} />
-            <MajelisTable data={record.susunanMajelis || []} />
+
+            <DetailSection title="Analisis">
+                <DetailRow label="Isu Krusial" value={record.analisisPerkara?.isuKrusial} />
+                <DetailRow label="Analisa Hukum" value={record.analisisPerkara?.analisaHukum} />
+                <DetailRow label="Potensi Dampak bagi Kemenkeu" value={record.analisisPerkara?.potensiDampak} />
+                <DetailRow label="Risiko" value={
+                    record.analisisPerkara?.risiko ? (
+                        <span className={`px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${
+                            record.analisisPerkara.risiko === 'Tinggi' ? 'bg-red-100 text-red-700 border border-red-200' :
+                            record.analisisPerkara.risiko === 'Sedang' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
+                            'bg-green-100 text-green-700 border border-green-200'
+                        }`}>
+                            {record.analisisPerkara.risiko}
+                        </span>
+                    ) : '-'
+                } />
+                <DetailRow label="Keterangan Risiko" value={record.analisisPerkara?.keteranganRisiko} />
+                <DetailRow label="Analisis Sementara" value={record.analisisPerkara?.analisisSementara} />
+                <DetailRow label="Kesimpulan Sementara" value={record.analisisPerkara?.kesimpulanSementara} />
+            </DetailSection>
         </div>
     );
 };
 
-const PosisiSidangTingkatTable: React.FC<{ title: string, data: PosisiSidangEntry[] }> = ({ title, data }) => (
+const PosisiSidangTingkatTable: React.FC<{ title: string, data: PosisiSidangEntry[], onNavigate: (view: View, record?: PerkaraRecord) => void, record: PerkaraRecord }> = ({ title, data, onNavigate, record }) => (
      <DetailSection title={title}>
         <table className="min-w-full text-sm">
             <thead className="bg-gray-50"><tr>
@@ -139,54 +211,180 @@ const PosisiSidangTingkatTable: React.FC<{ title: string, data: PosisiSidangEntr
                     <td className="px-3 py-2">{p.suratTugas}<br/>{p.tanggalSuratTugas}</td>
                     <td className="px-3 py-2">{p.agendaSidang}<br/>{p.tanggalSidang}</td>
                     <td className="px-3 py-2">{p.agendaBerikutnya}<br/>{p.tanggalSidangBerikutnya}</td>
-                    <td className="px-3 py-2">{p.kehadiran}</td>
-                    <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                    <td className="px-3 py-2">
+                        {p.kehadiranPihak && p.kehadiranPihak.length > 0 
+                            ? p.kehadiranPihak.filter(k => k.status === 'Hadir').length > 0
+                                ? p.kehadiranPihak.filter(k => k.status === 'Hadir').map(k => k.label).join(', ')
+                                : 'Tidak ada yang hadir'
+                            : '-'
+                        }
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                        <div className="flex justify-center space-x-1">
+                            <button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button>
+                            <button type="button" onClick={() => onNavigate('formNaskah')} className="text-blue-500 p-1 hover:bg-gray-100 rounded-full" title="Generate Laporan (LAP) - Nadine"><DocumentTextIcon className="h-5 w-5"/></button>
+                        </div>
+                    </td>
                 </tr>)}
             </tbody>
         </table>
     </DetailSection>
 );
 
-const PosisiSidangTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => (
+const PosisiSidangTab: React.FC<{ record: PerkaraRecord, onNavigate: (view: View, record?: PerkaraRecord) => void }> = ({ record, onNavigate }) => (
     <div>
-        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Pertama" data={record.posisiSidang?.tkPertama || []} />
-        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Banding" data={record.posisiSidang?.tkBanding || []} />
-        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Kasasi" data={record.posisiSidang?.tkKasasi || []} />
-        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Peninjauan Kembali" data={record.posisiSidang?.tkPK || []} />
+        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Pertama" data={record.posisiSidang?.tkPertama || []} onNavigate={onNavigate} record={record} />
+        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Banding" data={record.posisiSidang?.tkBanding || []} onNavigate={onNavigate} record={record} />
+        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Kasasi" data={record.posisiSidang?.tkKasasi || []} onNavigate={onNavigate} record={record} />
+        <PosisiSidangTingkatTable title="Posisi Sidang Tk. Peninjauan Kembali" data={record.posisiSidang?.tkPK || []} onNavigate={onNavigate} record={record} />
     </div>
 );
 
-const PutusanTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => (
-    <div>
-        <DetailSection title="Putusan Perkara">
-            <table className="min-w-full text-sm">
-                <thead className="bg-gray-50"><tr>
-                    {['No', 'Nomor', 'Tanggal', 'Amar', 'Status', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-                </tr></thead>
-                <tbody className="divide-y divide-gray-200">
-                    {(record.putusan || []).map(p => <tr key={p.id}>
-                        <td className="px-3 py-2">{p.id}</td>
-                        <td className="px-3 py-2">{p.nomor}</td>
-                        <td className="px-3 py-2">{p.tanggal}</td>
-                        <td className="px-3 py-2">{p.amar}</td>
-                        <td className="px-3 py-2">{p.status}</td>
-                        <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                    </tr>)}
-                </tbody>
-            </table>
-        </DetailSection>
-        <DetailSection title="Status BHT">
-            <DetailRow label="Status" value={record.statusBHT?.status} />
-            <DetailRow label="Keterangan Dampak" value={record.statusBHT?.keteranganDampak} />
-        </DetailSection>
-    </div>
-);
+const PutusanTab: React.FC<{ record: PerkaraRecord, onNavigate: (view: View, record?: PerkaraRecord) => void }> = ({ record, onNavigate }) => {
+    const [expandedPutusan, setExpandedPutusan] = useState<number | null>(null);
+
+    return (
+        <div className="space-y-6">
+            <DetailSection title="Kumpulan Putusan">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th className="px-3 py-3 text-left font-semibold text-gray-700">No</th>
+                                <th className="px-3 py-3 text-left font-semibold text-gray-700">Posisi</th>
+                                <th className="px-3 py-3 text-left font-semibold text-gray-700">Nomor & Tanggal</th>
+                                <th className="px-3 py-3 text-left font-semibold text-gray-700">Status</th>
+                                <th className="px-3 py-3 text-center font-semibold text-gray-700">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {(record.putusan || []).map((p, index) => (
+                                <React.Fragment key={p.id}>
+                                    <tr className={`hover:bg-gray-50 transition-colors ${expandedPutusan === p.id ? 'bg-blue-50' : ''}`}>
+                                        <td className="px-3 py-4">{index + 1}</td>
+                                        <td className="px-3 py-4">
+                                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-bold uppercase">{p.posisi || 'Pertama'}</span>
+                                        </td>
+                                        <td className="px-3 py-4">
+                                            <div className="font-semibold text-blue-700">{p.nomor}</div>
+                                            <div className="text-xs text-gray-500">{p.tanggal}</div>
+                                        </td>
+                                        <td className="px-3 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                                p.status === 'Menang' ? 'bg-green-100 text-green-700' : 
+                                                p.status === 'Kalah' ? 'bg-red-100 text-red-700' : 
+                                                'bg-yellow-100 text-yellow-700'
+                                            }`}>
+                                                {p.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-3 py-4 text-center">
+                                            <div className="flex justify-center space-x-2">
+                                                <button 
+                                                    onClick={() => setExpandedPutusan(expandedPutusan === p.id ? null : p.id)}
+                                                    className={`p-1.5 rounded-full transition-colors ${expandedPutusan === p.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-200 text-gray-600'}`}
+                                                    title={expandedPutusan === p.id ? "Sembunyikan Detail" : "Lihat Detail"}
+                                                >
+                                                    <EyeIcon className="h-5 w-5"/>
+                                                </button>
+                                                <button type="button" onClick={() => onNavigate('formNaskah')} className="text-blue-500 p-1.5 hover:bg-gray-200 rounded-full" title="Generate Laporan (LAP) - Nadine"><DocumentTextIcon className="h-5 w-5"/></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {expandedPutusan === p.id && (
+                                        <tr className="bg-white border-x border-blue-200">
+                                            <td colSpan={5} className="p-0">
+                                                <div className="p-6 bg-white border-b-2 border-blue-100 shadow-inner">
+                                                    <div className="grid grid-cols-1 gap-6">
+                                                        {/* Pertimbangan Hakim */}
+                                                        <div>
+                                                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Pertimbangan Hakim</h4>
+                                                            <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap">
+                                                                {p.pertimbanganHakim || 'Tidak ada data pertimbangan.'}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {/* Amar Putusan */}
+                                                        <div>
+                                                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Amar Putusan</h4>
+                                                            <div className="p-4 bg-blue-50/50 rounded-lg text-sm text-gray-900 leading-relaxed font-medium whitespace-pre-wrap">
+                                                                {p.amar || 'Tidak ada data amar.'}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Keterangan */}
+                                                        <div>
+                                                            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Keterangan Tambahan</h4>
+                                                            <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 italic whitespace-pre-wrap">
+                                                                {p.keterangan || 'Tidak ada keterangan.'}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div>
+                                                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Majelis & Panitera</h4>
+                                                                <div className="space-y-1">
+                                                                    {p.susunanMajelis?.map(m => (
+                                                                        <div key={m.id} className="flex justify-between text-xs p-2 bg-white border border-gray-100 rounded">
+                                                                            <span className="text-gray-500">{m.jabatan}:</span>
+                                                                            <span className="font-semibold">{m.identitas}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                    {(!p.susunanMajelis || p.susunanMajelis.length === 0) && <p className="text-xs text-gray-400 italic">Belum ada majelis.</p>}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Dokumen Putusan</h4>
+                                                                {p.dokumen ? (
+                                                                    <div className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded">
+                                                                        <div className="flex items-center space-x-2">
+                                                                            <DocumentTextIcon className="h-5 w-5 text-red-600" />
+                                                                            <span className="text-sm font-medium text-red-900">{p.dokumen}</span>
+                                                                        </div>
+                                                                        <button className="text-xs font-bold text-red-700 hover:underline">Download</button>
+                                                                    </div>
+                                                                ) : <p className="text-xs text-gray-400 italic">Tidak ada berkas diunggah.</p>}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                            {(!record.putusan || record.putusan.length === 0) && (
+                                <tr><td colSpan={5} className="text-center py-10 text-gray-500">Belum ada data putusan tersedia.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </DetailSection>
+
+            <DetailSection title="Status BHT (Berkekuatan Hukum Tetap)">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DetailRow label="Status BHT" value={
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${record.statusBHT?.status === 'Inkracht' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {record.statusBHT?.status || 'Belum Inkracht'}
+                        </span>
+                    } />
+                    <div className="md:col-span-2 mt-2">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Keterangan Dampak Putusan</h4>
+                        <div className="p-4 bg-purple-50 border border-purple-100 rounded-lg text-sm text-gray-800 leading-relaxed whitespace-pre-wrap min-h-[100px]">
+                            {record.statusBHT?.keteranganDampak || 'Belum ada data dampak putusan.'}
+                        </div>
+                    </div>
+                </div>
+            </DetailSection>
+        </div>
+    );
+};
 
 const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
-    const { files, dokumenLitigasi } = record;
+    const { files, dokumenLitigasi, posisiSidang, putusan } = record;
 
     const DokumenPermohonanTable = () => (
-        <DetailSection title="Dokumen Permohonan">
+        <DetailSection title="1. Dokumen Permohonan">
             {files && files.length > 0 ? (
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">
@@ -195,17 +393,22 @@ const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => 
                             <th className="px-3 py-2 text-left font-medium text-gray-600">Nama File</th>
                             <th className="px-3 py-2 text-left font-medium text-gray-600">Ukuran</th>
                             <th className="px-3 py-2 text-left font-medium text-gray-600">Tipe</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-600">Aksi</th>
+                            <th className="px-3 py-2 text-center font-medium text-gray-600">Aksi</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {files.map((file, index) => (
                             <tr key={index}>
                                 <td className="px-3 py-2">{index + 1}</td>
-                                <td className="px-3 py-2">{file.name}</td>
-                                <td className="px-3 py-2">{(file.size / 1024).toFixed(2)} KB</td>
-                                <td className="px-3 py-2">{file.type}</td>
                                 <td className="px-3 py-2">
+                                    <div className="flex items-center space-x-2">
+                                        <DocumentTextIcon className="h-4 w-4 text-blue-500" />
+                                        <span>{file.name}</span>
+                                    </div>
+                                </td>
+                                <td className="px-3 py-2">{(file.size / 1024).toFixed(2)} KB</td>
+                                <td className="px-3 py-2 uppercase text-xs">{file.type.split('/')[1] || 'FILE'}</td>
+                                <td className="px-3 py-2 text-center">
                                     <button className="text-blue-600 hover:text-blue-900"><EyeIcon className="h-5 w-5" /></button>
                                 </td>
                             </tr>
@@ -219,21 +422,25 @@ const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => 
     );
 
     const DokumenLitigasiTable = () => (
-        <DetailSection title="Dokumen Litigasi">
+        <DetailSection title="2. Dokumen Litigasi (SKU, Dokumen Litigasi)">
             <table className="min-w-full text-sm">
                 <thead className="bg-gray-50"><tr>
-                    {['No', 'No Naskah/Tiket/ID', 'Jenis Dokumen', 'Deskripsi Dokumen', 'Timestamp', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
+                    {['No', 'No Naskah/Tiket/ID', 'Jenis', 'Deskripsi', 'Tanggal', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
                 </tr></thead>
                 <tbody className="divide-y divide-gray-200">
-                    {(dokumenLitigasi || []).filter(d => !d.jenis.toLowerCase().includes('putusan')).map((d, i) => <tr key={d.id}>
+                    {(dokumenLitigasi || []).map((d, i) => <tr key={d.id}>
                         <td className="px-3 py-2">{i+1}</td>
-                        <td className="px-3 py-2">{d.noNaskah}</td>
-                        <td className="px-3 py-2">{d.jenis}</td>
-                        <td className="px-3 py-2">{d.deskripsi}</td>
-                        <td className="px-3 py-2">{d.timestamp}</td>
-                        <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                        <td className="px-3 py-2 font-medium">{d.noNaskah}</td>
+                        <td className="px-3 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${d.jenis === 'SKU' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
+                                {d.jenis}
+                            </span>
+                        </td>
+                        <td className="px-3 py-2 truncate max-w-xs">{d.deskripsi}</td>
+                        <td className="px-3 py-2">{d.timestamp.split(' ')[0]}</td>
+                        <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
                     </tr>)}
-                    {(!dokumenLitigasi || dokumenLitigasi.filter(d => !d.jenis.toLowerCase().includes('putusan')).length === 0) && (
+                    {(!dokumenLitigasi || dokumenLitigasi.length === 0) && (
                         <tr><td colSpan={6} className="text-center py-4 text-gray-500">Belum ada dokumen litigasi.</td></tr>
                     )}
                 </tbody>
@@ -241,33 +448,77 @@ const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => 
         </DetailSection>
     );
 
-    const DokumenPutusanTable = () => (
-        <DetailSection title="Dokumen Putusan">
-            <table className="min-w-full text-sm">
-                <thead className="bg-gray-50"><tr>
-                    {['No', 'No Naskah/Tiket/ID', 'Jenis Dokumen', 'Deskripsi Dokumen', 'Timestamp', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-                </tr></thead>
-                <tbody className="divide-y divide-gray-200">
-                    {(dokumenLitigasi || []).filter(d => d.jenis.toLowerCase().includes('putusan')).map((d, i) => <tr key={d.id}>
-                        <td className="px-3 py-2">{i+1}</td>
-                        <td className="px-3 py-2">{d.noNaskah}</td>
-                        <td className="px-3 py-2">{d.jenis}</td>
-                        <td className="px-3 py-2">{d.deskripsi}</td>
-                        <td className="px-3 py-2">{d.timestamp}</td>
-                        <td className="px-3 py-2"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                    </tr>)}
-                     {(!dokumenLitigasi || dokumenLitigasi.filter(d => d.jenis.toLowerCase().includes('putusan')).length === 0) && (
-                        <tr><td colSpan={6} className="text-center py-4 text-gray-500">Belum ada dokumen putusan.</td></tr>
-                    )}
-                </tbody>
-            </table>
-        </DetailSection>
-    );
+    const DokumenLaporanTable = () => {
+        const laporanDocs = [
+            ...(posisiSidang?.tkPertama || []),
+            ...(posisiSidang?.tkBanding || []),
+            ...(posisiSidang?.tkKasasi || []),
+            ...(posisiSidang?.tkPK || [])
+        ].map(s => ({ id: `ls-${s.id}`, name: `Laporan Sidang - ${s.agendaSidang}`, date: s.tanggalSidang }))
+        .concat((putusan || []).map(p => ({ id: `lp-${p.id}`, name: `Laporan Putusan - ${p.nomor}`, date: p.tanggal })));
+
+        return (
+            <DetailSection title="3. Dokumen Laporan (Generate Laporan)">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            {['No', 'Nama Laporan', 'Tanggal', 'Sumber', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {laporanDocs.map((d, i) => (
+                            <tr key={d.id}>
+                                <td className="px-3 py-2">{i + 1}</td>
+                                <td className="px-3 py-2 font-medium">{d.name}</td>
+                                <td className="px-3 py-2">{d.date}</td>
+                                <td className="px-3 py-2 text-gray-400 italic text-xs">Nadine (Auto-generated)</td>
+                                <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                            </tr>
+                        ))}
+                        {laporanDocs.length === 0 && (
+                             <tr><td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen laporan yang di-generate.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </DetailSection>
+        );
+    }
+
+    const DokumenPutusanTable = () => {
+        const pDocs = (putusan || []).filter(p => (p as any).dokumen);
+        return (
+            <DetailSection title="4. Dokumen Putusan">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50"><tr>
+                        {['No', 'Nomor Putusan', 'Nama Berkas', 'Tanggal', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
+                    </tr></thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {pDocs.map((p, i) => (
+                            <tr key={p.id}>
+                                <td className="px-3 py-2">{i+1}</td>
+                                <td className="px-3 py-2 font-medium">{p.nomor}</td>
+                                <td className="px-3 py-2 flex items-center space-x-2">
+                                    <DocumentTextIcon className="h-4 w-4 text-red-500" />
+                                    <span>{(p as any).dokumen}</span>
+                                </td>
+                                <td className="px-3 py-2">{p.tanggal}</td>
+                                <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
+                            </tr>
+                        ))}
+                        {pDocs.length === 0 && (
+                            <tr><td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen putusan yang diunggah.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </DetailSection>
+        );
+    }
 
     return (
-        <div>
+        <div className="space-y-2">
             <DokumenPermohonanTable />
             <DokumenLitigasiTable />
+            <DokumenLaporanTable />
             <DokumenPutusanTable />
         </div>
     );
@@ -380,7 +631,7 @@ const RiwayatTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
     );
 };
 
-const DetailPerkara: React.FC<DetailPerkaraProps> = ({ record, onBack }) => {
+const DetailPerkara: React.FC<DetailPerkaraProps> = ({ record, onBack, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('informasi');
 
   return (
@@ -397,15 +648,15 @@ const DetailPerkara: React.FC<DetailPerkaraProps> = ({ record, onBack }) => {
                 <TabButton name="informasi" label="Informasi Umum" activeTab={activeTab} setActiveTab={setActiveTab} />
                 <TabButton name="posisi" label="Posisi Sidang" activeTab={activeTab} setActiveTab={setActiveTab} />
                 <TabButton name="putusan" label="Putusan" activeTab={activeTab} setActiveTab={setActiveTab} />
-                <TabButton name="dokumen" label="Dokumen Litigasi" activeTab={activeTab} setActiveTab={setActiveTab} />
+                <TabButton name="dokumen" label="Dokumen" activeTab={activeTab} setActiveTab={setActiveTab} />
                 <TabButton name="riwayat" label="Riwayat" activeTab={activeTab} setActiveTab={setActiveTab} />
             </nav>
         </div>
         
         <main className="flex-1 overflow-y-auto pr-4">
             {activeTab === 'informasi' && <InformasiUmumTab record={record} />}
-            {activeTab === 'posisi' && <PosisiSidangTab record={record} />}
-            {activeTab === 'putusan' && <PutusanTab record={record} />}
+            {activeTab === 'posisi' && <PosisiSidangTab record={record} onNavigate={onNavigate} />}
+            {activeTab === 'putusan' && <PutusanTab record={record} onNavigate={onNavigate} />}
             {activeTab === 'dokumen' && <DokumenLitigasiTab record={record} />}
             {activeTab === 'riwayat' && <RiwayatTab record={record} />}
         </main>

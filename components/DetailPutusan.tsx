@@ -20,9 +20,9 @@ const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
           <div><span className="font-semibold">Tahun Masuk:</span> {record.abstraksiPerkara?.tahunMasuk}</div>
           <div><span className="font-semibold">No Perkara:</span> {record.abstraksiPerkara?.noPerkara || record.Nomor}</div>
           <div><span className="font-semibold">Wilayah:</span> {record.abstraksiPerkara?.wilayah}</div>
-          <div><span className="font-semibold">Jenis Perkara:</span> {record.abstraksiPerkara?.jenisPerkara?.join(', ')}</div>
-          <div><span className="font-semibold">Pengadilan:</span> {record.abstraksiPerkara?.pengadilan?.join(', ')}</div>
-          <div><span className="font-semibold">Jenis Pokok Perkara:</span> {record.abstraksiPerkara?.jenisPokokPerkara?.join(', ')}</div>
+          <div><span className="font-semibold">Jenis Perkara:</span> {record.abstraksiPerkara?.jenisPerkara}</div>
+          <div><span className="font-semibold">Pengadilan:</span> {record.abstraksiPerkara?.pengadilan}</div>
+          <div><span className="font-semibold">Jenis Pokok Perkara:</span> {record.abstraksiPerkara?.jenisPokokPerkara}</div>
           <div className="md:col-span-2"><span className="font-semibold">Rincian Pokok Perkara:</span> {record.abstraksiPerkara?.rincianPokokPerkara}</div>
           <div className="md:col-span-2"><span className="font-semibold">Tags Perkara:</span> {record.abstraksiPerkara?.tagsPerkara?.join(', ')}</div>
         </div>
