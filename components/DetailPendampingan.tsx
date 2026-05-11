@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { PendampinganRecord, FileData, PosisiUpdate, Riwayat } from '../types';
-import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon } from './icons';
+import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon } from './icons';
 
 type DetailTab = 'informasi' | 'posisi' | 'dokumen' | 'riwayat';
 
@@ -30,21 +30,86 @@ const InformasiUmumTab: React.FC<{ record: PendampinganRecord }> = ({ record }) 
     const { abstraksi } = record;
     if (!abstraksi) return <p className="text-center text-gray-500 py-8">Data abstraksi tidak tersedia.</p>;
 
+    const PihakTable = ({ title, data }: { title: string, data: any[] }) => (
+        <div className="border border-gray-300 rounded-md mb-6">
+            <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">{title}</h3>
+            <div className="overflow-x-auto">
+                <table className="min-w-full text-sm divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-4 py-2 text-left font-semibold text-gray-600">No</th>
+                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Nama Pihak</th>
+                            <th className="px-4 py-2 text-left font-semibold text-gray-600">Jabatan / Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {data && data.length > 0 ? data.map((p, i) => (
+                            <tr key={p.id}>
+                                <td className="px-4 py-2.5">{i + 1}</td>
+                                <td className="px-4 py-2.5 font-medium">{p.nama}</td>
+                                <td className="px-4 py-2.5">{p.jabatan}</td>
+                            </tr>
+                        )) : (
+                            <tr><td colSpan={3} className="px-4 py-4 text-center text-gray-500 italic">Tidak ada data.</td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+
     return (
-        <div className="border border-gray-300 rounded-md">
-            <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">Abstraksi</h3>
-            <table className="w-full m-4">
-                <tbody>
-                    <DetailRow label="Tahun Masuk" value={abstraksi.tahunMasuk} />
-                    <DetailRow label="Nomor Tiket / Nomor Dinas" value={abstraksi.nomorTiket} />
-                    <DetailRow label="Unit Pemanggil" value={abstraksi.unitPemanggil} />
-                    <DetailRow label="Unit Pemohon" value={abstraksi.unitPemohon} />
-                    <DetailRow label="Pihak yang Dipanggil" value={abstraksi.pihakDipanggil} />
-                    <DetailRow label="Wilayah" value={abstraksi.wilayah} />
-                    <DetailRow label="Pokok Permasalahan" value={abstraksi.pokokPermasalahan} />
-                    <DetailRow label="Keterangan" value={abstraksi.keterangan} />
-                </tbody>
-            </table>
+        <div className="space-y-6">
+            <div className="border border-gray-300 rounded-md">
+                <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">Informasi Umum</h3>
+                <div className="p-4">
+                    <table className="w-full">
+                        <tbody>
+                            <DetailRow label="Tahun Masuk" value={abstraksi.tahunMasuk} />
+                            <DetailRow label="Nomor Tiket / Surat Permohonan" value={abstraksi.nomorTiket} />
+                            <DetailRow label="Unit Pemohon" value={abstraksi.unitPemohon} />
+                            <DetailRow label="Unit Pemanggil" value={abstraksi.unitPemanggil} />
+                            <DetailRow label="Wilayah" value={abstraksi.wilayah} />
+                            <DetailRow label="Rincian Pokok Permasalahan" value={<div className="whitespace-pre-wrap">{abstraksi.pokokPermasalahan}</div>} />
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <PihakTable title="Pihak Terpanggil" data={abstraksi.pihakTerpanggil || []} />
+                <PihakTable title="Pihak Pemanggil" data={abstraksi.pihakPemanggil || []} />
+            </div>
+
+            <div className="border border-gray-300 rounded-md">
+                <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">Analisa Kasus</h3>
+                <div className="p-4 space-y-6">
+                    <div>
+                        <h4 className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wider">Informasi Awal</h4>
+                        <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-800 leading-relaxed whitespace-pre-wrap min-h-[100px]">
+                            {abstraksi.analisaKasus?.informasiAwal || '-'}
+                        </div>
+                    </div>
+                    
+                    {abstraksi.analisaKasus?.informasiPihakTerpanggil && abstraksi.analisaKasus.informasiPihakTerpanggil.length > 0 && (
+                        <div className="space-y-6">
+                            {abstraksi.analisaKasus.informasiPihakTerpanggil.map((info: any, idx: number) => {
+                                const pihak = abstraksi.pihakTerpanggil?.find(p => p.id === info.pihakId);
+                                return (
+                                    <div key={info.id || idx}>
+                                        <h4 className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wider">
+                                            Informasi dari {pihak?.nama || 'Pihak Terpanggil'} {pihak?.jabatan ? `(${pihak.jabatan})` : ''}
+                                        </h4>
+                                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-gray-800 leading-relaxed whitespace-pre-wrap min-h-[50px]">
+                                            {info.keterangan || '-'}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
@@ -62,15 +127,14 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
     return (
         <div className="border border-gray-200 rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 uppercase tracking-wider text-[10px] text-gray-500">
                     <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Surat Tugas</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agenda</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pemanggil dan Surat Pemanggilan</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durasi (Menit)</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rincian Pelaksanaan</th>
+                        <th className="px-4 py-3 text-left font-bold">No</th>
+                        <th className="px-4 py-3 text-left font-bold">Surat Tugas</th>
+                        <th className="px-4 py-3 text-left font-bold">Agenda & Waktu</th>
+                        <th className="px-4 py-3 text-left font-bold">Pihak & Surat Pemanggilan</th>
+                        <th className="px-4 py-3 text-left font-bold">Posisi Kasus</th>
+                        <th className="px-4 py-3 text-left font-bold">Rincian Pelaksanaan</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -81,17 +145,20 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
                                 {p.suratTugas}
                                 <div className="text-xs text-gray-500">{formatDate(p.tanggalSuratTugas)}</div>
                             </td>
-                            <td className="px-4 py-4 text-sm text-gray-800">
+                            <td className="px-4 py-4 text-sm text-gray-800 font-medium">
                                 {p.agenda}
-                                <div className="text-xs text-gray-500">{formatDate(p.tanggalAgenda)}</div>
+                                <div className="text-xs text-gray-500 mt-1">{formatDate(p.tanggalAgenda)}</div>
+                                <div className="text-[10px] text-blue-600 bg-blue-50 inline-block px-1.5 py-0.5 rounded mt-1">{p.durasi} Menit</div>
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-800">
-                                <div><span className="font-bold">Pemanggil:</span> {p.pemanggilDanSurat.pemanggil}</div>
-                                <div><span className="font-bold">Surat Pemanggilan:</span> {p.pemanggilDanSurat.surat}</div>
+                                <div className="mb-1"><span className="text-[10px] uppercase font-bold text-gray-400 block">Pemanggil</span> {p.pemanggil}</div>
+                                <div className="mb-1"><span className="text-[10px] uppercase font-bold text-gray-400 block">Terpanggil</span> {p.terpanggil}</div>
+                                <div><span className="text-[10px] uppercase font-bold text-gray-400 block">Surat Pemanggilan</span> {p.suratPemanggilan}</div>
                             </td>
-                            <td className="px-4 py-4 text-sm text-gray-800">{p.lokasi}</td>
-                            <td className="px-4 py-4 text-sm text-gray-800">{p.durasi}</td>
-                            <td className="px-4 py-4 text-sm text-gray-800">{p.rincian}</td>
+                            <td className="px-4 py-4 text-sm text-gray-800 font-semibold">{p.posisiKasus}</td>
+                            <td className="px-4 py-4 text-sm text-gray-600">
+                                <div className="line-clamp-2">{p.rincian}</div>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -101,69 +168,86 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
 };
 
 const DokumenTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
-    const { files } = record;
+    // In a real app, these would come from record.abstraksi.administrasiDokumen or record.files
+    // For now, we mix them into categories for display matching the management page
+    const allFiles = record.files || [];
+    
+    // Categorize files (mocking categories since they aren't explicitly in FileData)
+    // We'll put initial files in permohonan, and others might come from record.abstraksi.administrasiDokumen if it exists
+    const permohonanDocs = allFiles.map((f, i) => ({
+        id: `f-${i}`,
+        nama: f.name,
+        nomor: record.Nomor || '-',
+        tanggal: record.tanggal || '-',
+        type: 'upload'
+    }));
 
-    const DokumenPermohonanTable = () => (
-        <div className="border border-gray-200 rounded-lg overflow-hidden mb-6">
-            <h3 className="px-4 py-3 bg-gray-100 font-semibold text-gray-700 border-b border-gray-200">Dokumen Permohonan</h3>
-            {files && files.length > 0 ? (
+    const renderDocumentTable = (title: string, docs: any[]) => (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8 last:mb-0">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                    <h3 className="font-bold text-gray-800">{title}</h3>
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{docs.length} Berkas</span>
+                </div>
+            </div>
+            
+            <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama File</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ukuran</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor / Tanggal</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sumber</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Aksi</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {files.map((file, index) => (
-                            <tr key={index}>
-                                <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
-                                <td className="px-4 py-4 text-sm text-gray-900">{file.name}</td>
-                                <td className="px-4 py-4 text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</td>
-                                <td className="px-4 py-4 text-sm text-gray-500">{file.type}</td>
-                                <td className="px-4 py-4 text-sm">
-                                    <button className="text-blue-600 hover:text-blue-900"><DownloadIcon className="h-5 w-5" /></button>
+                        {docs.length > 0 ? docs.map((doc, index) => (
+                            <tr key={doc.id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                    <div className="flex items-center space-x-2">
+                                        <DocumentTextIcon className={`h-5 w-5 ${
+                                            doc.type === 'upload' ? 'text-orange-500' : 
+                                            doc.type === 'nadine' ? 'text-blue-500' : 'text-green-500'
+                                        }`} />
+                                        <span>{doc.nama}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {doc.nomor && <span className="block font-medium text-gray-700">{doc.nomor}</span>}
+                                    {doc.tanggal && <span className="text-xs">{doc.tanggal}</span>}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                        doc.type === 'upload' ? 'bg-orange-100 text-orange-700' : 
+                                        doc.type === 'nadine' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                                    }`}>
+                                        {doc.type}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 text-gray-400">
+                                    <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
+                                    <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
                                 </td>
                             </tr>
-                        ))}
+                        )) : (
+                            <tr>
+                                <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic text-sm">Belum ada dokumen yang tersedia.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
-            ) : (
-                <p className="text-center text-gray-500 py-4">Tidak ada dokumen permohonan.</p>
-            )}
-        </div>
-    );
-
-    const DokumenPendampinganTable = () => (
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <h3 className="px-4 py-3 bg-gray-100 font-semibold text-gray-700 border-b border-gray-200">Dokumen Pendampingan</h3>
-             <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">No</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keterangan</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {/* Placeholder for Dokumen Pendampingan data */}
-                    <tr>
-                        <td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen pendampingan.</td>
-                    </tr>
-                </tbody>
-            </table>
+            </div>
         </div>
     );
 
     return (
-        <div>
-            <DokumenPermohonanTable />
-            <DokumenPendampinganTable />
+        <div className="max-w-6xl mx-auto py-4">
+            {renderDocumentTable("1. Dokumen Permohonan & Pemanggilan", permohonanDocs)}
+            {renderDocumentTable("2. Dokumen Pendampingan & Data Dukung", [])}
+            {renderDocumentTable("3. Dokumen Laporan", [])}
         </div>
     );
 }

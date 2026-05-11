@@ -62,13 +62,16 @@ export interface PosisiUpdate {
     id: number;
     suratTugas: string;
     tanggalSuratTugas?: string;
+    suratPemanggilan: string;
+    pemanggil: string;
+    terpanggil: string;
     agenda: string;
-    tanggalAgenda?: string;
-    pemanggilDanSurat: { pemanggil: string; surat: string };
-    lokasi: string;
+    tanggalAgenda: string;
     durasi: number; // in minutes
+    posisiKasus: string;
     rincian: string;
     timestamp: Date;
+    lokasi?: string;
 }
 
 export interface TeamMember {
@@ -113,6 +116,11 @@ export interface PendampinganRecord extends Permohonan {
       informasiAwal?: string;
       penyelidik?: string[];
       pihakTerpanggil?: Array<{ id: string; nama: string; jabatan: string; poinPenjelasan: string[] }>;
+      pihakPemanggil?: Array<{ id: string; nama: string; jabatan: string }>;
+      analisaKasus?: {
+          informasiAwal?: string;
+          informasiPihakTerpanggil?: Array<{ id: string; pihakId: string; keterangan: string }>;
+      };
       administrasiDokumen?: Array<{ id: string; kategori: string; nomorSurat: string; tanggal: string; keterangan: string }>;
   };
   team?: TeamMember[];
@@ -127,9 +135,10 @@ export enum StatusPutusan {
 
 export interface TuntutanAkhir {
     id: number;
-    objek: string;
+    objek?: string;
+    jenisObjekTuntutan?: string;
     jenis: string;
-    jumlahNominal: string;
+    jumlahNominal: number;
     satuan: string;
     keterangan: string;
 }
@@ -324,6 +333,6 @@ export type View =
   'eAdvokasiBeranda' | 'eAdvokasiPendampingan' | 'eAdvokasiPenangananPerkara' | 'eAdvokasiPenangananPutusan' |
   'eAdvokasiKalender' | 'eAdvokasiMonitoring' | 'eAdvokasiLaporan' |
   'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq' |
-  'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' |
+  'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' | 'eAdvokasiPendampinganDokumen' |
   'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' | 'eAdvokasiPerkaraDokumen' |
-  'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim';
+  'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim' | 'eAdvokasiPutusanDokumen';

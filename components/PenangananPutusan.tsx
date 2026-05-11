@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { PerkaraRecord, StatusPutusan, View } from '../types';
-import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon } from './icons';
+import { PerkaraRecord, StatusPutusan, View, TeamMember } from '../types';
+import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon } from './icons';
+
+const getPicName = (record: PerkaraRecord): string => {
+    if (!record.picId || !record.team || record.team.length === 0) {
+        return 'N/A';
+    }
+    const pic = record.team.find((member: TeamMember) => member.id === record.picId);
+    return pic ? pic.nama : 'N/A';
+};
 
 interface PenangananPutusanProps {
   daftarPutusan: PerkaraRecord[];
@@ -8,6 +16,7 @@ interface PenangananPutusanProps {
   onEdit: (record: PerkaraRecord) => void;
   onUpdateTindakLanjut: (record: PerkaraRecord) => void;
   onManageTim: (record: PerkaraRecord) => void;
+  onManageDokumen: (record: PerkaraRecord) => void;
   onDelete: (id: string) => void;
   onSetSelesai: (id: string) => void;
 }
@@ -18,6 +27,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     onEdit, 
     onUpdateTindakLanjut, 
     onManageTim, 
+    onManageDokumen,
     onDelete, 
     onSetSelesai 
 }) => {
@@ -36,6 +46,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Masuk</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Perkara</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status BHT</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
           </tr>
         </thead>
@@ -47,25 +58,40 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.abstraksiPerkara?.tahunMasuk}</td>
               <td className="px-6 py-4 text-sm text-gray-500">{p.abstraksiPerkara?.jenisPerkara}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.statusBHT?.status}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                <div className="flex items-center justify-center space-x-1">
-                    <button onClick={() => onView(p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="View"><EyeIcon className="h-5 w-5" /></button>
-                    {!isSelesai && (
-                        <>
-                            <button onClick={() => onEdit(p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="Edit"><PencilIcon className="h-5 w-5" /></button>
-                            <button onClick={() => onUpdateTindakLanjut(p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="Update Tindak Lanjut"><ArrowUpIcon className="h-5 w-5" /></button>
-                            <button onClick={() => onManageTim(p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="Manage Tim"><UserGroupIcon className="h-5 w-5" /></button>
-                            <button onClick={() => onDelete(p.id)} className="p-2 rounded-full hover:bg-gray-200 text-red-500" title="Hapus"><TrashIcon className="h-5 w-5" /></button>
-                            <button onClick={() => onSetSelesai(p.id)} className="p-2 rounded-full hover:bg-gray-200 text-green-500" title="Set Selesai"><CheckIcon className="h-5 w-5" /></button>
-                        </>
-                    )}
+              <td className="px-4 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                      <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-2">
+                          <UserIcon className="h-4 w-4" />
+                      </div>
+                      <div className="flex flex-col">
+                          <span className="text-sm text-gray-700 font-medium">{getPicName(p)}</span>
+                          <span className="text-[10px] text-gray-400 font-bold leading-tight">Last update:</span>
+                          <span className="text-[10px] text-gray-400 font-medium truncate leading-tight">{new Date().toLocaleString('id-ID', { hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, '/')}</span>
+                      </div>
+                  </div>
+              </td>
+              <td className="px-4 py-4 whitespace-nowrap w-40">
+                <div className="flex items-center justify-center">
+                    <div className="grid grid-cols-4 gap-1 w-fit">
+                        <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View"><EyeIcon className="h-4 w-4" /></button>
+                        {!isSelesai && (
+                            <>
+                                <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit"><PencilIcon className="h-4 w-4" /></button>
+                                <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
+                                <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen"><CloudIcon className="h-4 w-4" /></button>
+                                <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Manage Tim"><UserIcon className="h-4 w-4" /></button>
+                                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus"><TrashIcon className="h-4 w-4" /></button>
+                                <button onClick={() => onSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                            </>
+                        )}
+                    </div>
                 </div>
               </td>
             </tr>
           ))}
           {data.length === 0 && (
             <tr>
-              <td colSpan={6} className="text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan.</td>
+              <td colSpan={7} className="text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan.</td>
             </tr>
           )}
         </tbody>
@@ -74,26 +100,34 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Penanganan Putusan</h1>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+    <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-6">
+      <div className="flex flex-col">
+        <h1 className="text-3xl font-bold text-gray-800">Penanganan Putusan</h1>
+        <p className="text-gray-600 mt-1">Kelola tindak lanjut atas putusan perkara hukum.</p>
+        <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1 flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">Putusan</h2>
+        </div>
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+          <nav className="-mb-px flex space-x-6" aria-label="Tabs">
             <button
               onClick={() => setActiveTab('aktif')}
-              className={`${activeTab === 'aktif' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm`}
+              className={`${activeTab === 'aktif' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors`}
             >
               Aktif
             </button>
             <button
               onClick={() => setActiveTab('selesai')}
-              className={`${activeTab === 'selesai' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm`}
+              className={`${activeTab === 'selesai' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors`}
             >
               Selesai
             </button>
           </nav>
         </div>
-        <div className="pt-2">
+        <div className="mt-4 flex-1 overflow-y-auto">
             {activeTab === 'aktif' && renderTable(aktifPutusan, false)}
             {activeTab === 'selesai' && renderTable(selesaiPutusan, true)}
         </div>

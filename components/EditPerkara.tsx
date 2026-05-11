@@ -247,9 +247,13 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
             rincianPokokPerkara: PREFILL_RINCIAN,
         };
         const defaultAnalisis = {
+            isuKrusial: '',
             analisaHukum: PREFILL_ANALISA,
-            keteranganRisiko: PREFILL_RISIKO,
+            potensiDampak: '',
             risiko: 'Rendah' as const,
+            keteranganRisiko: PREFILL_RISIKO,
+            analisisSementara: '',
+            kesimpulanSementara: '',
         };
         
         const abstraksiFromPermohonan = isNewRecordFromPermohonan ? {

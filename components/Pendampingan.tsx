@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Permohonan, PendampinganRecord, StatusPendampingan, View, TeamMember } from '../types';
-import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon } from './icons';
+import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, CloudIcon, PencilIcon, TrashIcon, DownloadIcon, DocumentTextIcon, UserIcon, CheckCircleIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import FormPendampinganModal from './FormPendampinganModal';
 
@@ -53,6 +53,7 @@ const ActionsDropdown: React.FC<{ record: PendampinganRecord, onAction: (action:
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('view') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">View</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('edit') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Edit</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('update') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Update Posisi</a>
+                        <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('dokumen') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Dokumen</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('manage-tim') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Manage Tim</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('selesai') }} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Set Selesai</a>
                         <a href="#" onClick={(e) => { e.preventDefault(); handleSelect('hapus') }} className="text-red-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Hapus</a>
@@ -94,6 +95,9 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                 break;
             case 'update':
                 onManagePosisi(record);
+                break;
+            case 'dokumen':
+                onNavigate('eAdvokasiPendampinganDokumen', record);
                 break;
             case 'manage-tim':
                 onNavigate('eAdvokasiPendampinganTim', record);
@@ -148,10 +152,14 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
       )}
       <div className="p-8 bg-gray-50 h-full flex flex-col space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Pendampingan</h1>
-          <p className="text-gray-600 mt-1">Kelola permohonan bantuan hukum non-litigasi.</p>
-          <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Pendampingan</h1>
+            <p className="text-gray-600 mt-1">Kelola permohonan bantuan hukum non-litigasi.</p>
+            <div className="flex items-center mt-4 space-x-4">
+                <div className="border-b-4 border-blue-600 w-16"></div>
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
@@ -218,6 +226,9 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
         
         {/* Daftar Pendampingan */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Pendampingan</h2>
+          </div>
           <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-6" aria-label="Tabs">
                   <button onClick={() => setActiveTab('Aktif')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-sm ${activeTab === 'Aktif' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
@@ -251,16 +262,33 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                                 <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksi?.unitPemanggil}>{p.abstraksi?.unitPemanggil || '-'}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksi?.unitPemohon || p.unit}>{p.abstraksi?.unitPemohon || p.unit}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksi?.pihakDipanggil}>{p.abstraksi?.pihakDipanggil || '-'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPicName(p)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                  {p.statusPendampingan === StatusPendampingan.AKTIF ? (
-                                      <ActionsDropdown record={p} onAction={handleAction} />
-                                  ) : (
-                                       <button onClick={() => onView(p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500">
-                                            <EyeIcon className="h-5 w-5" />
-                                       </button>
-                                  )}
-                              </td>
+                                <td className="px-4 py-4 whitespace-nowrap">
+                                    <div className="flex items-center">
+                                        <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-2">
+                                            <UserIcon className="h-4 w-4" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm text-gray-700 font-medium">{getPicName(p)}</span>
+                                            <span className="text-[10px] text-gray-400 font-bold leading-tight">Last update:</span>
+                                            <span className="text-[10px] text-gray-400 font-medium truncate leading-tight">{new Date().toLocaleString('id-ID', { hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, '/')}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap w-40">
+                                    <div className="flex items-center justify-center">
+                                        <div className="grid grid-cols-4 gap-1 w-fit">
+                                            <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View"><EyeIcon className="h-4 w-4"/></button>
+                                            <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit"><PencilIcon className="h-4 w-4"/></button>
+                                            <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
+                                            <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen"><CloudIcon className="h-4 w-4"/></button>
+                                            <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Manage Tim"><UserIcon className="h-4 w-4"/></button>
+                                            {p.statusPendampingan === StatusPendampingan.AKTIF && (
+                                                <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
+                                            )}
+                                            <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus"><TrashIcon className="h-4 w-4"/></button>
+                                        </div>
+                                    </div>
+                                </td>
                           </tr>
                       ))}
                       {filteredDaftarPendampingan.length === 0 && (

@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Permohonan, PerkaraRecord, StatusPerkara, View, JenisPermohonan, PosisiSidangEntry } from '../types';
-import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, ArrowUpIcon, ReplyIcon } from './icons';
+import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, ArrowUpIcon, ReplyIcon, PencilIcon, TrashIcon, CloudIcon, DocumentTextIcon, UserIcon, CheckCircleIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 
 const generateRandomId = () => {
@@ -162,10 +162,14 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
          />
       )}
       <div className="p-8 bg-gray-50 h-full flex flex-col space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Penanganan Perkara</h1>
-          <p className="text-gray-600 mt-1">Kelola permohonan bantuan hukum litigasi.</p>
-          <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Penanganan Perkara</h1>
+            <p className="text-gray-600 mt-1">Kelola permohonan bantuan hukum litigasi.</p>
+            <div className="flex items-center mt-4 space-x-4">
+                <div className="border-b-4 border-blue-600 w-16"></div>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-between items-center">
@@ -229,6 +233,9 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
         </div>
         
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Perkara</h2>
+          </div>
           <div className="border-b border-gray-200">
               <nav className="-mb-px flex space-x-6" aria-label="Tabs">
                   <button onClick={() => setActiveTab('Aktif')} className={`whitespace-nowrap pb-3 px-1 border-b-2 font-semibold text-sm ${activeTab === 'Aktif' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
@@ -262,17 +269,36 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                               <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPerkara}>{p.abstraksiPerkara?.jenisPerkara || '-'}</td>
                               <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.abstraksiPerkara?.jenisPokokPerkara}>{p.abstraksiPerkara?.jenisPokokPerkara || '-'}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getStatusPosisi(p)}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPicName(p)}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                  {p.statusPerkara === StatusPerkara.AKTIF ? (
-                                      <ActionsDropdown record={p} onAction={handleAction} />
-                                  ) : (
-                                       <div className="flex items-center justify-center space-x-1">
-                                            <button onClick={() => handleAction('view', p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="View"><EyeIcon className="h-5 w-5" /></button>
-                                            <button onClick={() => handleAction('restore', p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="Restore"><ArrowUpIcon className="h-5 w-5" /></button>
-                                            <button onClick={() => handleAction('forward', p)} className="p-2 rounded-full hover:bg-gray-200 text-gray-500" title="Forward"><ReplyIcon className="h-5 w-5 transform -scale-x-100"/></button>
-                                       </div>
-                                  )}
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                  <div className="flex items-center">
+                                      <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-2">
+                                          <UserIcon className="h-4 w-4" />
+                                      </div>
+                                      <div className="flex flex-col">
+                                          <span className="text-sm text-gray-700 font-medium">{getPicName(p)}</span>
+                                          <span className="text-[10px] text-gray-400 font-bold leading-tight">Last update:</span>
+                                          <span className="text-[10px] text-gray-400 font-medium truncate leading-tight">{new Date().toLocaleString('id-ID', { hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, '/')}</span>
+                                      </div>
+                                  </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap w-40">
+                                  <div className="flex items-center justify-center">
+                                      <div className="grid grid-cols-4 gap-1 w-fit">
+                                          <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View"><EyeIcon className="h-4 w-4"/></button>
+                                          <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit"><PencilIcon className="h-4 w-4"/></button>
+                                          <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
+                                          <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen"><CloudIcon className="h-4 w-4"/></button>
+                                          <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Manage Tim"><UserIcon className="h-4 w-4"/></button>
+                                          {p.statusPerkara === StatusPerkara.AKTIF ? (
+                                              <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus"><TrashIcon className="h-4 w-4"/></button>
+                                          ) : (
+                                              <>
+                                                  <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore"><ArrowUpIcon className="h-4 w-4" /></button>
+                                                  <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors" title="Forward"><ReplyIcon className="h-4 w-4 transform -scale-x-100"/></button>
+                                              </>
+                                          )}
+                                      </div>
+                                  </div>
                               </td>
                           </tr>
                       ))}
