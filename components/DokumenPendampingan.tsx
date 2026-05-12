@@ -55,16 +55,16 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
         setIsNadineOpen(true);
     };
 
-    const handleNadineData = (data: SuratMasukNadine, jenis: JenisPermohonan) => {
-        const newDoc: DokumenItem = {
+    const handleNadineData = (suratList: SuratMasukNadine[], jenis: JenisPermohonan) => {
+        const newDocs: DokumenItem[] = suratList.map(data => ({
             id: Math.random().toString(36).substr(2, 9),
             nama: data.perihal || 'Dokumen Nadine',
             nomor: data.nomorSurat,
             tanggal: data.tanggal,
             type: 'nadine',
             category: nadineTarget as DokumenCategory
-        };
-        setDocuments([...documents, newDoc]);
+        }));
+        setDocuments([...documents, ...newDocs]);
         setIsNadineOpen(false);
     };
 

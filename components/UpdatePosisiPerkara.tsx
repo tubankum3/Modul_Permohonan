@@ -258,12 +258,15 @@ const SidangModal: React.FC<{
             <TarikDataNadineModal 
                 isOpen={isNadineOpen} 
                 onClose={() => setIsNadineOpen(false)} 
-                onTarikData={(surat) => {
-                    setFormData({
-                        ...formData,
-                        suratTugas: surat.nomorSurat,
-                        tanggalSuratTugas: surat.tanggal.split('/').reverse().join('-')
-                    });
+                onTarikData={(suratList) => {
+                    if (suratList.length > 0) {
+                        const surat = suratList[0];
+                        setFormData({
+                            ...formData,
+                            suratTugas: surat.nomorSurat,
+                            tanggalSuratTugas: surat.tanggal.split('/').reverse().join('-')
+                        });
+                    }
                 }} 
             />
         </div>

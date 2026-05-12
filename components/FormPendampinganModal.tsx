@@ -145,9 +145,12 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
             <TarikDataNadineModal 
                 isOpen={isNadineModalOpen} 
                 onClose={() => setIsNadineModalOpen(false)}
-                onTarikData={(surat) => {
-                    handleAbstraksiChange('nomorTiket', surat.nomorSurat);
-                    handleAbstraksiChange('unitPemohon', surat.unitPengirim);
+                onTarikData={(suratList) => {
+                    if (suratList.length > 0) {
+                        const surat = suratList[0];
+                        handleAbstraksiChange('nomorTiket', surat.nomorSurat);
+                        handleAbstraksiChange('unitPemohon', surat.unitPengirim);
+                    }
                     setIsNadineModalOpen(false);
                 }}
             />

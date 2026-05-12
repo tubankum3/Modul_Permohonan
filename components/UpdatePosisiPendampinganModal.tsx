@@ -126,11 +126,14 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
             <TarikDataNadineModal 
                 isOpen={isNadineModalOpen}
                 onClose={() => setIsNadineModalOpen(false)}
-                onTarikData={(surat) => {
-                    if (nadineTarget === 'st') {
-                        setFormData(prev => ({ ...prev, suratTugas: surat.nomorSurat, tanggalSuratTugas: surat.tanggal }));
-                    } else {
-                        setFormData(prev => ({ ...prev, suratPemanggilan: surat.nomorSurat }));
+                onTarikData={(suratList) => {
+                    if (suratList.length > 0) {
+                        const surat = suratList[0];
+                        if (nadineTarget === 'st') {
+                            setFormData(prev => ({ ...prev, suratTugas: surat.nomorSurat, tanggalSuratTugas: surat.tanggal }));
+                        } else {
+                            setFormData(prev => ({ ...prev, suratPemanggilan: surat.nomorSurat }));
+                        }
                     }
                     setIsNadineModalOpen(false);
                 }}

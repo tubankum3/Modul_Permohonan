@@ -5,7 +5,7 @@ import { SearchIcon, XIcon, ShieldCheckIcon, UserGroupIcon } from './icons';
 interface TarikDataNadineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTarikData: (surat: SuratMasukNadine, jenis: JenisPermohonan) => void;
+  onTarikData: (suratList: SuratMasukNadine[], jenis: JenisPermohonan) => void;
 }
 
 const mockNadineData: SuratMasukNadine[] = [
@@ -22,7 +22,7 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
     const [view, setView] = useState<'search' | 'categorize'>('search');
     const [searchParams, setSearchParams] = useState({ nomorSurat: '', perihal: '', naskahId: '', unitPengirim: '' });
     const [searchResults, setSearchResults] = useState<SuratMasukNadine[]>([]);
-    const [selectedNadineSurat, setSelectedNadineSurat] = useState<SuratMasukNadine | null>(null);
+    const [selectedSurat, setSelectedSurat] = useState<SuratMasukNadine[]>([]);
     const [selectedJenis, setSelectedJenis] = useState<JenisPermohonan | null>(null);
 
     const resetStateAndClose = () => {
@@ -31,7 +31,7 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
             setView('search');
             setSearchParams({ nomorSurat: '', perihal: '', naskahId: '', unitPengirim: '' });
             setSearchResults([]);
-            setSelectedNadineSurat(null);
+            setSelectedSurat([]);
             setSelectedJenis(null);
         }, 300); // Delay reset to allow modal to close gracefully
     };
@@ -51,8 +51,36 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
         setSearchParams({ ...searchParams, [e.target.name]: e.target.value });
     };
 
+    const handleSelectRow = (item: SuratMasukNadine) => {
+        setSelectedSurat(prev => 
+            prev.some(s => s.naskahId === item.naskahId)
+                ? prev.filter(s => s.naskahId !== item.naskahId)
+                : [...prev, item]
+        );
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSearchResults(results => {
+                // Merge currently selected with results, ensuring uniqueness
+                const newSelected = [...selectedSurat];
+                results.forEach(item => {
+                    if (!newSelected.some(s => s.naskahId === item.naskahId)) {
+                        newSelected.push(item);
+                    }
+                });
+                setSelectedSurat(newSelected);
+                return results;
+            });
+        } else {
+            // Remove search results from selected
+            const resultIds = new Set(searchResults.map(r => r.naskahId));
+            setSelectedSurat(prev => prev.filter(s => !resultIds.has(s.naskahId)));
+        }
+    };
+
     const handleNext = () => {
-        if (selectedNadineSurat) {
+        if (selectedSurat.length > 0) {
             setView('categorize');
         }
     };
@@ -63,8 +91,8 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
     };
 
     const handleConfirm = () => {
-        if (selectedNadineSurat && selectedJenis) {
-            onTarikData(selectedNadineSurat, selectedJenis);
+        if (selectedSurat.length > 0 && selectedJenis) {
+            onTarikData(selectedSurat, selectedJenis);
             resetStateAndClose();
         }
     }
@@ -105,7 +133,14 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th scope="col" className="w-12 px-6 py-3"></th>
+                                            <th scope="col" className="w-12 px-6 py-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    onChange={handleSelectAll}
+                                                    checked={searchResults.length > 0 && searchResults.every(item => selectedSurat.some(s => s.naskahId === item.naskahId))}
+                                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                                                />
+                                            </th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Surat</th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perihal</th>
                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
@@ -114,9 +149,18 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {searchResults.map(item => (
-                                            <tr key={item.naskahId} className={`hover:bg-blue-50 cursor-pointer ${selectedNadineSurat?.naskahId === item.naskahId ? 'bg-blue-100' : ''}`} onClick={() => setSelectedNadineSurat(item)}>
+                                            <tr 
+                                                key={item.naskahId} 
+                                                className={`hover:bg-blue-50 cursor-pointer ${selectedSurat.some(s => s.naskahId === item.naskahId) ? 'bg-blue-100' : ''}`} 
+                                                onClick={() => handleSelectRow(item)}
+                                            >
                                                 <td className="px-6 py-4">
-                                                    <input type="radio" name="selectNadine" checked={selectedNadineSurat?.naskahId === item.naskahId} readOnly className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                                                    <input 
+                                                        type="checkbox" 
+                                                        checked={selectedSurat.some(s => s.naskahId === item.naskahId)} 
+                                                        onChange={() => {}} 
+                                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" 
+                                                    />
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.nomorSurat}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-800">{item.perihal}</td>
@@ -135,29 +179,52 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                         </main>
 
                         <footer className="flex justify-end items-center p-4 border-t border-gray-200 bg-white rounded-b-lg space-x-3">
+                            {selectedSurat.length > 0 && (
+                                <div className="mr-auto text-sm text-gray-600">
+                                    <span className="font-bold text-blue-600">{selectedSurat.length}</span> data terpilih
+                                </div>
+                            )}
                             <button onClick={resetStateAndClose} className="px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold">Batal</button>
-                            <button onClick={handleNext} disabled={!selectedNadineSurat} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold disabled:bg-gray-300">Selanjutnya</button>
+                            <button onClick={handleNext} disabled={selectedSurat.length === 0} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold disabled:bg-gray-300">Selanjutnya</button>
                         </footer>
                     </>
                 )}
 
-                {view === 'categorize' && selectedNadineSurat && (
+                {view === 'categorize' && selectedSurat.length > 0 && (
                     <>
                         <main className="flex-1 p-6 overflow-y-auto">
                             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-6">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Detail Surat Terpilih</h3>
-                                <table className="w-full text-sm">
-                                    <tbody>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4 w-1/4">ID Permohonan</td><td className="text-gray-800 py-2.5">{selectedNadineSurat.naskahId}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">No Tiket/ND</td><td className="text-gray-800 py-2.5">{selectedNadineSurat.nomorSurat}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Tanggal</td><td className="text-gray-800 py-2.5">{selectedNadineSurat.tanggal}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Pemohon</td><td className="text-gray-800 py-2.5">{selectedNadineSurat.unitPengirim}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Unit</td><td className="text-gray-800 py-2.5">{selectedNadineSurat.unitPengirim}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Jenis</td><td className="text-gray-800 py-2.5">{selectedJenis || <span className="text-gray-400 italic">Pilih jenis di bawah</span>}</td></tr>
-                                        <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Status</td><td className="text-gray-800 py-2.5"><span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Baru</span></td></tr>
-                                        <tr><td className="font-medium text-gray-500 pt-2.5 pr-4 align-top">Perihal</td><td className="text-gray-800 pt-2.5">{selectedNadineSurat.perihal}</td></tr>
-                                    </tbody>
-                                </table>
+                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Ringkasan Data Terpilih ({selectedSurat.length})</h3>
+                                {selectedSurat.length === 1 ? (
+                                    <table className="w-full text-sm">
+                                        <tbody>
+                                            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4 w-1/4">ID Naskah</td><td className="text-gray-800 py-2.5">{selectedSurat[0].naskahId}</td></tr>
+                                            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">No Surat</td><td className="text-gray-800 py-2.5">{selectedSurat[0].nomorSurat}</td></tr>
+                                            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Tanggal</td><td className="text-gray-800 py-2.5">{selectedSurat[0].tanggal}</td></tr>
+                                            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Pengirim</td><td className="text-gray-800 py-2.5">{selectedSurat[0].unitPengirim}</td></tr>
+                                            <tr><td className="font-medium text-gray-500 pt-2.5 pr-4 align-top">Perihal</td><td className="text-gray-800 pt-2.5">{selectedSurat[0].perihal}</td></tr>
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <div className="max-h-60 overflow-y-auto border border-gray-100 rounded">
+                                        <table className="min-w-full divide-y divide-gray-200 text-xs">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="px-4 py-2 text-left">No Surat</th>
+                                                    <th className="px-4 py-2 text-left">Perihal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {selectedSurat.map(s => (
+                                                    <tr key={s.naskahId}>
+                                                        <td className="px-4 py-2 font-medium">{s.nomorSurat}</td>
+                                                        <td className="px-4 py-2">{s.perihal}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                             
                             <div>

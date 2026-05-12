@@ -6,7 +6,7 @@ import TarikDataNadineModal from './TarikDataNadineModal';
 interface EAdvokasiInboxProps {
   permohonanList: Permohonan[];
   onProses: (permohonan: Permohonan) => void;
-  onTarikData: (surat: SuratMasukNadine, jenis: JenisPermohonan) => void;
+  onTarikData: (suratList: SuratMasukNadine[], jenis: JenisPermohonan) => void;
 }
 
 const EAdvokasiInbox: React.FC<EAdvokasiInboxProps> = ({ permohonanList, onProses, onTarikData }) => {

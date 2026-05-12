@@ -494,14 +494,17 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
             <TarikDataNadineModal 
                 isOpen={isNadineModalOpen} 
                 onClose={() => setIsNadineModalOpen(false)} 
-                onTarikData={(surat) => {
-                    setFormData(prev => ({
-                        ...prev,
-                        abstraksiPerkara: {
-                            ...prev.abstraksiPerkara,
-                            nomorSuratKuasaKhusus: surat.nomorSurat
-                        }
-                    }));
+                onTarikData={(suratList) => {
+                    if (suratList.length > 0) {
+                        const surat = suratList[0];
+                        setFormData(prev => ({
+                            ...prev,
+                            abstraksiPerkara: {
+                                ...prev.abstraksiPerkara,
+                                nomorSuratKuasaKhusus: surat.nomorSurat
+                            }
+                        }));
+                    }
                 }} 
             />
             {deleteConfirm.isOpen && <ConfirmationModal isOpen={deleteConfirm.isOpen} onClose={() => setDeleteConfirm({ type: '', isOpen: false, data: null })} onConfirm={handleDelete} title="Konfirmasi Hapus" message="Apakah Anda yakin ingin menghapus item ini?" confirmText="Hapus" />}

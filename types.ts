@@ -51,6 +51,7 @@ export interface Permohonan {
   sumber?: 'Nadine' | 'Internal';
   disposisi?: Disposisi[];
   assignedTo?: string;
+  deletedAt?: string;
 }
 
 export enum StatusPendampingan {
