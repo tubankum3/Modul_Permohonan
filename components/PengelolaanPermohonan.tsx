@@ -4,7 +4,7 @@ import { Permohonan, Riwayat, StatusPermohonan, View } from '../types';
 import DetailPermohonan from './DetailPermohonan';
 import AssignTeam from './AssignTeam';
 import ConfirmationModal from './ConfirmationModal';
-import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon } from './icons';
+import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon, PrintIcon, EyeIcon, UserIcon, DocumentTextIcon, CheckCircleIcon } from './icons';
 
 interface PengelolaanPermohonanProps {
     permohonanList: Permohonan[];
@@ -210,15 +210,27 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                                             {p.status}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <button onClick={() => handleViewDetails(p)} className="px-2.5 py-1 text-xs font-semibold rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">View</button>
-                                        <button onClick={() => handleAssignTeam(p)} className="px-2.5 py-1 text-xs font-semibold rounded-md text-green-700 bg-green-100 hover:bg-green-200">Tim</button>
-                                        {p.status === StatusPermohonan.DIPROSES && (
-                                            <>
-                                                <button onClick={() => onNavigate('pilihTemplate')} className="px-2.5 py-1 text-xs font-semibold rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200">SKU</button>
-                                                <button onClick={() => requestSetStatus(p.id)} className="px-2.5 py-1 text-xs font-semibold rounded-md text-purple-700 bg-purple-100 hover:bg-purple-200">Set</button>
-                                            </>
-                                        )}
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div className="grid grid-cols-4 gap-1 w-fit">
+                                            <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                                            <button onClick={() => handleAssignTeam(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
+                                            {p.status === StatusPermohonan.DIPROSES && (
+                                                <>
+                                                    <button onClick={() => onNavigate('pilihTemplate')} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="SKU/Dokumen"><DocumentTextIcon className="h-4 w-4" /></button>
+                                                    <button onClick={() => requestSetStatus(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4" /></button>
+                                                </>
+                                            )}
+                                            <button 
+                                                onClick={() => {
+                                                    handleViewDetails(p);
+                                                    setTimeout(() => window.print(), 500);
+                                                }}
+                                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                title="Print/Download Resume"
+                                            >
+                                                <PrintIcon className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

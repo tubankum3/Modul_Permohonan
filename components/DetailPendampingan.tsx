@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { PendampinganRecord, FileData, PosisiUpdate, Riwayat } from '../types';
-import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon } from './icons';
+import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon, PrintIcon } from './icons';
 
 type DetailTab = 'informasi' | 'posisi' | 'dokumen' | 'riwayat';
 
@@ -380,16 +380,29 @@ interface DetailPendampinganProps {
 const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('informasi');
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="p-8 bg-white h-full flex flex-col">
-        <header className="flex-shrink-0 mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Informasi Pendampingan</h1>
-            <button onClick={onBack} className="text-sm text-blue-600 hover:underline mt-2">
-                &larr; Kembali ke Daftar Pendampingan
+    <div className="p-8 bg-white h-full flex flex-col print:p-0">
+        <header className="flex-shrink-0 mb-6 flex justify-between items-start print:mb-4">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-800 print:text-xl">Informasi Pendampingan</h1>
+                <button onClick={onBack} className="text-sm text-blue-600 hover:underline mt-2 print:hidden">
+                    &larr; Kembali ke Daftar Pendampingan
+                </button>
+            </div>
+            <button 
+                onClick={handlePrint}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md print:hidden"
+            >
+                <PrintIcon className="h-5 w-5" />
+                <span className="font-bold text-sm">Download Resume / Cetak</span>
             </button>
         </header>
 
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 mb-6 print:hidden">
             <nav className="-mb-px flex" aria-label="Tabs">
                 <TabButton name="informasi" label="Informasi Umum" activeTab={activeTab} setActiveTab={setActiveTab} />
                 <TabButton name="posisi" label="Posisi Pendampingan" activeTab={activeTab} setActiveTab={setActiveTab} />

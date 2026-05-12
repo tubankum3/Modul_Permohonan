@@ -9,7 +9,8 @@ import {
     ArrowLeftIcon,
     FileTextIcon,
     BriefcaseIcon,
-    ClockIcon
+    ClockIcon,
+    PrintIcon
 } from './icons';
 import { 
     PendampinganRecord, 
@@ -227,35 +228,45 @@ const RecycleBin: React.FC<RecycleBinProps> = ({
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center justify-center space-x-2">
-                                                <button 
-                                                    onClick={() => onView(item, activeTab)}
-                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                                    title="View Detail"
-                                                >
-                                                    <EyeIcon className="h-5 w-5" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => onRestore([item.id], activeTab)}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
-                                                    title="Restore"
-                                                >
-                                                    <RotateCcwIcon className="h-5 w-5" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => {
-                                                        if(confirm('Hapus permanen record ini?')) {
-                                                            onDeletePermanent([item.id], activeTab);
-                                                        }
-                                                    }}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                                    title="Delete Permanently"
-                                                >
-                                                    <TrashIcon className="h-5 w-5" />
-                                                </button>
-                                            </div>
-                                        </td>
+                                         <td className="p-4">
+                                             <div className="grid grid-cols-4 gap-1 w-fit mx-auto">
+                                                 <button 
+                                                     onClick={() => onView(item, activeTab)}
+                                                     className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                     title="View Detail"
+                                                 >
+                                                     <EyeIcon className="h-5 w-5" />
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => {
+                                                         onView(item, activeTab);
+                                                         setTimeout(() => window.print(), 500);
+                                                     }}
+                                                     className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                     title="Print/Download Resume"
+                                                 >
+                                                     <PrintIcon className="h-5 w-5" />
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => onRestore([item.id], activeTab)}
+                                                     className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
+                                                     title="Restore"
+                                                 >
+                                                     <RotateCcwIcon className="h-5 w-5" />
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => {
+                                                         if(confirm('Hapus permanen record ini?')) {
+                                                             onDeletePermanent([item.id], activeTab);
+                                                         }
+                                                     }}
+                                                     className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                     title="Delete Permanently"
+                                                 >
+                                                     <TrashIcon className="h-5 w-5" />
+                                                 </button>
+                                             </div>
+                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>

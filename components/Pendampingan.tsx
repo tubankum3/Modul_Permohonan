@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Permohonan, PendampinganRecord, StatusPendampingan, View, TeamMember } from '../types';
-import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, CloudIcon, PencilIcon, TrashIcon, DownloadIcon, DocumentTextIcon, UserIcon, CheckCircleIcon } from './icons';
+import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, CloudIcon, PencilIcon, TrashIcon, DownloadIcon, DocumentTextIcon, UserIcon, CheckCircleIcon, PrintIcon, RotateCcwIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import FormPendampinganModal from './FormPendampinganModal';
 
@@ -104,6 +104,9 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                 break;
             case 'selesai':
                 onUpdateStatus(record.id, StatusPendampingan.SELESAI);
+                break;
+            case 'restore':
+                onUpdateStatus(record.id, StatusPendampingan.AKTIF);
                 break;
             case 'hapus':
                 setIsDeleteModalOpen(true);
@@ -274,21 +277,47 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                                         </div>
                                     </div>
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap w-40">
-                                    <div className="flex items-center justify-center">
-                                        <div className="grid grid-cols-4 gap-1 w-fit">
-                                            <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View"><EyeIcon className="h-4 w-4"/></button>
-                                            <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit"><PencilIcon className="h-4 w-4"/></button>
-                                            <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
-                                            <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen"><CloudIcon className="h-4 w-4"/></button>
-                                            <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Manage Tim"><UserIcon className="h-4 w-4"/></button>
-                                            {p.statusPendampingan === StatusPendampingan.AKTIF && (
-                                                <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
-                                            )}
-                                            <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus"><TrashIcon className="h-4 w-4"/></button>
-                                        </div>
-                                    </div>
-                                </td>
+                                 <td className="px-4 py-4 whitespace-nowrap w-40">
+                                     <div className="flex items-center justify-center">
+                                         {p.statusPendampingan === StatusPendampingan.AKTIF ? (
+                                             <div className="grid grid-cols-4 gap-1 w-fit">
+                                                 <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
+                                                 <button 
+                                                     onClick={() => {
+                                                         onView(p);
+                                                         setTimeout(() => window.print(), 500);
+                                                     }}
+                                                     className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                     title="Print/Download Resume"
+                                                 >
+                                                     <PrintIcon className="h-4 w-4" />
+                                                 </button>
+                                                 <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
+                                             </div>
+                                         ) : (
+                                             <div className="grid grid-cols-4 gap-1 w-fit">
+                                                 <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
+                                                 <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4"/></button>
+                                                 <button 
+                                                     onClick={() => {
+                                                         onView(p);
+                                                         setTimeout(() => window.print(), 500);
+                                                     }}
+                                                     className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                     title="Print/Download Resume"
+                                                 >
+                                                     <PrintIcon className="h-4 w-4" />
+                                                 </button>
+                                                 <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                                             </div>
+                                         )}
+                                     </div>
+                                 </td>
                           </tr>
                       ))}
                       {filteredDaftarPendampingan.length === 0 && (

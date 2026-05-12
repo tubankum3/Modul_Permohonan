@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SearchIcon, FileTextIcon, ChevronLeftIcon, ChevronRightIcon, XIcon, EyeIcon, PencilIcon, BookOpenIcon, RefreshIcon } from './icons';
+import { SearchIcon, FileTextIcon, ChevronLeftIcon, ChevronRightIcon, XIcon, EyeIcon, PencilIcon, BookOpenIcon, RefreshIcon, PrintIcon } from './icons';
 
 interface PerkaraSelesai {
     id: string;
@@ -215,17 +215,26 @@ const DetailArsipModal: React.FC<{
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-300">
-                <div className="bg-[#f5f5f5] shadow-sm px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                <div className="bg-[#f5f5f5] shadow-sm px-6 py-3 border-b border-gray-200 flex justify-between items-center print:hidden">
                     <div className="flex items-center text-gray-800 font-bold">
                         <span className="mr-2 text-xl">■</span>
                         Detail Arsip: {archive.nomorPerkara}
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
-                        <XIcon className="h-5 w-5" />
-                    </button>
+                    <div className="flex items-center space-x-3">
+                        <button 
+                            onClick={() => window.print()}
+                            className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center hover:bg-blue-700 transition-colors shadow-sm"
+                        >
+                            <PrintIcon className="h-4 w-4 mr-1.5" />
+                            Download Resume
+                        </button>
+                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors border border-gray-300 p-1 rounded bg-white">
+                            <XIcon className="h-5 w-5" />
+                        </button>
+                    </div>
                 </div>
                 
-                <div className="p-8 overflow-y-auto max-h-[85vh] space-y-6">
+                <div className="p-8 overflow-y-auto max-h-[85vh] space-y-6 print:max-h-none print:overflow-visible">
                     {original && <InformasiUmum record={original} />}
                     
                     <div className="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -306,7 +315,7 @@ const DetailArsipModal: React.FC<{
                     </div>
                 </div>
 
-                <div className="bg-[#f5f5f5] px-8 py-4 border-t border-gray-200 flex justify-end">
+                <div className="bg-[#f5f5f5] px-8 py-4 border-t border-gray-200 flex justify-end print:hidden">
                     <button onClick={onClose} className="px-6 py-2 bg-gray-600 text-white text-sm font-bold rounded hover:bg-gray-700 transition-colors shadow-md">Tutup</button>
                 </div>
             </div>
@@ -644,44 +653,54 @@ const Arsip: React.FC = () => {
                                                 {p.status}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-4 whitespace-nowrap text-center text-sm">
-                                            <div className="flex items-center justify-center space-x-1">
-                                                <button 
-                                                    onClick={() => setViewingArchive(p)}
-                                                    className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
-                                                    title="View Detail (Termasuk Borrowing Mechanism)"
-                                                >
-                                                    <EyeIcon className="h-4 w-4" />
-                                                </button>
-                                                <button 
-                                                    onClick={() => setEditingArchive(p)}
-                                                    className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 transition-colors"
-                                                    title="Edit Data Arsip"
-                                                >
-                                                    <PencilIcon className="h-4 w-4" />
-                                                </button>
-                                                {p.status === 'Dipinjam' ? (
-                                                    <button 
-                                                        onClick={() => {
-                                                            const active = p.peminjaman?.find(borrow => !borrow.tanggalKembali);
-                                                            if (active) handleReturnArchive(p.id, active.id);
-                                                        }}
-                                                        className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
-                                                        title="Kembalikan Arsip (Return)"
-                                                    >
-                                                        <RefreshIcon className="h-4 w-4" />
-                                                    </button>
-                                                ) : (
-                                                    <button 
-                                                        onClick={() => setBorrowingArchiveId(p.id)}
-                                                        className="p-1.5 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors"
-                                                        title="Rekam Peminjaman Arsip (Borrowing Mechanism)"
-                                                    >
-                                                        <BookOpenIcon className="h-4 w-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
+                                         <td className="px-5 py-4 whitespace-nowrap text-center text-sm">
+                                             <div className="grid grid-cols-4 gap-1 w-fit mx-auto">
+                                                 <button 
+                                                     onClick={() => setViewingArchive(p)}
+                                                     className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                                                     title="View Detail (Termasuk Borrowing Mechanism)"
+                                                 >
+                                                     <EyeIcon className="h-4 w-4" />
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => {
+                                                         setViewingArchive(p);
+                                                         setTimeout(() => window.print(), 500);
+                                                     }}
+                                                     className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                                                     title="Print/Download Resume"
+                                                 >
+                                                     <PrintIcon className="h-4 w-4" />
+                                                 </button>
+                                                 <button 
+                                                     onClick={() => setEditingArchive(p)}
+                                                     className="p-1.5 bg-amber-50 text-amber-600 rounded hover:bg-amber-100 transition-colors"
+                                                     title="Edit Data Arsip"
+                                                 >
+                                                     <PencilIcon className="h-4 w-4" />
+                                                 </button>
+                                                 {p.status === 'Dipinjam' ? (
+                                                     <button 
+                                                         onClick={() => {
+                                                             const active = p.peminjaman?.find(borrow => !borrow.tanggalKembali);
+                                                             if (active) handleReturnArchive(p.id, active.id);
+                                                         }}
+                                                         className="p-1.5 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors"
+                                                         title="Kembalikan Arsip (Return)"
+                                                     >
+                                                         <RefreshIcon className="h-4 w-4" />
+                                                     </button>
+                                                 ) : (
+                                                     <button 
+                                                         onClick={() => setBorrowingArchiveId(p.id)}
+                                                         className="p-1.5 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors"
+                                                         title="Rekam Peminjaman Arsip (Borrowing Mechanism)"
+                                                     >
+                                                         <BookOpenIcon className="h-4 w-4" />
+                                                     </button>
+                                                 )}
+                                             </div>
+                                         </td>
                                     </tr>
                                 )) : (
                                     <tr>

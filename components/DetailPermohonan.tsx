@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Permohonan, Riwayat, StatusPermohonan, Disposisi } from '../types';
-import { ArrowLeftIcon, PaperClipIcon, PaperAirplaneIcon, TrashIcon, UserCircleIcon, DocumentTextIcon, DownloadIcon, PencilIcon, CheckIcon, XIcon, ArrowDownIcon } from './icons';
+import { ArrowLeftIcon, PaperClipIcon, PaperAirplaneIcon, TrashIcon, UserCircleIcon, DocumentTextIcon, DownloadIcon, PencilIcon, CheckIcon, XIcon, ArrowDownIcon, PrintIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 
 type DetailTab = 'rincian' | 'permohonan' | 'dokumen' | 'disposisi';
@@ -253,7 +253,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
 
 
   return (
-    <div className="p-6 bg-gray-50 h-full flex flex-col">
+    <div className="p-6 bg-gray-50 h-full flex flex-col print:bg-white print:p-0">
        <ConfirmationModal
         isOpen={deleteModalState.isOpen}
         onClose={handleCancelDeleteReply}
@@ -262,13 +262,22 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
         message="Apakah Anda yakin ingin menghapus tanggapan ini? Tindakan ini tidak dapat diurungkan."
         confirmText="Hapus"
       />
-      {onBack && (
-        <div className="flex items-center mb-6">
-            <button onClick={onBack} className="p-2 mr-4 rounded-full hover:bg-gray-200">
-            <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
+      <div className="flex justify-between items-center mb-6">
+        {onBack && (
+            <button onClick={onBack} className="p-2 mr-4 rounded-full hover:bg-gray-200 print:hidden">
+                <ArrowLeftIcon className="h-6 w-6 text-gray-600" />
             </button>
-        </div>
-      )}
+        )}
+        {!onBack && <div className="print:hidden"></div>}
+        <h1 className="text-2xl font-bold text-gray-800 hidden print:block mb-4">Informasi Permohonan</h1>
+        <button 
+            onClick={() => window.print()}
+            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md print:hidden"
+        >
+            <PrintIcon className="h-5 w-5" />
+            <span className="font-bold text-sm">Download Resume / Cetak</span>
+        </button>
+      </div>
 
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-6">
           <div className="border-b border-gray-200">
@@ -287,7 +296,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
           </div>
       </div>
       
-       <div className="flex-1 overflow-y-auto mb-6 space-y-6 pr-2">
+       <div className="flex-1 overflow-y-auto mb-6 space-y-6 pr-2 print:overflow-visible">
             {permohonan.history.map((item) => (
                 <HistoryItem
                     key={item.id}
@@ -304,7 +313,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
             ))}
         </div>
 
-      <div className="mt-auto pt-4 border-t border-gray-200">
+      <div className="mt-auto pt-4 border-t border-gray-200 print:hidden">
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
           <textarea
             className="w-full p-3 resize-none focus:outline-none rounded-t-lg text-sm"

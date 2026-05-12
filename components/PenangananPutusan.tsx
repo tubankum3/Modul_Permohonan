@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PerkaraRecord, StatusPutusan, View, TeamMember } from '../types';
-import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon } from './icons';
+import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon, PrintIcon, RotateCcwIcon } from './icons';
 
 const getPicName = (record: PerkaraRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -19,6 +19,7 @@ interface PenangananPutusanProps {
   onManageDokumen: (record: PerkaraRecord) => void;
   onDelete: (id: string) => void;
   onSetSelesai: (id: string) => void;
+  onRestore: (id: string) => void;
 }
 
 const PenangananPutusan: React.FC<PenangananPutusanProps> = ({ 
@@ -29,7 +30,8 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     onManageTim, 
     onManageDokumen,
     onDelete, 
-    onSetSelesai 
+    onSetSelesai,
+    onRestore
 }) => {
   const [activeTab, setActiveTab] = useState<'aktif' | 'selesai'>('aktif');
 
@@ -72,19 +74,43 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
               </td>
               <td className="px-4 py-4 whitespace-nowrap w-40">
                 <div className="flex items-center justify-center">
-                    <div className="grid grid-cols-4 gap-1 w-fit">
-                        <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View"><EyeIcon className="h-4 w-4" /></button>
-                        {!isSelesai && (
-                            <>
-                                <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit"><PencilIcon className="h-4 w-4" /></button>
-                                <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
-                                <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen"><CloudIcon className="h-4 w-4" /></button>
-                                <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Manage Tim"><UserIcon className="h-4 w-4" /></button>
-                                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus"><TrashIcon className="h-4 w-4" /></button>
-                                <button onClick={() => onSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
-                            </>
-                        )}
-                    </div>
+                    {!isSelesai ? (
+                        <div className="grid grid-cols-4 gap-1 w-fit">
+                            <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                            <button 
+                                onClick={() => {
+                                    onView(p);
+                                    setTimeout(() => window.print(), 500);
+                                }}
+                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                title="Print/Download Resume"
+                            >
+                                <PrintIcon className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-4 gap-1 w-fit">
+                            <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4" /></button>
+                            <button 
+                                onClick={() => {
+                                    onView(p);
+                                    setTimeout(() => window.print(), 500);
+                                }}
+                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                title="Print/Download Resume"
+                            >
+                                <PrintIcon className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                        </div>
+                    )}
                 </div>
               </td>
             </tr>
