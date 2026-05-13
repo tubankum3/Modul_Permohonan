@@ -8,6 +8,7 @@ interface FormPendampinganModalProps {
     onClose: () => void;
     onSave: (record: PendampinganRecord) => void;
     initialData: PendampinganRecord | Permohonan | null;
+    showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 const UNIT_KEMENKEU = ['Sekretariat Jenderal', 'Direktorat Jenderal Pajak', 'Direktorat Jenderal Bea dan Cukai', 'Direktorat Jenderal Perbendaharaan', 'Direktorat Jenderal Kekayaan Negara', 'Direktorat Jenderal Perimbangan Keuangan', 'Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko', 'Inspektorat Jenderal', 'Badan Kebijakan Fiskal', 'Badan Pendidikan dan Pelatihan Keuangan'];
@@ -38,7 +39,7 @@ const SimpleRichText: React.FC<{ value: string, onChange: (val: string) => void,
     );
 };
 
-const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
+const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, onClose, onSave, initialData, showNotification }) => {
     const [formData, setFormData] = useState<Partial<PendampinganRecord>>({});
     const [activeTab, setActiveTab] = useState<'informasi' | 'pihak' | 'analisa'>('informasi');
     const [isNadineModalOpen, setIsNadineModalOpen] = useState(false);
@@ -125,6 +126,22 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
     };
 
     const handleSave = () => {
+        if (!formData.abstraksi?.nomorTiket) {
+            if (showNotification) {
+                showNotification('Nomor Tiket wajib diisi.', 'error');
+            } else {
+                alert('Nomor Tiket wajib diisi.');
+            }
+            return;
+        }
+        if (!formData.perihal) {
+            if (showNotification) {
+                showNotification('Perihal wajib diisi.', 'error');
+            } else {
+                alert('Perihal wajib diisi.');
+            }
+            return;
+        }
         onSave(formData as PendampinganRecord);
     };
 

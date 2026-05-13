@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Permohonan, PerkaraRecord, StatusPerkara, View, JenisPermohonan, PosisiSidangEntry } from '../types';
-import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, ArrowUpIcon, ReplyIcon, PencilIcon, TrashIcon, CloudIcon, DocumentTextIcon, UserIcon, CheckCircleIcon, PrintIcon, RotateCcwIcon } from './icons';
+import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, ArrowUpIcon, ReplyIcon, PencilIcon, TrashIcon, CloudIcon, DocumentTextIcon, UserIcon, CheckCircleIcon, PrintIcon, RotateCcwIcon, ForwardIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 
 const generateRandomId = () => {
@@ -215,7 +215,7 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                   <tr key={p.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.Nomor || p.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.tanggal}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 max-w-sm truncate" title={p.perihal}>{p.perihal}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 max-sm truncate" title={p.perihal}>{p.perihal}</td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.unit}>{p.unit}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button onClick={() => onNavigate('eAdvokasiPerkaraEdit', p)} className="text-blue-600 hover:text-blue-800 font-semibold">Record</button>
@@ -284,11 +284,11 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                               <td className="px-4 py-4 whitespace-nowrap w-40">
                                   <div className="flex items-center justify-center">
                                       {p.statusPerkara === StatusPerkara.AKTIF ? (
-                                          <div className="grid grid-cols-4 gap-1 w-fit">
+                                          <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                                               <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
                                               <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
                                               <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
-                                              <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4"/></button>
+                                              <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4"/></button>
                                               <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
                                               <button 
                                                   onClick={() => {
@@ -303,9 +303,9 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                               <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
                                           </div>
                                       ) : (
-                                          <div className="grid grid-cols-5 gap-1 w-fit">
+                                          <div className="grid grid-cols-5 grid-rows-2 gap-1 w-fit">
                                               <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
-                                              <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4"/></button>
+                                              <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4"/></button>
                                               <button 
                                                   onClick={() => {
                                                       onView(p);
@@ -317,7 +317,7 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                                   <PrintIcon className="h-4 w-4"/>
                                               </button>
                                               <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
-                                              <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Forward ke Putusan"><ReplyIcon className="h-4 w-4 transform -scale-x-100"/></button>
+                                              <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Forward ke Putusan"><ForwardIcon className="h-4 w-4"/></button>
                                           </div>
                                       )}
                                   </div>

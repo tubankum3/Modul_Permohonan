@@ -4,7 +4,7 @@ import { Permohonan, Riwayat, StatusPermohonan, View } from '../types';
 import DetailPermohonan from './DetailPermohonan';
 import AssignTeam from './AssignTeam';
 import ConfirmationModal from './ConfirmationModal';
-import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon, PrintIcon, EyeIcon, UserIcon, DocumentTextIcon, CheckCircleIcon } from './icons';
+import { SearchIcon, ChevronLeftIcon, ChevronRightIcon, ArrowLeftIcon, PrintIcon, EyeIcon, UserIcon, DocumentTextIcon, CheckCircleIcon, RotateCcwIcon } from './icons';
 
 interface PengelolaanPermohonanProps {
     permohonanList: Permohonan[];
@@ -14,6 +14,8 @@ interface PengelolaanPermohonanProps {
     onUpdateReply: (permohonanId: string, historyId: number, newMessage: string) => void;
     onDeleteReply: (permohonanId: string, historyId: number) => void;
     onUpdateStatus: (permohonanId: string, newStatus: StatusPermohonan) => void;
+    onUpdateTeam: (permohonanId: string, team: any[]) => void;
+    onSetPic: (permohonanId: string, picId: string | null) => void;
     onNavigate: (view: View) => void;
 }
 
@@ -25,6 +27,8 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     onUpdateReply,
     onDeleteReply,
     onUpdateStatus,
+    onUpdateTeam,
+    onSetPic,
     onNavigate,
 }) => {
     const [managementView, setManagementView] = useState<'list' | 'detail' | 'team'>('list');
@@ -117,10 +121,10 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                 </header>
                 <div className="flex-1 overflow-y-auto">
                     <AssignTeam
-                        team={[]}
-                        picId={null}
-                        onUpdateTeam={() => console.warn('Team updates from this view are not implemented.')}
-                        onSetPic={() => console.warn('PIC updates from this view are not implemented.')}
+                        team={selectedPermohonan.team || []}
+                        picId={selectedPermohonan.picId || null}
+                        onUpdateTeam={(team) => onUpdateTeam(selectedPermohonan.id, team)}
+                        onSetPic={(picId) => onSetPic(selectedPermohonan.id, picId)}
                     />
                 </div>
             </div>
@@ -211,25 +215,42 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="grid grid-cols-4 gap-1 w-fit">
-                                            <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                                            <button onClick={() => handleAssignTeam(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
-                                            {p.status === StatusPermohonan.DIPROSES && (
+                                        <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
+                                            {p.status === StatusPermohonan.DIPROSES ? (
                                                 <>
+                                                    <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                                                    <button onClick={() => handleAssignTeam(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
                                                     <button onClick={() => onNavigate('pilihTemplate')} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="SKU/Dokumen"><DocumentTextIcon className="h-4 w-4" /></button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            handleViewDetails(p);
+                                                            setTimeout(() => window.print(), 500);
+                                                        }}
+                                                        className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                        title="Print/Download Resume"
+                                                    >
+                                                        <PrintIcon className="h-4 w-4" />
+                                                    </button>
                                                     <button onClick={() => requestSetStatus(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4" /></button>
+                                                    {/* Empty spots for 2x4 symmetry if needed, or just let them fill */}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                                                    <button onClick={() => onNavigate('pilihTemplate')} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="SKU/Dokumen"><DocumentTextIcon className="h-4 w-4" /></button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            handleViewDetails(p);
+                                                            setTimeout(() => window.print(), 500);
+                                                        }}
+                                                        className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                        title="Print/Download Resume"
+                                                    >
+                                                        <PrintIcon className="h-4 w-4" />
+                                                    </button>
+                                                    <button onClick={() => onUpdateStatus(p.id, StatusPermohonan.DIPROSES)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
                                                 </>
                                             )}
-                                            <button 
-                                                onClick={() => {
-                                                    handleViewDetails(p);
-                                                    setTimeout(() => window.print(), 500);
-                                                }}
-                                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
-                                                title="Print/Download Resume"
-                                            >
-                                                <PrintIcon className="h-4 w-4" />
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>

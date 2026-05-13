@@ -225,14 +225,15 @@ const CrudModal: React.FC<{ isOpen: boolean, onClose: () => void, onSave: (data:
 
 // Main Component
 interface EditPerkaraProps {
-    initialData: PerkaraRecord | Partial<PerkaraRecord> | null;
+    initialData: PerkaraRecord | Partial<PerkaraRecord> | Permohonan | null;
     onSave: (record: PerkaraRecord) => void;
     onBack: () => void;
+    showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
 type EditTab = 'abstraksi' | 'pihak' | 'tuntutan' | 'analisis';
 
-const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }) => {
+const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, showNotification }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
     const [activeTab, setActiveTab] = useState<EditTab>('abstraksi');
     const [modal, setModal] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
@@ -264,6 +265,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
         
         setFormData({
             ...initialData,
+            statusPerkara: (initialData as PerkaraRecord)?.statusPerkara || StatusPerkara.AKTIF,
             abstraksiPerkara: {
                 ...defaultAbstraksi,
                 ...(initialData?.abstraksiPerkara || {}),
@@ -323,6 +325,22 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack }
     };
 
     const handleSave = () => {
+        if (!formData.abstraksiPerkara?.noPerkara) {
+            if (showNotification) {
+                showNotification('Nomor Perkara wajib diisi.', 'error');
+            } else {
+                alert('Nomor Perkara wajib diisi.');
+            }
+            return;
+        }
+        if (!formData.perihal) {
+            if (showNotification) {
+                showNotification('Perihal wajib diisi.', 'error');
+            } else {
+                alert('Perihal wajib diisi.');
+            }
+            return;
+        }
         onSave(formData as PerkaraRecord);
     };
 

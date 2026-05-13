@@ -75,11 +75,11 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
               <td className="px-4 py-4 whitespace-nowrap w-40">
                 <div className="flex items-center justify-center">
                     {!isSelesai ? (
-                        <div className="grid grid-cols-4 gap-1 w-fit">
+                        <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                             <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
                             <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
                             <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
                             <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
                             <button onClick={() => onSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
                             <button 
@@ -95,9 +95,9 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                             <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-4 gap-1 w-fit">
+                        <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                             <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><CloudIcon className="h-4 w-4" /></button>
+                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
                             <button 
                                 onClick={() => {
                                     onView(p);

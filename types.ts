@@ -52,6 +52,8 @@ export interface Permohonan {
   disposisi?: Disposisi[];
   assignedTo?: string;
   deletedAt?: string;
+  team?: TeamMember[];
+  picId?: string;
 }
 
 export enum StatusPendampingan {

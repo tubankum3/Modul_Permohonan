@@ -15,6 +15,8 @@ interface ProsesPermohonanProps {
   onAddReply: (permohonanId: string, reply: Riwayat) => void;
   onUpdateReply: (permohonanId: string, historyId: number, newMessage: string) => void;
   onDeleteReply: (permohonanId: string, historyId: number) => void;
+  onUpdateTeam: (permohonanId: string, team: any[]) => void;
+  onSetPic: (permohonanId: string, picId: string | null) => void;
 }
 
 const getPicName = (record: PendampinganRecord | PerkaraRecord): string => {
@@ -60,7 +62,9 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   onAssignToExisting,
   onAddReply,
   onUpdateReply,
-  onDeleteReply
+  onDeleteReply,
+  onUpdateTeam,
+  onSetPic
 }) => {
   const [activeTab, setActiveTab] = useState<'rincian' | 'assign' | 'assignExisting'>('rincian');
   const [selectedTargetType, setSelectedTargetType] = useState<'pendampingan' | 'perkara' | 'putusan'>('pendampingan');
@@ -267,13 +271,11 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
           />
         )}
         {activeTab === 'assign' && (
-          // FIX: Pass required props to AssignTeam to resolve type error.
-          // Using placeholder values as the team assignment logic is not yet fully implemented for this view.
           <AssignTeam 
-            team={[]}
-            picId={null}
-            onUpdateTeam={() => console.warn('Team updates from this view are not implemented.')}
-            onSetPic={() => console.warn('PIC updates from this view are not implemented.')}
+            team={permohonan.team || []}
+            picId={permohonan.picId || null}
+            onUpdateTeam={(team) => onUpdateTeam(permohonan.id, team)}
+            onSetPic={(picId) => onSetPic(permohonan.id, picId)}
           />
         )}
         {activeTab === 'assignExisting' && (
