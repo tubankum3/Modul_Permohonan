@@ -14,6 +14,12 @@ interface EAdvokasiSidebarProps {
 
 const menuGroups = [
     {
+        title: 'HOME',
+        items: [
+            { icon: <HomeIcon className="h-5 w-5" />, name: 'Beranda', view: 'eAdvokasiBeranda' as View },
+        ]
+    },
+    {
         title: 'PERMOHONAN',
         items: [
             { icon: <MailIcon className="h-5 w-5" />, name: 'Inbox Permohonan', view: 'eAdvokasiInbox' as View },
@@ -23,7 +29,6 @@ const menuGroups = [
     {
         title: 'PENANGANAN',
         items: [
-            { icon: <HomeIcon className="h-5 w-5" />, name: 'Beranda', view: 'eAdvokasiBeranda' as View },
             { icon: <UserGroupIcon className="h-5 w-5" />, name: 'Pendampingan', view: 'eAdvokasiPendampingan' as View },
             { icon: <ShieldCheckIcon className="h-5 w-5" />, name: 'Penanganan Perkara', view: 'eAdvokasiPenangananPerkara' as View },
             { icon: <DocumentTextIcon className="h-5 w-5" />, name: 'Penanganan Putusan', view: 'eAdvokasiPenangananPutusan' as View },

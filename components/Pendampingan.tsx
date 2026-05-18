@@ -70,6 +70,7 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
     const [activeTab, setActiveTab] = useState<'Aktif' | 'Selesai'>('Aktif');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [setStatusModalState, setSetStatusModalState] = useState<{ isOpen: boolean; targetId: string | null }>({ isOpen: false, targetId: null });
     const [selectedRecord, setSelectedRecord] = useState<PendampinganRecord | Permohonan | null>(null);
 
     const filteredDaftarPendampingan = useMemo(() => {
@@ -104,7 +105,7 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                 onNavigate('eAdvokasiPendampinganTim', record);
                 break;
             case 'selesai':
-                onUpdateStatus(record.id, StatusPendampingan.SELESAI);
+                setSetStatusModalState({ isOpen: true, targetId: record.id });
                 break;
             case 'restore':
                 onUpdateStatus(record.id, StatusPendampingan.AKTIF);
@@ -134,6 +135,17 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
         setSelectedRecord(null);
     }
 
+    const handleConfirmSetStatus = () => {
+        if (setStatusModalState.targetId) {
+            onUpdateStatus(setStatusModalState.targetId, StatusPendampingan.SELESAI);
+        }
+        setSetStatusModalState({ isOpen: false, targetId: null });
+    };
+
+    const handleCancelSetStatus = () => {
+        setSetStatusModalState({ isOpen: false, targetId: null });
+    };
+
   return (
     <>
       {isFormModalOpen && (
@@ -153,6 +165,16 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
             title="Konfirmasi Hapus"
             message={`Apakah Anda yakin ingin menghapus pendampingan "${selectedRecord.perihal}"?`}
             confirmText="Hapus"
+         />
+      )}
+      {setStatusModalState.isOpen && (
+         <ConfirmationModal 
+            isOpen={setStatusModalState.isOpen}
+            onClose={handleCancelSetStatus}
+            onConfirm={handleConfirmSetStatus}
+            title="Selesaikan Pendampingan"
+            message="Apakah kasus hukum ini telah selesai?"
+            confirmText="Selesai"
          />
       )}
       <div className="p-8 bg-gray-50 h-full flex flex-col space-y-6">

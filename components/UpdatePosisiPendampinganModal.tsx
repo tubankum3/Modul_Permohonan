@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PosisiUpdate, PendampinganRecord } from '../types';
-import { XIcon, SearchIcon, CloudIcon, UserIcon, TrashIcon, CheckIcon } from './icons';
+import { XIcon, SearchIcon, CloudIcon, UserIcon, TrashIcon, CheckIcon, PlusIcon } from './icons';
 import TarikDataNadineModal from './TarikDataNadineModal';
 
 interface UpdatePosisiModalProps {
@@ -56,8 +56,8 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
         suratTugas: '',
         tanggalSuratTugas: '',
         suratPemanggilan: '',
-        pemanggil: '',
-        terpanggil: '',
+        pemanggil: [] as string[],
+        terpanggil: [] as string[],
         agenda: '',
         tanggalAgenda: '',
         durasi: 60,
@@ -78,8 +78,8 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
                 suratTugas: initialData.suratTugas || '',
                 tanggalSuratTugas: initialData.tanggalSuratTugas || '',
                 suratPemanggilan: initialData.suratPemanggilan || '',
-                pemanggil: initialData.pemanggil || '',
-                terpanggil: initialData.terpanggil || '',
+                pemanggil: Array.isArray(initialData.pemanggil) ? initialData.pemanggil : (initialData.pemanggil ? [initialData.pemanggil] : []),
+                terpanggil: Array.isArray(initialData.terpanggil) ? initialData.terpanggil : (initialData.terpanggil ? [initialData.terpanggil] : []),
                 agenda: initialData.agenda || '',
                 tanggalAgenda: initialData.tanggalAgenda || '',
                 durasi: initialData.durasi || 60,
@@ -96,6 +96,22 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
         const { name, value } = e.target;
         const val = name === 'durasi' ? parseInt(value, 10) || 0 : value;
         setFormData(prev => ({ ...prev, [name]: val }));
+    };
+
+    const handleArrayChange = (target: 'pemanggil' | 'terpanggil', index: number, value: string) => {
+        setFormData(prev => {
+            const newArr = [...prev[target]];
+            newArr[index] = value;
+            return { ...prev, [target]: newArr };
+        });
+    };
+
+    const addArrayItem = (target: 'pemanggil' | 'terpanggil') => {
+        setFormData(prev => ({ ...prev, [target]: [...prev[target], ''] }));
+    };
+
+    const removeArrayItem = (target: 'pemanggil' | 'terpanggil', index: number) => {
+        setFormData(prev => ({ ...prev, [target]: prev[target].filter((_, i) => i !== index) }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -155,7 +171,12 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
                                         <button 
                                             key={p.id}
                                             onClick={() => {
-                                                setFormData(prev => ({ ...prev, [pihakTarget]: p.nama }));
+                                                setFormData(prev => ({ 
+                                                    ...prev, 
+                                                    [pihakTarget]: prev[pihakTarget].some(name => name === '') 
+                                                        ? prev[pihakTarget].map(name => name === '' ? p.nama : name) // fill first empty one
+                                                        : [...prev[pihakTarget], p.nama] // or append
+                                                }));
                                                 setIsPihakModalOpen(false);
                                             }}
                                             className="w-full px-6 py-4 text-left hover:bg-blue-50 transition-colors flex items-center justify-between group"
@@ -242,40 +263,84 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
                         </TwoColumnRow>
 
                         <TwoColumnRow label="Pemanggil">
-                            <div className="flex gap-2">
-                                <input 
-                                    type="text" 
-                                    name="pemanggil" 
-                                    value={formData.pemanggil} 
-                                    onChange={handleChange} 
-                                    className="flex-1 p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white" 
-                                />
-                                <button 
-                                    type="button" 
-                                    onClick={() => handleOpenPihakSearch('pemanggil')}
-                                    className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all"
-                                >
-                                    <UserIcon className="h-5 w-5" />
-                                </button>
+                            <div className="space-y-3">
+                                {formData.pemanggil.map((item, idx) => (
+                                    <div key={idx} className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={item} 
+                                            onChange={(e) => handleArrayChange('pemanggil', idx, e.target.value)} 
+                                            className="flex-1 p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white" 
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => removeArrayItem('pemanggil', idx)}
+                                            className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            title="Hapus"
+                                        >
+                                            <TrashIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <div className="flex gap-2">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => addArrayItem('pemanggil')}
+                                        className="flex-1 py-2 px-4 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl hover:border-blue-400 hover:text-blue-500 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                                    >
+                                        <PlusIcon className="h-4 w-4" />
+                                        <span>Tambah Pemanggil</span>
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleOpenPihakSearch('pemanggil')}
+                                        className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all"
+                                        title="Cari dari Abstraksi"
+                                    >
+                                        <UserIcon className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
                         </TwoColumnRow>
 
                         <TwoColumnRow label="Terpanggil">
-                            <div className="flex gap-2">
-                                <input 
-                                    type="text" 
-                                    name="terpanggil" 
-                                    value={formData.terpanggil} 
-                                    onChange={handleChange} 
-                                    className="flex-1 p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white" 
-                                />
-                                <button 
-                                    type="button" 
-                                    onClick={() => handleOpenPihakSearch('terpanggil')}
-                                    className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all"
-                                >
-                                    <UserIcon className="h-5 w-5" />
-                                </button>
+                            <div className="space-y-3">
+                                {formData.terpanggil.map((item, idx) => (
+                                    <div key={idx} className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={item} 
+                                            onChange={(e) => handleArrayChange('terpanggil', idx, e.target.value)} 
+                                            className="flex-1 p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white" 
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => removeArrayItem('terpanggil', idx)}
+                                            className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                            title="Hapus"
+                                        >
+                                            <TrashIcon className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <div className="flex gap-2">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => addArrayItem('terpanggil')}
+                                        className="flex-1 py-2 px-4 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl hover:border-blue-400 hover:text-blue-500 transition-all text-sm font-medium flex items-center justify-center gap-2"
+                                    >
+                                        <PlusIcon className="h-4 w-4" />
+                                        <span>Tambah Terpanggil</span>
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleOpenPihakSearch('terpanggil')}
+                                        className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all"
+                                        title="Cari dari Abstraksi"
+                                    >
+                                        <UserIcon className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
                         </TwoColumnRow>
 

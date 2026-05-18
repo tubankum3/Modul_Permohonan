@@ -161,7 +161,7 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                 onClose={handleCancelSetStatus}
                 onConfirm={handleConfirmSetStatus}
                 title="Ubah Status Permohonan"
-                message={`Apakah Anda yakin ingin mengubah status permohonan ini menjadi "Selesai"?`}
+                message="Apakah kasus hukum ini telah selesai?"
                 confirmText="Ubah Status"
             />
             <h1 className="text-3xl font-bold text-gray-800">Pengelolaan Permohonan</h1>

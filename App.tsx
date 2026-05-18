@@ -855,6 +855,7 @@ const App: React.FC = () => {
   const renderMainContent = () => {
     switch (currentView) {
       case 'beranda': return <BerandaPage content={berandaContent} />;
+      case 'eAdvokasiBeranda': return <BerandaPage isDashboard permohonanList={permohonanList} pendampinganRecords={pendampinganRecords} perkaraRecords={perkaraRecords} putusanRecords={putusanRecords} />;
       case 'list':
       case 'detail':
       case 'create':

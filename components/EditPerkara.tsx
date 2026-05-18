@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, Majelis, StatusPerkara, AnalisisPerkara } from '../types';
+import { PerkaraRecord, Pihak, Tuntutan, Majelis, StatusPerkara, AnalisisPerkara, Permohonan } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, SearchIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import TarikDataNadineModal from './TarikDataNadineModal';
@@ -241,7 +241,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
     const [isNadineModalOpen, setIsNadineModalOpen] = useState(false);
 
     useEffect(() => {
-        const isNewRecordFromPermohonan = initialData && !initialData.statusPerkara;
+        const isNewRecordFromPermohonan = initialData && !('statusPerkara' in initialData);
         const defaultAbstraksi = {
             tahunMasuk: new Date().getFullYear(),
             tanggalPendaftaranGugatan: new Date().toLocaleDateString('en-CA'),
@@ -259,8 +259,8 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
         
         const abstraksiFromPermohonan = isNewRecordFromPermohonan ? {
             ...defaultAbstraksi,
-            noPerkara: initialData.Nomor,
-            rincianPokokPerkara: initialData.uraian || PREFILL_RINCIAN,
+            noPerkara: (initialData as Permohonan).Nomor,
+            rincianPokokPerkara: (initialData as Permohonan).uraian || PREFILL_RINCIAN,
         } : {};
         
         setFormData({
@@ -268,12 +268,12 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
             statusPerkara: (initialData as PerkaraRecord)?.statusPerkara || StatusPerkara.AKTIF,
             abstraksiPerkara: {
                 ...defaultAbstraksi,
-                ...(initialData?.abstraksiPerkara || {}),
+                ...((initialData as PerkaraRecord)?.abstraksiPerkara || {}),
                 ...abstraksiFromPermohonan,
             },
             analisisPerkara: {
                 ...defaultAnalisis,
-                ...(initialData?.analisisPerkara || {}),
+                ...((initialData as PerkaraRecord)?.analisisPerkara || {}),
             }
         });
     }, [initialData]);

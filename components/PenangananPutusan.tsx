@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PerkaraRecord, StatusPutusan, View, TeamMember } from '../types';
 import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon, PrintIcon, RotateCcwIcon } from './icons';
+import ConfirmationModal from './ConfirmationModal';
 
 const getPicName = (record: PerkaraRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -34,6 +35,22 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     onRestore
 }) => {
   const [activeTab, setActiveTab] = useState<'aktif' | 'selesai'>('aktif');
+  const [setStatusModalState, setSetStatusModalState] = useState<{ isOpen: boolean; targetId: string | null }>({ isOpen: false, targetId: null });
+
+  const requestSetSelesai = (id: string) => {
+    setSetStatusModalState({ isOpen: true, targetId: id });
+  };
+
+  const handleConfirmSelesai = () => {
+    if (setStatusModalState.targetId) {
+        onSetSelesai(setStatusModalState.targetId);
+    }
+    setSetStatusModalState({ isOpen: false, targetId: null });
+  };
+
+  const handleCancelSelesai = () => {
+    setSetStatusModalState({ isOpen: false, targetId: null });
+  };
 
   const aktifPutusan = daftarPutusan.filter(p => p.statusPutusan === StatusPutusan.AKTIF);
   const selesaiPutusan = daftarPutusan.filter(p => p.statusPutusan === StatusPutusan.SELESAI);
@@ -81,7 +98,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                             <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
                             <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
                             <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                            <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
                             <button 
                                 onClick={() => {
                                     onView(p);
@@ -127,6 +144,16 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-6">
+      {setStatusModalState.isOpen && (
+        <ConfirmationModal 
+            isOpen={setStatusModalState.isOpen}
+            onClose={handleCancelSelesai}
+            onConfirm={handleConfirmSelesai}
+            title="Selesaikan Putusan"
+            message="Apakah kasus hukum ini telah selesai?"
+            confirmText="Selesai"
+        />
+      )}
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold text-gray-800">Penanganan Putusan</h1>
         <p className="text-gray-600 mt-1">Kelola tindak lanjut atas putusan perkara hukum.</p>

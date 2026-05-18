@@ -66,8 +66,8 @@ export interface PosisiUpdate {
     suratTugas: string;
     tanggalSuratTugas?: string;
     suratPemanggilan: string;
-    pemanggil: string;
-    terpanggil: string;
+    pemanggil: string | string[];
+    terpanggil: string | string[];
     agenda: string;
     tanggalAgenda: string;
     durasi: number; // in minutes

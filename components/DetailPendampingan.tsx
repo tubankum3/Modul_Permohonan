@@ -160,8 +160,14 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
                                 <div className="text-[10px] text-blue-600 bg-blue-50 inline-block px-1.5 py-0.5 rounded mt-1">{p.durasi} Menit</div>
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-800">
-                                <div className="mb-1"><span className="text-[10px] uppercase font-bold text-gray-400 block">Pemanggil</span> {p.pemanggil}</div>
-                                <div className="mb-1"><span className="text-[10px] uppercase font-bold text-gray-400 block">Terpanggil</span> {p.terpanggil}</div>
+                                <div className="mb-1">
+                                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Pemanggil</span> 
+                                    {Array.isArray(p.pemanggil) ? p.pemanggil.filter(Boolean).join(', ') : p.pemanggil}
+                                </div>
+                                <div className="mb-1">
+                                    <span className="text-[10px] uppercase font-bold text-gray-400 block">Terpanggil</span> 
+                                    {Array.isArray(p.terpanggil) ? p.terpanggil.filter(Boolean).join(', ') : p.terpanggil}
+                                </div>
                                 <div><span className="text-[10px] uppercase font-bold text-gray-400 block">Surat Pemanggilan</span> {p.suratPemanggilan}</div>
                             </td>
                             <td className="px-4 py-4 text-sm text-gray-800 font-semibold">{p.posisiKasus}</td>

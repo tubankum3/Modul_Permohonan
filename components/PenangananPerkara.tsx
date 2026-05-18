@@ -96,6 +96,7 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'Aktif' | 'Selesai'>('Aktif');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [setStatusModalState, setSetStatusModalState] = useState<{ isOpen: boolean; targetId: string | null }>({ isOpen: false, targetId: null });
     const [recordToDelete, setRecordToDelete] = useState<PerkaraRecord | null>(null);
 
     const filteredDaftarPerkara = useMemo(() => {
@@ -128,6 +129,9 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
             case 'manage-tim':
                 onNavigate('eAdvokasiPerkaraTim', record);
                 break;
+            case 'selesai':
+                setSetStatusModalState({ isOpen: true, targetId: record.id });
+                break;
             case 'hapus':
                 setRecordToDelete(record);
                 setIsDeleteModalOpen(true);
@@ -149,6 +153,17 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
         setRecordToDelete(null);
     }
 
+    const handleConfirmSetStatus = () => {
+        if (setStatusModalState.targetId) {
+            onUpdateStatus(setStatusModalState.targetId, StatusPerkara.SELESAI);
+        }
+        setSetStatusModalState({ isOpen: false, targetId: null });
+    };
+
+    const handleCancelSetStatus = () => {
+        setSetStatusModalState({ isOpen: false, targetId: null });
+    };
+
   return (
     <>
       {isDeleteModalOpen && recordToDelete && (
@@ -159,6 +174,16 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
             title="Konfirmasi Hapus"
             message={`Apakah Anda yakin ingin menghapus perkara "${recordToDelete.perihal}"?`}
             confirmText="Hapus"
+         />
+      )}
+      {setStatusModalState.isOpen && (
+         <ConfirmationModal 
+            isOpen={setStatusModalState.isOpen}
+            onClose={handleCancelSetStatus}
+            onConfirm={handleConfirmSetStatus}
+            title="Selesaikan Perkara"
+            message="Apakah kasus hukum ini telah selesai?"
+            confirmText="Selesai"
          />
       )}
       <div className="p-8 bg-gray-50 h-full flex flex-col space-y-6">
@@ -290,6 +315,7 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                               <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><DocumentTextIcon className="h-4 w-4"/></button>
                                               <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4"/></button>
                                               <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
+                                              <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
                                               <button 
                                                   onClick={() => {
                                                       onView(p);

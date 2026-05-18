@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SuratMasukNadine, JenisPermohonan } from '../types';
-import { SearchIcon, XIcon, ShieldCheckIcon, UserGroupIcon } from './icons';
+import { SearchIcon, XIcon, ShieldCheckIcon, UserGroupIcon, CalendarIcon } from './icons';
 
 interface TarikDataNadineModalProps {
   isOpen: boolean;
@@ -20,7 +20,14 @@ const mockNadineData: SuratMasukNadine[] = [
 
 const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onClose, onTarikData }) => {
     const [view, setView] = useState<'search' | 'categorize'>('search');
-    const [searchParams, setSearchParams] = useState({ nomorSurat: '', perihal: '', naskahId: '', unitPengirim: '' });
+    const [searchParams, setSearchParams] = useState({ 
+        nomorSurat: '', 
+        perihal: '', 
+        naskahId: '', 
+        unitPengirim: '',
+        startDate: '',
+        endDate: '' 
+    });
     const [searchResults, setSearchResults] = useState<SuratMasukNadine[]>([]);
     const [selectedSurat, setSelectedSurat] = useState<SuratMasukNadine[]>([]);
     const [selectedJenis, setSelectedJenis] = useState<JenisPermohonan | null>(null);
@@ -29,7 +36,7 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
         onClose();
         setTimeout(() => {
             setView('search');
-            setSearchParams({ nomorSurat: '', perihal: '', naskahId: '', unitPengirim: '' });
+            setSearchParams({ nomorSurat: '', perihal: '', naskahId: '', unitPengirim: '', startDate: '', endDate: '' });
             setSearchResults([]);
             setSelectedSurat([]);
             setSelectedJenis(null);
@@ -37,13 +44,31 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
     };
 
     const handleSearch = () => {
-        const { nomorSurat, perihal, naskahId, unitPengirim } = searchParams;
-        const filtered = mockNadineData.filter(item => 
-            (nomorSurat ? item.nomorSurat.toLowerCase().includes(nomorSurat.toLowerCase()) : true) &&
-            (perihal ? item.perihal.toLowerCase().includes(perihal.toLowerCase()) : true) &&
-            (naskahId ? item.naskahId.toLowerCase().includes(naskahId.toLowerCase()) : true) &&
-            (unitPengirim ? item.unitPengirim.toLowerCase().includes(unitPengirim.toLowerCase()) : true)
-        );
+        const { nomorSurat, perihal, naskahId, unitPengirim, startDate, endDate } = searchParams;
+        
+        const filtered = mockNadineData.filter(item => {
+            const matchNomor = nomorSurat ? item.nomorSurat.toLowerCase().includes(nomorSurat.toLowerCase()) : true;
+            const matchPerihal = perihal ? item.perihal.toLowerCase().includes(perihal.toLowerCase()) : true;
+            const matchId = naskahId ? item.naskahId.toLowerCase().includes(naskahId.toLowerCase()) : true;
+            const matchUnit = unitPengirim ? item.unitPengirim.toLowerCase().includes(unitPengirim.toLowerCase()) : true;
+            
+            let matchDate = true;
+            if (startDate || endDate) {
+                const parts = item.tanggal.split('/');
+                const itemDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                
+                if (startDate) {
+                    const start = new Date(startDate);
+                    if (itemDate < start) matchDate = false;
+                }
+                if (endDate) {
+                    const end = new Date(endDate);
+                    if (itemDate > end) matchDate = false;
+                }
+            }
+
+            return matchNomor && matchPerihal && matchId && matchUnit && matchDate;
+        });
         setSearchResults(filtered);
     };
 
@@ -120,8 +145,30 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                                 <input type="text" name="naskahId" placeholder="Masukan id surat" value={searchParams.naskahId} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
                                 <input type="text" name="unitPengirim" placeholder="Masukan Unit Pengirim" value={searchParams.unitPengirim} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md" />
                             </div>
-                            <div className="mt-4 flex justify-end">
-                                <button onClick={handleSearch} className="bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                            
+                            <div className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex items-center bg-blue-50 border border-blue-100 rounded-lg p-3 w-full md:w-auto">
+                                    <CalendarIcon className="h-5 w-5 text-gray-500 mr-2" />
+                                    <span className="text-sm text-blue-700 font-medium mr-4">Periode:</span>
+                                    <div className="flex items-center space-x-2">
+                                        <input 
+                                            type="date" 
+                                            name="startDate" 
+                                            value={searchParams.startDate} 
+                                            onChange={handleInputChange} 
+                                            className="text-xs bg-transparent border-none focus:ring-0 p-0 text-blue-800"
+                                        />
+                                        <span className="text-gray-400">−</span>
+                                        <input 
+                                            type="date" 
+                                            name="endDate" 
+                                            value={searchParams.endDate} 
+                                            onChange={handleInputChange} 
+                                            className="text-xs bg-transparent border-none focus:ring-0 p-0 text-blue-800"
+                                        />
+                                    </div>
+                                </div>
+                                <button onClick={handleSearch} className="bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2 w-full md:w-auto">
                                     <SearchIcon className="h-5 w-5" />
                                     <span>Cari</span>
                                 </button>
