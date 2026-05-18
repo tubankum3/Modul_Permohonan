@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { PerkaraRecord, Pihak, Tuntutan, Majelis, StatusPerkara, AnalisisPerkara, Permohonan } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, SearchIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
 const referenceTags = ['Strategis', 'Non-Strategis', 'Penting', 'Perdata', 'Pidana', 'TUN', 'Penting Mendesak', 'Keuangan Negara'];
 
@@ -259,7 +259,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
         
         const abstraksiFromPermohonan = isNewRecordFromPermohonan ? {
             ...defaultAbstraksi,
-            noPerkara: (initialData as Permohonan).Nomor,
+            noPerkara: '',
             rincianPokokPerkara: (initialData as Permohonan).uraian || PREFILL_RINCIAN,
         } : {};
         
@@ -588,7 +588,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
                             </div>
                             
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Perkara (Lv 1)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Perkara</label>
                                 <select name="jenisPerkara" value={formData.abstraksiPerkara?.jenisPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                     <option value="">Pilih Jenis Perkara</option>
                                     {Object.keys(PERKARA_HIERARCHY).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -597,7 +597,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
                             {formData.abstraksiPerkara?.jenisPerkara && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Klasifikasi Perkara (Lv 2)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Klasifikasi Perkara</label>
                                     <select name="klasifikasiPerkara" value={formData.abstraksiPerkara?.klasifikasiPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                         <option value="">Pilih Klasifikasi</option>
                                         {Object.keys(PERKARA_HIERARCHY[formData.abstraksiPerkara.jenisPerkara] || {}).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -607,7 +607,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
                             {formData.abstraksiPerkara?.klasifikasiPerkara && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub Klasifikasi Perkara (Lv 3)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub Klasifikasi Perkara</label>
                                     <select name="subKlasifikasiPerkara" value={formData.abstraksiPerkara?.subKlasifikasiPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                         <option value="">Pilih Sub Klasifikasi</option>
                                         {Object.keys(PERKARA_HIERARCHY[formData.abstraksiPerkara.jenisPerkara!][formData.abstraksiPerkara.klasifikasiPerkara] || {}).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -617,7 +617,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
                             {formData.abstraksiPerkara?.subKlasifikasiPerkara && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Sub Klasifikasi Perkara (Lv 4)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Sub Klasifikasi Perkara</label>
                                     <select name="subSubKlasifikasiPerkara" value={formData.abstraksiPerkara?.subSubKlasifikasiPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                         <option value="">Pilih Sub-Sub Klasifikasi</option>
                                         {(PERKARA_HIERARCHY[formData.abstraksiPerkara.jenisPerkara!][formData.abstraksiPerkara.klasifikasiPerkara!] [formData.abstraksiPerkara.subKlasifikasiPerkara] || []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -628,7 +628,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
                             <div className="border-t border-gray-100 my-2"></div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Pokok Perkara (Lv 1)</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Pokok Perkara</label>
                                 <select name="jenisPokokPerkara" value={formData.abstraksiPerkara?.jenisPokokPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                     <option value="">Pilih Jenis Pokok</option>
                                     {Object.keys(POKOK_HIERARCHY).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -637,7 +637,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
                             {formData.abstraksiPerkara?.jenisPokokPerkara && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub Pokok Perkara (Lv 2)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub Pokok Perkara</label>
                                     <select name="subPokokPerkara" value={formData.abstraksiPerkara?.subPokokPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                         <option value="">Pilih Sub Pokok</option>
                                         {Object.keys(POKOK_HIERARCHY[formData.abstraksiPerkara.jenisPokokPerkara] || {}).map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -647,7 +647,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
                             {formData.abstraksiPerkara?.subPokokPerkara && (
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Sub Pokok Perkara (Lv 3)</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Sub-Sub Pokok Perkara</label>
                                     <select name="subSubPokokPerkara" value={formData.abstraksiPerkara?.subSubPokokPerkara || ''} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-md bg-white">
                                         <option value="">Pilih Sub-Sub Pokok</option>
                                         {(POKOK_HIERARCHY[formData.abstraksiPerkara.jenisPokokPerkara!][formData.abstraksiPerkara.subPokokPerkara] || []).map(opt => <option key={opt} value={opt}>{opt}</option>)}

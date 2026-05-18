@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
-import { PerkaraRecord, View, DokumenLitigasi, FileData, PosisiSidangEntry, Putusan } from '../types';
+import { PerkaraRecord, View, DokumenLitigasi, FileData, TindakLanjut, Putusan } from '../types';
 import { ArrowLeftIcon, DownloadIcon, EyeIcon, SearchIcon, CloudArrowDownIcon, PencilSquareIcon, DocumentTextIcon, UploadIcon } from './icons';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
-interface DokumenPerkaraProps {
+interface DokumenPutusanProps {
   record: PerkaraRecord;
   onNavigate: (view: View, record?: PerkaraRecord) => void;
 }
 
-const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) => {
+const DokumenPutusan: React.FC<DokumenPutusanProps> = ({ record, onNavigate }) => {
   const [isNadineModalOpen, setIsNadineModalOpen] = useState(false);
   
   const renderTable = (
@@ -50,27 +50,11 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
     </div>
   );
 
-  // Group 1: Dokumen Permohonan
-  const permohonanDocs = record.files || [];
+  // 1. Dokumen Tindak Lanjut
+  const tindakLanjutDocs = record.tindakLanjut || [];
 
-  // Group 2: Dokumen Litigasi (SKU, Dokumen Litigasi)
-  const litigasiDocs = record.dokumenLitigasi || [];
-
-  // Group 3: Dokumen Laporan (Laporan Sidang, Laporan Putusan)
-  // Mocking based on sidang and putusan entries since they represent "Generate Laporan" actions
-  const laporanSidangDocs = (record.posisiSidang?.tkPertama || []).concat(
-    record.posisiSidang?.tkBanding || [],
-    record.posisiSidang?.tkKasasi || [],
-    record.posisiSidang?.tkPK || []
-  ).map(s => ({
-    id: `ls-${s.id}`,
-    name: `Laporan Sidang - ${s.agendaSidang}`,
-    type: 'Laporan Sidang',
-    date: s.tanggalSidang,
-    source: 'Nadine (Auto-generated)'
-  }));
-
-  const laporanPutusanDocs = (record.putusan || []).map(p => ({
+  // 2. Dokumen Laporan (Get Data from Nadine, Tulis Naskah)
+  const laporanDocs = (record.putusan || []).map(p => ({
     id: `lp-${p.id}`,
     name: `Laporan Putusan - ${p.nomor}`,
     type: 'Laporan Putusan',
@@ -78,9 +62,7 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
     source: 'Nadine (Auto-generated)'
   }));
 
-  const laporanDocs = [...laporanSidangDocs, ...laporanPutusanDocs];
-
-  // Group 4: Dokumen Putusan
+  // 3. Dokumen Putusan
   const putusanDocs = (record.putusan || []).filter(p => (p as any).dokumen).map(p => ({
     id: `p-${p.id}`,
     name: (p as any).dokumen,
@@ -93,13 +75,13 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
     <div className="p-8 bg-gray-50 h-full overflow-y-auto">
       <div className="flex items-center space-x-4 mb-6">
         <button 
-          onClick={() => onNavigate('eAdvokasiPenangananPerkara')}
+          onClick={() => onNavigate('eAdvokasiPenangananPutusan')}
           className="p-2 hover:bg-gray-200 rounded-full text-gray-600 transition-colors"
         >
           <ArrowLeftIcon className="h-6 w-6" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Daftar Dokumen Perkara</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Daftar Dokumen Penanganan Putusan</h1>
           <p className="text-gray-600 mt-1">
             {record.abstraksiPerkara?.noPerkara || record.Nomor || record.id} - {record.perihal}
           </p>
@@ -108,64 +90,31 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
 
       <div className="grid grid-cols-1 gap-6">
         
-        {/* 1. Dokumen Permohonan */}
+        {/* 1. Dokumen Tindak Lanjut */}
         {renderTable(
-          "1. Dokumen Permohonan",
-          ["Nama Berkas", "Ukuran", "Tipe"],
-          permohonanDocs,
-          (file: FileData, index) => (
+          "1. Dokumen Tindak Lanjut",
+          ["Tanggal", "Tindak Lanjut", "File"],
+          tindakLanjutDocs,
+          (t: TindakLanjut, index) => (
             <tr key={index}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                <div className="flex items-center space-x-2">
-                  <DocumentTextIcon className="h-5 w-5 text-blue-500" />
-                  <span>{file.name}</span>
-                </div>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.tanggal}</td>
+              <td className="px-6 py-4 text-sm font-medium text-gray-900">{t.tindakLanjut}</td>
+              <td className="px-6 py-4 text-sm text-gray-800">
+                {t.file ? (
+                  <div className="flex items-center space-x-2">
+                    <DocumentTextIcon className="h-5 w-5 text-blue-500" />
+                    <span>{t.file.name}</span>
+                  </div>
+                ) : '-'}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(file.size / 1024).toFixed(1)} KB</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">{file.type.split('/')[1] || 'FILE'}</td>
               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-              </td>
-            </tr>
-          ),
-          <div className="flex items-center space-x-2">
-            <button 
-              className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-            >
-              <UploadIcon className="h-4 w-4" />
-              <span>UNGGAH DOKUMEN</span>
-            </button>
-            <button 
-              onClick={() => setIsNadineModalOpen(true)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
-            >
-              <CloudArrowDownIcon className="h-4 w-4" />
-              <span>TARIK DARI NADINE</span>
-            </button>
-          </div>
-        )}
-
-        {/* 2. Dokumen Litigasi */}
-        {renderTable(
-          "2. Dokumen Litigasi (SKU, Dokumen Jawab Jinawab, Data Dukung)",
-          ["No. Naskah", "Jenis", "Deskripsi", "Tanggal"],
-          litigasiDocs,
-          (doc: DokumenLitigasi, index) => (
-            <tr key={doc.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">{doc.noNaskah}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className={`px-2 py-1 rounded-md text-xs font-semibold ${doc.jenis === 'SKU' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
-                  {doc.jenis}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-sm text-gray-500 truncate max-w-xs" title={doc.deskripsi}>{doc.deskripsi}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{doc.timestamp.split(' ')[0]}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
+                {t.file && (
+                  <>
+                    <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
+                    <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
+                  </>
+                )}
               </td>
             </tr>
           ),
@@ -193,16 +142,15 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
           </div>
         )}
 
-        {/* 3. Dokumen Laporan */}
+        {/* 2. Dokumen Laporan */}
         {renderTable(
-          "3. Dokumen Laporan (Laporan Sidang, Laporan Putusan)",
-          ["Nama Laporan", "Jenis Laporan", "Tanggal", "Sumber"],
+          "2. Dokumen Laporan (Laporan Putusan)",
+          ["Nama Laporan", "Tanggal", "Sumber"],
           laporanDocs,
           (doc, index) => (
             <tr key={doc.id}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
               <td className="px-6 py-4 text-sm font-medium text-gray-900">{doc.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{doc.type}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{doc.date}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 italic text-xs">{doc.source}</td>
               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
@@ -213,24 +161,25 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
           ),
           <div className="flex items-center space-x-2">
             <button 
-              className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-            >
-              <UploadIcon className="h-4 w-4" />
-              <span>UNGGAH DOKUMEN</span>
-            </button>
-            <button 
               onClick={() => setIsNadineModalOpen(true)}
               className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
             >
               <CloudArrowDownIcon className="h-4 w-4" />
               <span>TARIK DARI NADINE</span>
             </button>
+            <button 
+              onClick={() => onNavigate('pilihTemplate')}
+              className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors shadow-md"
+            >
+              <PencilSquareIcon className="h-4 w-4" />
+              <span>TULIS NASKAH</span>
+            </button>
           </div>
         )}
 
-        {/* 4. Dokumen Putusan */}
+        {/* 3. Dokumen Putusan */}
         {renderTable(
-          "4. Dokumen Putusan",
+          "3. Dokumen Putusan",
           ["Nomor Putusan", "Nama Berkas", "Tanggal", "Status"],
           putusanDocs,
           (doc, index) => (
@@ -276,4 +225,4 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
   );
 };
 
-export default DokumenPerkara;
+export default DokumenPutusan;

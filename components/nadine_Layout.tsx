@@ -1,7 +1,7 @@
 
 import React from 'react';
-import NadineHeader from './NadineHeader';
-import NadineSidebar from './NadineSidebar';
+import NadineHeader from './nadine_Header';
+import NadineSidebar from './nadine_Sidebar';
 // FIX: Import View type from types.ts to avoid circular dependency.
 import { View } from '../types';
 

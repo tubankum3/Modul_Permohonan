@@ -1,40 +1,40 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Layout } from './components/Layout';
-import DaftarPermohonan from './components/DaftarPermohonan';
-import DetailPermohonan from './components/DetailPermohonan';
-import BuatPermohonan from './components/BuatPermohonan';
+import DaftarPermohonan from './components/satkem_DaftarPermohonan';
+import DetailPermohonan from './components/satkem_DetailPermohonan';
+import BuatPermohonan from './components/satkem_BuatPermohonan';
 import Notification from './components/Notification';
-import { NadineLayout } from './components/NadineLayout';
-import PilihTemplateNaskah from './components/PilihTemplateNaskah';
-import FormNaskahDinas from './components/FormNaskahDinas';
+import { NadineLayout } from './components/nadine_Layout';
+import PilihTemplateNaskah from './components/nadine_PilihTemplateNaskah';
+import FormNaskahDinas from './components/nadine_FormNaskahDinas';
 import FaqPage from './components/FaqPage';
 import BerandaPage from './components/BerandaPage';
 import ConfirmationModal from './components/ConfirmationModal';
-import EAdvokasiInbox from './components/EAdvokasiInbox';
-import PengelolaanPermohonan from './components/PengelolaanPermohonan';
-import ProsesPermohonan from './components/ProsesPermohonan';
-import PengelolaanInformasi from './components/PengelolaanInformasi';
-import PengelolaanFaq from './components/PengelolaanFaq';
-import Pendampingan from './components/Pendampingan';
-import DetailPendampingan from './components/DetailPendampingan';
+import EAdvokasiInbox from './components/eadvo_Inbox';
+import PengelolaanPermohonan from './components/satkem_PengelolaanPermohonan';
+import ProsesPermohonan from './components/satkem_ProsesPermohonan';
+import PengelolaanInformasi from './components/eadvo_PengelolaanInformasi';
+import PengelolaanFaq from './components/eadvo_PengelolaanFaq';
+import Pendampingan from './components/eadvo_Pendampingan';
+import DetailPendampingan from './components/eadvo_DetailPendampingan';
 import AssignTeam from './components/AssignTeam';
-import PosisiPendampingan from './components/PosisiPendampingan';
-import PenangananPerkara from './components/PenangananPerkara';
-import DetailPerkara from './components/DetailPerkara';
-import EditPerkara from './components/EditPerkara';
-import UpdatePosisiPerkara from './components/UpdatePosisiPerkara';
-import EAdvokasiKalender from './components/EAdvokasiKalender';
-import DaftarAgendaBerikutnya from './components/DaftarAgendaBerikutnya';
-import PenangananPutusan from './components/PenangananPutusan';
-import DetailPutusan from './components/DetailPutusan';
-import UpdateTindakLanjut from './components/UpdateTindakLanjut';
-import EditPutusan from './components/EditPutusan';
-import DokumenPerkara from './components/DokumenPerkara';
-import DokumenPutusan from './components/DokumenPutusan';
-import DokumenPendampingan from './components/DokumenPendampingan';
-import Arsip from './components/Arsip';
-import RecycleBin from './components/RecycleBin';
+import PosisiPendampingan from './components/eadvo_PosisiPendampingan';
+import PenangananPerkara from './components/eadvo_PenangananPerkara';
+import DetailPerkara from './components/eadvo_DetailPerkara';
+import EditPerkara from './components/eadvo_EditPerkara';
+import UpdatePosisiPerkara from './components/eadvo_UpdatePosisiPerkara';
+import EAdvokasiKalender from './components/eadvo_Kalender';
+import DaftarAgendaBerikutnya from './components/eadvo_DaftarAgendaBerikutnya';
+import PenangananPutusan from './components/eadvo_PenangananPutusan';
+import DetailPutusan from './components/eadvo_DetailPutusan';
+import UpdateTindakLanjut from './components/eadvo_UpdateTindakLanjut';
+import EditPutusan from './components/eadvo_EditPutusan';
+import DokumenPerkara from './components/eadvo_DokumenPerkara';
+import DokumenPutusan from './components/eadvo_DokumenPutusan';
+import DokumenPendampingan from './components/eadvo_DokumenPendampingan';
+import Arsip from './components/eadvo_Arsip';
+import RecycleBin from './components/eadvo_RecycleBin';
 
 import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, PerkaraRecord, StatusPerkara, StatusPutusan } from './types';
 import { ArrowLeftIcon } from './components/icons';
@@ -241,7 +241,7 @@ const initialPendampinganRecords: PendampinganRecord[] = [
             keterangan: 'keterangan'
         },
         posisi: [
-            { id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-08-11', agenda: 'Pemeriksaan saksi', tanggalAgenda: '2021-08-11', suratPemanggilan: 'SPGL-12', pemanggil: 'Joko bareskrim mabes polri', terpanggil: 'Pihak Terkait', posisiKasus: 'Penyelidikan', lokasi: 'RR Rapat Bareskrim', durasi: 180, rincian: 'di cecar pertanyaan menjebak', timestamp: new Date('2021-08-11') },
+            { id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-08-11', agenda: 'Pemeriksaan saksi', tanggalAgenda: '2021-08-11', suratPemanggilan: 'SPGL-12', pemanggil: ['Joko bareskrim mabes polri'], terpanggil: ['Pihak Terkait'], posisiKasus: 'Penyelidikan', lokasi: 'RR Rapat Bareskrim', durasi: 180, rincian: 'di cecar pertanyaan menjebak', timestamp: new Date('2021-08-11') },
         ],
         team: [
             { id: '19XXXXX-XXXXXX-XXXXX-MADE', nama: 'Made', nip: '19XXXXX XXXXXX XXXXX', unit: 'Subbagian Advokasi IIIA, Bagian Advokasi III, Biro Advokasi, Sekretariat Jenderal', role: 'Analis Hukum', teamRole: 'Editor' },
@@ -854,8 +854,8 @@ const App: React.FC = () => {
 
   const renderMainContent = () => {
     switch (currentView) {
-      case 'beranda': return <BerandaPage content={berandaContent} />;
-      case 'eAdvokasiBeranda': return <BerandaPage isDashboard permohonanList={permohonanList} pendampinganRecords={pendampinganRecords} perkaraRecords={perkaraRecords} putusanRecords={putusanRecords} />;
+      case 'beranda': return <BerandaPage content={berandaContent} onNavigate={handleNavigate} />;
+      case 'eAdvokasiBeranda': return <BerandaPage isDashboard permohonanList={permohonanList} pendampinganRecords={pendampinganRecords} perkaraRecords={perkaraRecords} putusanRecords={putusanRecords} onNavigate={handleNavigate} />;
       case 'list':
       case 'detail':
       case 'create':
@@ -871,7 +871,7 @@ const App: React.FC = () => {
       case 'pilihTemplate': return <PilihTemplateNaskah onBack={() => handleNavigate('beranda')} onNext={() => handleNavigate('formNaskah')} />;
       case 'formNaskah': return <FormNaskahDinas onBack={() => handleNavigate('pilihTemplate')} onNext={() => showNotification("Fitur ini belum diimplementasikan", "info")} />;
       case 'faq': return <FaqPage faqData={faqData} />;
-      case 'eAdvokasiInbox': return <EAdvokasiInbox permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.TERKIRIM || p.status === StatusPermohonan.BARU)} onProses={handleProses} onTarikData={handleTarikDataNadine} />;
+      case 'eAdvokasiInbox': return <EAdvokasiInbox permohonanList={permohonanList.filter(p => (p.status === StatusPermohonan.TERKIRIM || p.status === StatusPermohonan.BARU) && !p.deletedAt)} onProses={handleProses} onTarikData={handleTarikDataNadine} onNavigate={handleNavigate} />;
       case 'eAdvokasiPengelolaan': return <PengelolaanPermohonan permohonanList={permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES || p.status === StatusPermohonan.SELESAI)} selectedPermohonan={selectedPermohonan} onSelectPermohonan={setSelectedPermohonan} onAddReply={handleAddReply} onUpdateReply={handleUpdateReply} onDeleteReply={handleDeleteReply} onUpdateStatus={handleUpdateStatus} onUpdateTeam={handleUpdatePermohonanTeam} onSetPic={handleSetPermohonanPic} onNavigate={handleNavigate} />;
       case 'eAdvokasiProses': return currentPermohonanToProses ? (
         <ProsesPermohonan 
@@ -907,8 +907,8 @@ const App: React.FC = () => {
       case 'eAdvokasiPerkaraDokumen': return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DokumenPerkara record={selectedPerkara as PerkaraRecord} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraTim': return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{selectedPerkara.abstraksiPerkara?.noPerkara || selectedPerkara.Nomor} - {selectedPerkara.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPerkara.team || []} picId={selectedPerkara.picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiKalender': return <EAdvokasiKalender daftarPerkara={perkaraRecords} onNavigate={handleNavigate} />;
-      case 'eAdvokasiAgendaBerikutnya': return <DaftarAgendaBerikutnya daftarPerkara={perkaraRecords} onBack={() => handleNavigate('eAdvokasiKalender')} />;
-      case 'eAdvokasiPenangananPutusan': return <PenangananPutusan daftarPutusan={putusanRecords.filter(r => !r.deletedAt)} onView={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDetail'); }} onEdit={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanEdit'); }} onUpdateTindakLanjut={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanUpdateTindakLanjut'); }} onManageTim={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanTim'); }} onManageDokumen={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDokumen'); }} onDelete={handleDeletePutusan} onSetSelesai={handleSetPutusanSelesai} onRestore={handleRestorePutusan} />;
+      case 'eAdvokasiAgendaBerikutnya': return <DaftarAgendaBerikutnya daftarPerkara={perkaraRecords} onBack={() => handleNavigate('eAdvokasiKalender')} onNavigate={handleNavigate} />;
+      case 'eAdvokasiPenangananPutusan': return <PenangananPutusan daftarPutusan={putusanRecords.filter(r => !r.deletedAt)} onView={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDetail'); }} onEdit={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanEdit'); }} onUpdateTindakLanjut={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanUpdateTindakLanjut'); }} onManageTim={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanTim'); }} onManageDokumen={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDokumen'); }} onDelete={handleDeletePutusan} onSetSelesai={handleSetPutusanSelesai} onRestore={handleRestorePutusan} onNavigate={handleNavigate} />;
       case 'eAdvokasiPutusanDetail': return selectedPutusan ? <DetailPutusan record={selectedPutusan} onBack={() => handleNavigate(selectedPutusan.deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanEdit': return <EditPutusan initialData={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} />;
       case 'eAdvokasiPutusanUpdateTindakLanjut': return selectedPutusan ? <UpdateTindakLanjut record={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
@@ -919,7 +919,7 @@ const App: React.FC = () => {
       case 'eAdvokasiUser': return <div className="p-8"><h1 className="text-2xl font-bold">Manajemen User</h1><p className="mt-4">Fitur manajemen akses dan peran sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiReferensi': return <div className="p-8"><h1 className="text-2xl font-bold">Referensi</h1><p className="mt-4">Fitur pengelolaan data referensi (unit, wilayah, pengadilan) sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiTim': return <div className="p-8"><h1 className="text-2xl font-bold">Pengelolaan Tim</h1><p className="mt-4">Fitur master data tim advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
-      case 'eAdvokasiArsip': return <Arsip />;
+      case 'eAdvokasiArsip': return <Arsip onNavigate={handleNavigate} />;
       case 'eAdvokasiRecycleBin':
         return (
             <RecycleBin 
@@ -958,6 +958,7 @@ const App: React.FC = () => {
                         handleNavigate('eAdvokasiPutusanDetail');
                     }
                 }}
+                onNavigate={handleNavigate}
             />
         );
       default: return <div className="p-8">Tampilan <span className="font-semibold">{currentView}</span> belum diimplementasikan.</div>

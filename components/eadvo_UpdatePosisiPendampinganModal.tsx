@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { PosisiUpdate, PendampinganRecord } from '../types';
 import { XIcon, SearchIcon, CloudIcon, UserIcon, TrashIcon, CheckIcon, PlusIcon } from './icons';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
 interface UpdatePosisiModalProps {
     isOpen: boolean;
@@ -171,12 +171,16 @@ const UpdatePosisiModal: React.FC<UpdatePosisiModalProps> = ({ isOpen, onClose, 
                                         <button 
                                             key={p.id}
                                             onClick={() => {
-                                                setFormData(prev => ({ 
-                                                    ...prev, 
-                                                    [pihakTarget]: prev[pihakTarget].some(name => name === '') 
-                                                        ? prev[pihakTarget].map(name => name === '' ? p.nama : name) // fill first empty one
-                                                        : [...prev[pihakTarget], p.nama] // or append
-                                                }));
+                                                setFormData(prev => {
+                                                    const targetArr = [...prev[pihakTarget]];
+                                                    const emptyIdx = targetArr.findIndex(name => name === '');
+                                                    if (emptyIdx !== -1) {
+                                                        targetArr[emptyIdx] = p.nama;
+                                                    } else {
+                                                        targetArr.push(p.nama);
+                                                    }
+                                                    return { ...prev, [pihakTarget]: targetArr };
+                                                });
                                                 setIsPihakModalOpen(false);
                                             }}
                                             className="w-full px-6 py-4 text-left hover:bg-blue-50 transition-colors flex items-center justify-between group"

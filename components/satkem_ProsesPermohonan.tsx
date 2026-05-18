@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Permohonan, Riwayat, PendampinganRecord, PerkaraRecord, PosisiSidangEntry } from '../types';
-import DetailPermohonan from './DetailPermohonan';
+import DetailPermohonan from './satkem_DetailPermohonan';
 import AssignTeam from './AssignTeam';
 import { ArrowLeftIcon, SearchIcon } from './icons';
 

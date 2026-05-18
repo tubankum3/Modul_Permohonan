@@ -149,7 +149,7 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                             <div className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center bg-blue-50 border border-blue-100 rounded-lg p-3 w-full md:w-auto">
                                     <CalendarIcon className="h-5 w-5 text-gray-500 mr-2" />
-                                    <span className="text-sm text-blue-700 font-medium mr-4">Periode:</span>
+                                    <span className="text-sm text-blue-700 font-medium mr-4">Periode Surat:</span>
                                     <div className="flex items-center space-x-2">
                                         <input 
                                             type="date" 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PendampinganRecord, Permohonan, StatusPendampingan, JenisPermohonan } from '../types';
 import { XIcon, PlusIcon, TrashIcon, ArrowLeftIcon, SearchIcon, CheckIcon } from './icons';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
 interface FormPendampinganModalProps {
     isOpen: boolean;
@@ -14,6 +14,20 @@ interface FormPendampinganModalProps {
 const UNIT_KEMENKEU = ['Sekretariat Jenderal', 'Direktorat Jenderal Pajak', 'Direktorat Jenderal Bea dan Cukai', 'Direktorat Jenderal Perbendaharaan', 'Direktorat Jenderal Kekayaan Negara', 'Direktorat Jenderal Perimbangan Keuangan', 'Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko', 'Inspektorat Jenderal', 'Badan Kebijakan Fiskal', 'Badan Pendidikan dan Pelatihan Keuangan'];
 const UNIT_PEMANGGIL_OPTIONS = ['KPK', 'Kejaksaan Agung', 'Kepolisian RI', 'Pengadilan Negeri', 'Pengadilan Tinggi', 'Mahkamah Agung', 'Ombudsman', 'Kementerian/Lembaga Lain', 'Instansi Lainnya'];
 const WILAYAH_OPTIONS = ['Seluruh Indonesia', 'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Jambi', 'Sumatera Selatan', 'Bangka Belitung', 'Bengkulu', 'Lampung', 'DKI Jakarta', 'Jawa Barat', 'Banten', 'Jawa Tengah', 'DI Yogyakarta', 'Jawa Timur', 'Bali', 'Nusa Tenggara Barat', 'Nusa Tenggara Timur', 'Kalimantan Barat', 'Kalimantan Tengah', 'Kalimantan Selatan', 'Kalimantan Timur', 'Kalimantan Utara', 'Sulawesi Utara', 'Gorontalo', 'Sulawesi Tengah', 'Sulawesi Barat', 'Sulawesi Selatan', 'Sulawesi Tenggara', 'Maluku', 'Maluku Utara', 'Papua Barat', 'Papua'];
+
+const POKOK_HIERARCHY: Record<string, Record<string, string[]>> = {
+    'Keuangan Negara': {
+        'Belanja Negara': ['Kontrak Pengadaan', 'Ganti Rugi Proyek'],
+        'Penerimaan Negara': ['Pajak', 'PNBP']
+    },
+    'Aset Negara': {
+        'Tanah dan Bangunan': ['Sengketa Lahan', 'Pengambilalihan Aset'],
+        'Barang Milik Negara': ['Penghapusan Aset', 'Pemindahtanganan']
+    },
+    'Lain-lain': {
+        'Lainnya': ['Umum', 'Lain-lain']
+    }
+};
 
 const SimpleRichText: React.FC<{ value: string, onChange: (val: string) => void, label?: string, rows?: number, placeholder?: string }> = ({ value, onChange, label, rows = 6, placeholder = "Ketik di sini..." }) => {
     return (
@@ -55,7 +69,7 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
                 statusPendampingan: isPendampinganRecord ? initialData.statusPendampingan : StatusPendampingan.AKTIF,
                 abstraksi: isPendampinganRecord ? initialData.abstraksi : {
                     tahunMasuk: new Date(initialData.tanggal).getFullYear(),
-                    nomorTiket: initialData.Nomor || initialData.id,
+                    nomorTiket: '',
                     pokokPermasalahan: prefilledRincian,
                     keterangan: initialData.uraian,
                     pihakTerpanggil: [],
@@ -85,13 +99,24 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
     }, [initialData, isOpen]);
 
     const handleAbstraksiChange = (field: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            abstraksi: {
+        setFormData(prev => {
+            const newAbstraksi = {
                 ...prev.abstraksi,
                 [field]: value
+            };
+
+            if (field === 'jenisPokokPerkara') {
+                newAbstraksi.subPokokPerkara = '';
+                newAbstraksi.subSubPokokPerkara = '';
+            } else if (field === 'subPokokPerkara') {
+                newAbstraksi.subSubPokokPerkara = '';
             }
-        }));
+
+            return {
+                ...prev,
+                abstraksi: newAbstraksi
+            };
+        });
     };
 
     const handleAnalisaChange = (field: string, value: any) => {
@@ -201,78 +226,117 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
                     
                     <div className="bg-white p-8 rounded-b-lg border-x border-b border-gray-200 shadow-xl min-h-[60vh]">
                         {activeTab === 'informasi' && (
-                            <div className="space-y-8 animate-in fade-in duration-300">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-6">
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Tahun Masuk</label>
+                            <div className="space-y-6 animate-in fade-in duration-300">
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Tahun Masuk</label>
+                                        <input 
+                                            type="number" 
+                                            placeholder="2026"
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm"
+                                            value={formData.abstraksi?.tahunMasuk || ''}
+                                            onChange={(e) => handleAbstraksiChange('tahunMasuk', parseInt(e.target.value))}
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Nomor Tiket / Surat Permohonan</label>
+                                        <div className="flex gap-2">
                                             <input 
-                                                type="number" 
-                                                placeholder="2026"
-                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm"
-                                                value={formData.abstraksi?.tahunMasuk || ''}
-                                                onChange={(e) => handleAbstraksiChange('tahunMasuk', parseInt(e.target.value))}
+                                                type="text" 
+                                                className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm"
+                                                value={formData.abstraksi?.nomorTiket || ''}
+                                                onChange={(e) => handleAbstraksiChange('nomorTiket', e.target.value)}
                                             />
-                                        </div>
-                                        
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Nomor Tiket / Surat Permohonan</label>
-                                            <div className="flex gap-2">
-                                                <input 
-                                                    type="text" 
-                                                    className="flex-1 p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all shadow-sm"
-                                                    value={formData.abstraksi?.nomorTiket || ''}
-                                                    onChange={(e) => handleAbstraksiChange('nomorTiket', e.target.value)}
-                                                />
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => setIsNadineModalOpen(true)}
-                                                    className="bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center shadow-md active:scale-95"
-                                                    title="Tarik Data Nadine"
-                                                >
-                                                    <SearchIcon className="h-5 w-5" />
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Unit Pemohon</label>
-                                            <select 
-                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
-                                                value={formData.abstraksi?.unitPemohon || ''}
-                                                onChange={(e) => handleAbstraksiChange('unitPemohon', e.target.value)}
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setIsNadineModalOpen(true)}
+                                                className="bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center shadow-md active:scale-95"
+                                                title="Tarik Data Nadine"
                                             >
-                                                <option value="">Pilih Unit Kemenkeu</option>
-                                                {UNIT_KEMENKEU.map(unit => <option key={unit} value={unit}>{unit}</option>)}
-                                            </select>
+                                                <SearchIcon className="h-5 w-5" />
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-6">
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Unit Pemanggil</label>
-                                            <select 
-                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
-                                                value={formData.abstraksi?.unitPemanggil || ''}
-                                                onChange={(e) => handleAbstraksiChange('unitPemanggil', e.target.value)}
-                                            >
-                                                <option value="">Pilih Unit Pemanggil</option>
-                                                {UNIT_PEMANGGIL_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Wilayah</label>
-                                            <select 
-                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
-                                                value={formData.abstraksi?.wilayah || ''}
-                                                onChange={(e) => handleAbstraksiChange('wilayah', e.target.value)}
-                                            >
-                                                <option value="">Pilih Wilayah</option>
-                                                {WILAYAH_OPTIONS.map(wilayah => <option key={wilayah} value={wilayah}>{wilayah}</option>)}
-                                            </select>
-                                        </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Unit Pemohon</label>
+                                        <select 
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                            value={formData.abstraksi?.unitPemohon || ''}
+                                            onChange={(e) => handleAbstraksiChange('unitPemohon', e.target.value)}
+                                        >
+                                            <option value="">Pilih Unit Kemenkeu</option>
+                                            {UNIT_KEMENKEU.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                                        </select>
                                     </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Unit Pemanggil</label>
+                                        <select 
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                            value={formData.abstraksi?.unitPemanggil || ''}
+                                            onChange={(e) => handleAbstraksiChange('unitPemanggil', e.target.value)}
+                                        >
+                                            <option value="">Pilih Unit Pemanggil</option>
+                                            {UNIT_PEMANGGIL_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Wilayah</label>
+                                        <select 
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                            value={formData.abstraksi?.wilayah || ''}
+                                            onChange={(e) => handleAbstraksiChange('wilayah', e.target.value)}
+                                        >
+                                            <option value="">Pilih Wilayah</option>
+                                            {WILAYAH_OPTIONS.map(wilayah => <option key={wilayah} value={wilayah}>{wilayah}</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Jenis Pokok Perkara</label>
+                                        <select 
+                                            name="jenisPokokPerkara" 
+                                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                            value={formData.abstraksi?.jenisPokokPerkara || ''} 
+                                            onChange={(e) => handleAbstraksiChange('jenisPokokPerkara', e.target.value)}
+                                        >
+                                            <option value="">Pilih Jenis Pokok</option>
+                                            {Object.keys(POKOK_HIERARCHY).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                        </select>
+                                    </div>
+
+                                    {formData.abstraksi?.jenisPokokPerkara && (
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Sub Pokok Perkara</label>
+                                            <select 
+                                                name="subPokokPerkara" 
+                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                                value={formData.abstraksi?.subPokokPerkara || ''} 
+                                                onChange={(e) => handleAbstraksiChange('subPokokPerkara', e.target.value)}
+                                            >
+                                                <option value="">Pilih Sub Pokok</option>
+                                                {Object.keys(POKOK_HIERARCHY[formData.abstraksi.jenisPokokPerkara] || {}).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {formData.abstraksi?.subPokokPerkara && (
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Sub-Sub Pokok Perkara</label>
+                                            <select 
+                                                name="subSubPokokPerkara" 
+                                                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white transition-all shadow-sm"
+                                                value={formData.abstraksi?.subSubPokokPerkara || ''} 
+                                                onChange={(e) => handleAbstraksiChange('subSubPokokPerkara', e.target.value)}
+                                            >
+                                                <option value="">Pilih Sub-Sub Pokok</option>
+                                                {(POKOK_HIERARCHY[formData.abstraksi.jenisPokokPerkara!][formData.abstraksi.subPokokPerkara] || []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="mt-8">

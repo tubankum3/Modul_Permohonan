@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PerkaraRecord, StatusPutusan, View, TeamMember } from '../types';
-import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon, PrintIcon, RotateCcwIcon } from './icons';
+import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, DocumentTextIcon, UserIcon, CloudIcon, PrintIcon, RotateCcwIcon, SearchIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
+import Breadcrumb from './Breadcrumb';
+import Pagination from './Pagination';
 
 const getPicName = (record: PerkaraRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -21,6 +23,7 @@ interface PenangananPutusanProps {
   onDelete: (id: string) => void;
   onSetSelesai: (id: string) => void;
   onRestore: (id: string) => void;
+  onNavigate: (view: View) => void;
 }
 
 const PenangananPutusan: React.FC<PenangananPutusanProps> = ({ 
@@ -32,10 +35,14 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     onManageDokumen,
     onDelete, 
     onSetSelesai,
-    onRestore
+    onRestore,
+    onNavigate
 }) => {
   const [activeTab, setActiveTab] = useState<'aktif' | 'selesai'>('aktif');
   const [setStatusModalState, setSetStatusModalState] = useState<{ isOpen: boolean; targetId: string | null }>({ isOpen: false, targetId: null });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const requestSetSelesai = (id: string) => {
     setSetStatusModalState({ isOpen: true, targetId: id });
@@ -52,13 +59,29 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     setSetStatusModalState({ isOpen: false, targetId: null });
   };
 
-  const aktifPutusan = daftarPutusan.filter(p => p.statusPutusan === StatusPutusan.AKTIF);
-  const selesaiPutusan = daftarPutusan.filter(p => p.statusPutusan === StatusPutusan.SELESAI);
+  const filteredData = useMemo(() => {
+    return daftarPutusan.filter(p => {
+        const matchesSearch = 
+            (p.abstraksiPerkara?.noPerkara || p.Nomor || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (p.perihal || '').toLowerCase().includes(searchTerm.toLowerCase());
+        
+        const matchesTab = activeTab === 'aktif' 
+            ? p.statusPutusan === StatusPutusan.AKTIF 
+            : p.statusPutusan === StatusPutusan.SELESAI;
+            
+        return matchesSearch && matchesTab;
+    });
+  }, [daftarPutusan, searchTerm, activeTab]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [filteredData, currentPage, itemsPerPage]);
 
   const renderTable = (data: PerkaraRecord[], isSelesai: boolean) => (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto flex-1">
       <table className="min-w-full bg-white divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Perkara</th>
@@ -72,7 +95,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
         <tbody className="divide-y divide-gray-200">
           {data.map((p, index) => (
             <tr key={p.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.abstraksiPerkara?.noPerkara || p.Nomor}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.abstraksiPerkara?.tahunMasuk}</td>
               <td className="px-6 py-4 text-sm text-gray-500">{p.abstraksiPerkara?.jenisPerkara}</td>
@@ -143,7 +166,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-6">
+    <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-4">
       {setStatusModalState.isOpen && (
         <ConfirmationModal 
             isOpen={setStatusModalState.isOpen}
@@ -154,35 +177,57 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
             confirmText="Selesai"
         />
       )}
+      
+      <Breadcrumb currentView="eAdvokasiPenangananPutusan" onNavigate={onNavigate} />
+
       <div className="flex flex-col">
         <h1 className="text-3xl font-bold text-gray-800">Penanganan Putusan</h1>
         <p className="text-gray-600 mt-1">Kelola tindak lanjut atas putusan perkara hukum.</p>
         <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1 flex flex-col">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1 flex flex-col min-h-0">
+        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">Putusan</h2>
+          <div className="relative">
+            <SearchIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Cari nomor perkara atau perihal..." 
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-80 text-sm"
+            />
+          </div>
         </div>
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-6" aria-label="Tabs">
             <button
-              onClick={() => setActiveTab('aktif')}
+              onClick={() => { setActiveTab('aktif'); setCurrentPage(1); }}
               className={`${activeTab === 'aktif' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors`}
             >
               Aktif
             </button>
             <button
-              onClick={() => setActiveTab('selesai')}
+              onClick={() => { setActiveTab('selesai'); setCurrentPage(1); }}
               className={`${activeTab === 'selesai' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition-colors`}
             >
               Selesai
             </button>
           </nav>
         </div>
-        <div className="mt-4 flex-1 overflow-y-auto">
-            {activeTab === 'aktif' && renderTable(aktifPutusan, false)}
-            {activeTab === 'selesai' && renderTable(selesaiPutusan, true)}
+        <div className="mt-4 flex-1 overflow-hidden flex flex-col">
+            {renderTable(paginatedData, activeTab === 'selesai')}
+            <Pagination 
+              totalItems={filteredData.length} 
+              itemsPerPage={itemsPerPage} 
+              currentPage={currentPage} 
+              onPageChange={setCurrentPage} 
+              onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
+            />
         </div>
       </div>
     </div>

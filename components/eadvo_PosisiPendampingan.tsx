@@ -17,7 +17,7 @@ import { saveAs } from 'file-saver';
 import { PendampinganRecord, PosisiUpdate, View } from '../types';
 import { ArrowLeftIcon, PlusIcon, DocumentTextIcon, PencilIcon, TrashIcon, DownloadIcon, CloudIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
-import UpdatePosisiModal from './UpdatePosisiPendampinganModal';
+import UpdatePosisiModal from './eadvo_UpdatePosisiPendampinganModal';
 
 interface PosisiPendampinganProps {
     record: PendampinganRecord;

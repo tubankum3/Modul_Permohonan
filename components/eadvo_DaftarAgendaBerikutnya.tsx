@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { PerkaraRecord, PosisiSidangEntry } from '../types';
+import { PerkaraRecord, PosisiSidangEntry, View } from '../types';
 import { ArrowLeftIcon, CalendarIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
+import Pagination from './Pagination';
 
 interface DaftarAgendaBerikutnyaProps {
   daftarPerkara: PerkaraRecord[];
   onBack: () => void;
+  onNavigate: (view: View) => void;
 }
 
 const getPicName = (record: PerkaraRecord): string => {
@@ -19,7 +22,7 @@ const formatEventDate = (date: Date) => {
     return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }).format(date);
 }
 
-const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarPerkara, onBack }) => {
+const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarPerkara, onBack, onNavigate }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -73,8 +76,10 @@ const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarP
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen flex flex-col">
-      <div className="flex items-center mb-8">
+    <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-4">
+      <Breadcrumb currentView="eAdvokasiAgendaBerikutnya" onNavigate={onNavigate} />
+      
+      <div className="flex items-center mb-4">
         <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 mr-4">
           <ArrowLeftIcon className="h-6 w-6 text-gray-700" />
         </button>
@@ -84,22 +89,8 @@ const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarP
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col">
-        <div className="flex justify-end items-center mb-4">
-            <label htmlFor="items-per-page" className="text-sm font-medium text-gray-700 mr-2">Tampilkan:</label>
-            <select
-                id="items-per-page"
-                value={itemsPerPage}
-                onChange={handleItemsPerPageChange}
-                className="border border-gray-300 rounded-md px-2 py-1 text-sm"
-            >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={0}>Semua</option>
-            </select>
-        </div>
-        <div className="flex-1 overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0">
             {currentEvents.length > 0 ? (
                 <ul className="space-y-4">
                     {currentEvents.map((event, index) => (
@@ -122,29 +113,13 @@ const DaftarAgendaBerikutnya: React.FC<DaftarAgendaBerikutnyaProps> = ({ daftarP
                 <p className="text-gray-500 text-center py-10">Tidak ada agenda berikutnya.</p>
             )}
         </div>
-        {itemsPerPage > 0 && totalPages > 1 && (
-            <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                <span className="text-sm text-gray-600">
-                    Halaman {currentPage} dari {totalPages}
-                </span>
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-                    >
-                        Sebelumnya
-                    </button>
-                    <button
-                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
-                    >
-                        Berikutnya
-                    </button>
-                </div>
-            </div>
-        )}
+        <Pagination 
+            totalItems={upcomingEvents.length}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}
+        />
       </div>
     </div>
   );

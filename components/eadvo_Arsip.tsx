@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { SearchIcon, FileTextIcon, ChevronLeftIcon, ChevronRightIcon, XIcon, EyeIcon, PencilIcon, BookOpenIcon, RefreshIcon, PrintIcon } from './icons';
+import { View } from '../types';
+import Breadcrumb from './Breadcrumb';
+import Pagination from './Pagination';
+
+interface ArsipProps {
+    onNavigate: (view: View) => void;
+}
 
 interface PerkaraSelesai {
     id: string;
@@ -402,7 +409,7 @@ const PinjamModal: React.FC<{
     );
 };
 
-const Arsip: React.FC = () => {
+const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
     const [perkaraSelesai, setPerkaraSelesai] = useState<PerkaraSelesai[]>(initialPerkaraSelesai);
     const [arsipSelesai, setArsipSelesai] = useState<ArsipPerkaraSelesai[]>([]);
     const [searchTermSelesai, setSearchTermSelesai] = useState('');
@@ -412,15 +419,34 @@ const Arsip: React.FC = () => {
     const [editingArchive, setEditingArchive] = useState<ArsipPerkaraSelesai | null>(null);
     const [borrowingArchiveId, setBorrowingArchiveId] = useState<string | null>(null);
 
-    const filteredSelesai = perkaraSelesai.filter(p => 
-        p.nomorPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase()) ||
-        p.jenisPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase())
-    );
+    const [currentPageSelesai, setCurrentPageSelesai] = useState(1);
+    const [itemsPerPageSelesai, setItemsPerPageSelesai] = useState(10);
+    const [currentPageArsip, setCurrentPageArsip] = useState(1);
+    const [itemsPerPageArsip, setItemsPerPageArsip] = useState(10);
 
-    const filteredArsip = arsipSelesai.filter(p => 
-        p.nomorPerkara.toLowerCase().includes(searchTermArsip.toLowerCase()) ||
-        p.jenisPerkara.toLowerCase().includes(searchTermArsip.toLowerCase())
-    );
+    const filteredSelesai = useMemo(() => {
+        return perkaraSelesai.filter(p => 
+            p.nomorPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase()) ||
+            p.jenisPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase())
+        );
+    }, [perkaraSelesai, searchTermSelesai]);
+
+    const paginatedSelesai = useMemo(() => {
+        const start = (currentPageSelesai - 1) * itemsPerPageSelesai;
+        return filteredSelesai.slice(start, start + itemsPerPageSelesai);
+    }, [filteredSelesai, currentPageSelesai, itemsPerPageSelesai]);
+
+    const filteredArsip = useMemo(() => {
+        return arsipSelesai.filter(p => 
+            p.nomorPerkara.toLowerCase().includes(searchTermArsip.toLowerCase()) ||
+            p.jenisPerkara.toLowerCase().includes(searchTermArsip.toLowerCase())
+        );
+    }, [arsipSelesai, searchTermArsip]);
+
+    const paginatedArsip = useMemo(() => {
+        const start = (currentPageArsip - 1) * itemsPerPageArsip;
+        return filteredArsip.slice(start, start + itemsPerPageArsip);
+    }, [filteredArsip, currentPageArsip, itemsPerPageArsip]);
 
     const handleArchive = (details: Partial<ArsipPerkaraSelesai>) => {
         if (!selectedPerkara) return;
@@ -489,7 +515,15 @@ const Arsip: React.FC = () => {
     };
 
     return (
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-10 space-y-12 pb-24">
+        <div className="flex-1 overflow-y-auto bg-gray-50 p-10 space-y-8 pb-24 flex flex-col">
+            <Breadcrumb currentView="eAdvokasiArsip" onNavigate={onNavigate} />
+            
+            <div>
+                <h1 className="text-3xl font-bold text-gray-800">Manajemen Arsip</h1>
+                <p className="text-gray-600 mt-1">Kelola arsip perkara yang telah selesai dan riwayat peminjamannya.</p>
+                <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
+            </div>
+
             {/* Modal Record Arsip */}
             {selectedPerkara && (
                 <ArsipModal 
@@ -560,9 +594,9 @@ const Arsip: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                                {filteredSelesai.map((p, index) => (
+                                {paginatedSelesai.map((p, index) => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{index + 1}</td>
+                                        <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{(currentPageSelesai - 1) * itemsPerPageSelesai + index + 1}</td>
                                         <td className="px-5 py-4 text-sm text-gray-800 border-r border-gray-200 font-medium">{p.nomorPerkara}</td>
                                         <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{p.jenisPerkara}</td>
                                         <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{p.tahunMasuk}</td>
@@ -577,30 +611,20 @@ const Arsip: React.FC = () => {
                                         </td>
                                     </tr>
                                 ))}
-                                {filteredSelesai.length === 0 && (
+                                {paginatedSelesai.length === 0 && (
                                     <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-500 italic">Tidak ada perkara selesai yang ditemukan.</td></tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
 
-                    <div className="mt-6 flex flex-col md:flex-row justify-between items-center text-sm font-medium text-gray-700">
-                        <div>Showing 1-{filteredSelesai.length} of {filteredSelesai.length} records</div>
-                        <div className="flex items-center space-x-1 mt-4 md:mt-0">
-                            <button className="px-4 py-2 border border-gray-200 bg-[#f9f9f9] text-gray-600 rounded hover:bg-gray-100 transition-colors shadow-sm">First</button>
-                            <button className="px-4 py-2 border border-gray-200 bg-[#f9f9f9] text-gray-600 rounded hover:bg-gray-100 transition-colors shadow-sm">
-                                <ChevronLeftIcon className="h-4 w-4" />
-                            </button>
-                            <div className="flex items-center space-x-2 px-2">
-                                <input type="text" className="w-12 text-center border border-gray-300 rounded py-2 shadow-sm" defaultValue="1" />
-                                <span className="text-gray-500">of 1</span>
-                            </div>
-                            <button className="px-4 py-2 border border-gray-200 bg-[#f9f9f9] text-gray-600 rounded hover:bg-gray-100 transition-colors shadow-sm">
-                                <ChevronRightIcon className="h-4 w-4" />
-                            </button>
-                            <button className="px-4 py-2 border border-gray-200 bg-[#f9f9f9] text-gray-600 rounded hover:bg-gray-100 transition-colors shadow-sm">Last</button>
-                        </div>
-                    </div>
+                    <Pagination 
+                        totalItems={filteredSelesai.length}
+                        currentPage={currentPageSelesai}
+                        itemsPerPage={itemsPerPageSelesai}
+                        onPageChange={setCurrentPageSelesai}
+                        onItemsPerPageChange={(val) => { setItemsPerPageSelesai(val); setCurrentPageSelesai(1); }}
+                    />
                 </div>
             </div>
 
@@ -639,9 +663,9 @@ const Arsip: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-100">
-                                {filteredArsip.length > 0 ? filteredArsip.map((p, index) => (
+                                {paginatedArsip.length > 0 ? paginatedArsip.map((p, index) => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{index + 1}</td>
+                                        <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{(currentPageArsip - 1) * itemsPerPageArsip + index + 1}</td>
                                         <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{p.kodeKlasifikasi}</td>
                                         <td className="px-5 py-4 text-sm text-gray-800 border-r border-gray-200 font-medium">{p.nomorPerkara}</td>
                                         <td className="px-5 py-4 whitespace-nowrap text-sm text-gray-800 border-r border-gray-200">{p.jenisPerkara}</td>
@@ -712,6 +736,14 @@ const Arsip: React.FC = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    <Pagination 
+                        totalItems={filteredArsip.length}
+                        currentPage={currentPageArsip}
+                        itemsPerPage={itemsPerPageArsip}
+                        onPageChange={setCurrentPageArsip}
+                        onItemsPerPageChange={(val) => { setItemsPerPageArsip(val); setCurrentPageArsip(1); }}
+                    />
                 </div>
             </div>
         </div>

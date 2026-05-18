@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { XIcon, UploadIcon, DocumentTextIcon, UserIcon, CloudIcon, CloudDownloadIcon, CheckIcon, EyeIcon, DownloadIcon, CloudArrowDownIcon, ArrowLeftIcon } from './icons';
 import { PendampinganRecord, PosisiUpdate, SuratMasukNadine, JenisPermohonan, View } from '../types';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
 interface DokumenPendampinganProps {
     record: PendampinganRecord;

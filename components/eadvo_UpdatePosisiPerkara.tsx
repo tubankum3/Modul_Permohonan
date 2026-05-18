@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { PerkaraRecord, PosisiSidangEntry, Putusan, View, StatusPerkara, Majelis, KehadiranPihak, Pihak } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, ChevronDownIcon, ChevronUpIcon, PrintIcon, DocumentTextIcon, EyeIcon, SearchIcon, CheckIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
-import TarikDataNadineModal from './TarikDataNadineModal';
+import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 
 // Specialized Modal for Posisi Sidang
 const SidangModal: React.FC<{ 

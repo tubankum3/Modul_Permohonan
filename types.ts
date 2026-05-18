@@ -66,8 +66,8 @@ export interface PosisiUpdate {
     suratTugas: string;
     tanggalSuratTugas?: string;
     suratPemanggilan: string;
-    pemanggil: string | string[];
-    terpanggil: string | string[];
+    pemanggil: string[];
+    terpanggil: string[];
     agenda: string;
     tanggalAgenda: string;
     durasi: number; // in minutes
@@ -104,6 +104,9 @@ export interface PendampinganRecord extends Permohonan {
       unitPemohon?: string;
       pihakDipanggil?: string;
       wilayah?: string;
+      jenisPokokPerkara?: string;
+      subPokokPerkara?: string;
+      subSubPokokPerkara?: string;
       pokokPermasalahan?: string;
       keterangan?: string;
       // New fields for Penyelidikan/Pendampingan redesign

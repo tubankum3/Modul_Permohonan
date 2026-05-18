@@ -13,7 +13,8 @@ import {
     DocumentTextIcon,
     ArchiveIcon
 } from './icons';
-import { BerandaContent, Permohonan, PendampinganRecord, PerkaraRecord, StatusPermohonan, StatusPendampingan, StatusPerkara, StatusPutusan } from '../types';
+import { BerandaContent, Permohonan, PendampinganRecord, PerkaraRecord, StatusPermohonan, StatusPendampingan, StatusPerkara, StatusPutusan, View } from '../types';
+import Breadcrumb from './Breadcrumb';
 import { 
     BarChart, 
     Bar, 
@@ -35,6 +36,7 @@ interface BerandaPageProps {
   pendampinganRecords?: PendampinganRecord[];
   perkaraRecords?: PerkaraRecord[];
   putusanRecords?: PerkaraRecord[];
+  onNavigate?: (view: View) => void;
 }
 
 const flowIcons = [
@@ -53,7 +55,8 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
     permohonanList = [],
     pendampinganRecords = [],
     perkaraRecords = [],
-    putusanRecords = []
+    putusanRecords = [],
+    onNavigate
 }) => {
     
     const stats = useMemo(() => {
@@ -132,7 +135,8 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
 
     if (isDashboard) {
         return (
-            <div className="p-8 bg-gray-50 h-full overflow-y-auto space-y-8">
+            <div className="p-8 bg-gray-50 h-full overflow-y-auto space-y-4">
+                {onNavigate && <Breadcrumb currentView="eAdvokasiBeranda" onNavigate={onNavigate} />}
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Dashboard Statistik</h1>
                     <p className="text-gray-600 mt-1">Ringkasan aktivitas bantuan hukum E-Advokasi.</p>

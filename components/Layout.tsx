@@ -1,8 +1,8 @@
 
 import React from 'react';
 import Header from './Header';
-import Sidebar from './Sidebar';
-import EAdvokasiSidebar from './EAdvokasiSidebar';
+import Sidebar from './satkem_Sidebar';
+import EAdvokasiSidebar from './eadvo_Sidebar';
 // FIX: Import View type from types.ts to avoid circular dependency.
 import { View } from '../types';
 
