@@ -40,6 +40,27 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
+    const filteredPermohonanList = useMemo(() => {
+        return permohonanList.filter(p => {
+            const matchesFilter = 
+                activeFilter === 'Total' ||
+                (activeFilter === 'Diproses' && p.status === StatusPermohonan.DIPROSES) ||
+                (activeFilter === 'Selesai' && p.status === StatusPermohonan.SELESAI);
+                
+            const matchesSearch = 
+                (p.perihal || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (p.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (p.Nomor || '').toLowerCase().includes(searchTerm.toLowerCase());
+                
+            return matchesFilter && matchesSearch;
+        });
+    }, [permohonanList, activeFilter, searchTerm]);
+
+    const paginatedPermohonanList = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredPermohonanList.slice(start, start + itemsPerPage);
+    }, [filteredPermohonanList, currentPage, itemsPerPage]);
+
     const handleViewDetails = (permohonan: Permohonan) => {
         onSelectPermohonan(permohonan);
         setManagementView('detail');
@@ -140,27 +161,6 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     const selesaiCount = permohonanList.filter(p => p.status === StatusPermohonan.SELESAI).length;
     const totalCount = permohonanList.length;
 
-    const filteredPermohonanList = useMemo(() => {
-        return permohonanList.filter(p => {
-            const matchesFilter = 
-                activeFilter === 'Total' ||
-                (activeFilter === 'Diproses' && p.status === StatusPermohonan.DIPROSES) ||
-                (activeFilter === 'Selesai' && p.status === StatusPermohonan.SELESAI);
-                
-            const matchesSearch = 
-                (p.perihal || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (p.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (p.Nomor || '').toLowerCase().includes(searchTerm.toLowerCase());
-                
-            return matchesFilter && matchesSearch;
-        });
-    }, [permohonanList, activeFilter, searchTerm]);
-
-    const paginatedPermohonanList = useMemo(() => {
-        const start = (currentPage - 1) * itemsPerPage;
-        return filteredPermohonanList.slice(start, start + itemsPerPage);
-    }, [filteredPermohonanList, currentPage, itemsPerPage]);
-
     const StatCard = ({ title, count, filter, color }: { title: string; count: number; filter: 'Total' | 'Diproses' | 'Selesai'; color: { bg: string; border: string; text: string; }}) => {
         const isActive = activeFilter === filter;
         return (
@@ -244,39 +244,87 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
+                                            <div className="flex items-center space-x-1.5">
                                                 {p.status === StatusPermohonan.DIPROSES ? (
                                                     <>
-                                                        <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                                                        <button onClick={() => handleAssignTeam(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
-                                                        <button onClick={() => onNavigate('pilihTemplate')} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="SKU/Dokumen"><DocumentTextIcon className="h-4 w-4" /></button>
+                                                        <button 
+                                                            onClick={() => handleViewDetails(p)} 
+                                                            className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition" 
+                                                            title="View Detail"
+                                                        >
+                                                            <EyeIcon className="h-4 w-4" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleAssignTeam(p)} 
+                                                            className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 transition" 
+                                                            title="Penugasan Tim"
+                                                        >
+                                                            <UserIcon className="h-4 w-4" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                onSelectPermohonan(p);
+                                                                onNavigate('pilihTemplate');
+                                                            }} 
+                                                            className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 transition" 
+                                                            title="SKU/Dokumen"
+                                                        >
+                                                            <DocumentTextIcon className="h-4 w-4" />
+                                                        </button>
                                                         <button 
                                                             onClick={() => {
                                                                 handleViewDetails(p);
                                                                 setTimeout(() => window.print(), 500);
                                                             }}
-                                                            className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                            className="p-1.5 rounded bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-700 transition" 
                                                             title="Print/Download Resume"
                                                         >
                                                             <PrintIcon className="h-4 w-4" />
                                                         </button>
-                                                        <button onClick={() => requestSetStatus(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4" /></button>
+                                                        <button 
+                                                            onClick={() => requestSetStatus(p.id)} 
+                                                            className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 transition" 
+                                                            title="Set Selesai"
+                                                        >
+                                                            <CheckCircleIcon className="h-4 w-4" />
+                                                        </button>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button onClick={() => handleViewDetails(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                                                        <button onClick={() => onNavigate('pilihTemplate')} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="SKU/Dokumen"><DocumentTextIcon className="h-4 w-4" /></button>
+                                                        <button 
+                                                            onClick={() => handleViewDetails(p)} 
+                                                            className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition" 
+                                                            title="View Detail"
+                                                        >
+                                                            <EyeIcon className="h-4 w-4" />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                onSelectPermohonan(p);
+                                                                onNavigate('pilihTemplate');
+                                                            }} 
+                                                            className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 transition" 
+                                                            title="SKU/Dokumen"
+                                                        >
+                                                            <DocumentTextIcon className="h-4 w-4" />
+                                                        </button>
                                                         <button 
                                                             onClick={() => {
                                                                 handleViewDetails(p);
                                                                 setTimeout(() => window.print(), 500);
                                                             }}
-                                                            className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                                            className="p-1.5 rounded bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-700 transition" 
                                                             title="Print/Download Resume"
                                                         >
                                                             <PrintIcon className="h-4 w-4" />
                                                         </button>
-                                                        <button onClick={() => onUpdateStatus(p.id, StatusPermohonan.DIPROSES)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                                                        <button 
+                                                            onClick={() => onUpdateStatus(p.id, StatusPermohonan.DIPROSES)} 
+                                                            className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 transition" 
+                                                            title="Restore ke Aktif"
+                                                        >
+                                                            <RotateCcwIcon className="h-4 w-4" />
+                                                        </button>
                                                     </>
                                                 )}
                                             </div>
