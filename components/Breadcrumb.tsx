@@ -32,6 +32,17 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiPutusanEdit': { label: 'Edit Putusan', parent: 'eAdvokasiPenangananPutusan' },
     'eAdvokasiPutusanTim': { label: 'Tim Advokasi', parent: 'eAdvokasiPenangananPutusan' },
     'eAdvokasiPutusanDokumen': { label: 'Dokumen', parent: 'eAdvokasiPenangananPutusan' },
+    'eAdvokasiMonitoring': { label: 'Monitoring' },
+    'eAdvokasiDashboard': { label: 'Dashboard', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiPencarianPerkara': { label: 'Cari Perkara', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiPencarianPendampingan': { label: 'Cari Pendampingan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiPencarianPutusan': { label: 'Cari Penanganan Putusan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiMonitoringPersidangan': { label: 'Mon. Persidangan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiMonitoringPutusan': { label: 'Mon. Putusan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiMonitoringPendampingan': { label: 'Mon. Pendampingan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiMonitoringPerkara': { label: 'Mon. Perkara', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiMonitoringRisikoHukum': { label: 'Mon. Risiko Hukum', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiAuditTrail': { label: 'Audit Trail', parent: 'eAdvokasiMonitoring' },
 };
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ currentView, onNavigate, extraLabel }) => {

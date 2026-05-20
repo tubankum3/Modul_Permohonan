@@ -35,6 +35,7 @@ import DokumenPutusan from './components/eadvo_DokumenPutusan';
 import DokumenPendampingan from './components/eadvo_DokumenPendampingan';
 import Arsip from './components/eadvo_Arsip';
 import RecycleBin from './components/eadvo_RecycleBin';
+import Monitoring from './components/eadvo_Monitoring';
 
 import { Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, PerkaraRecord, StatusPerkara, StatusPutusan } from './types';
 import { ArrowLeftIcon } from './components/icons';
@@ -914,7 +915,18 @@ const App: React.FC = () => {
       case 'eAdvokasiPutusanUpdateTindakLanjut': return selectedPutusan ? <UpdateTindakLanjut record={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanTim': return selectedPutusan ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi Putusan</h2><p className="text-sm text-gray-500 mt-1">{selectedPutusan.abstraksiPerkara?.noPerkara || selectedPutusan.Nomor} - {selectedPutusan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPutusan.team || []} picId={selectedPutusan.picId || null} onUpdateTeam={(team) => { const updatedRecord = { ...selectedPutusan, team }; handleSavePutusan(updatedRecord); }} onSetPic={(picId) => { const updatedRecord = { ...selectedPutusan, picId: picId || undefined }; handleSavePutusan(updatedRecord); }}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanDokumen': return selectedPutusan ? <DokumenPutusan record={selectedPutusan} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
-      case 'eAdvokasiMonitoring': return <div className="p-8"><h1 className="text-2xl font-bold">Monitoring</h1><p className="mt-4">Fitur monitoring advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
+      case 'eAdvokasiMonitoring':
+      case 'eAdvokasiDashboard':
+      case 'eAdvokasiPencarianPerkara':
+      case 'eAdvokasiPencarianPendampingan':
+      case 'eAdvokasiPencarianPutusan':
+      case 'eAdvokasiMonitoringPersidangan':
+      case 'eAdvokasiMonitoringPutusan':
+      case 'eAdvokasiMonitoringPendampingan':
+      case 'eAdvokasiMonitoringPerkara':
+      case 'eAdvokasiMonitoringRisikoHukum':
+      case 'eAdvokasiAuditTrail':
+        return <Monitoring currentView={currentView} onNavigate={handleNavigate} />;
       case 'eAdvokasiLaporan': return <div className="p-8"><h1 className="text-2xl font-bold">Laporan</h1><p className="mt-4">Fitur pelaporan statistik advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiUser': return <div className="p-8"><h1 className="text-2xl font-bold">Manajemen User</h1><p className="mt-4">Fitur manajemen akses dan peran sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiReferensi': return <div className="p-8"><h1 className="text-2xl font-bold">Referensi</h1><p className="mt-4">Fitur pengelolaan data referensi (unit, wilayah, pengadilan) sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;

@@ -3,7 +3,7 @@ import React from 'react';
 import { 
     MailIcon, BriefcaseIcon, HomeIcon, UserGroupIcon, ShieldCheckIcon, 
     DocumentTextIcon, CalendarIcon, DesktopComputerIcon, ArchiveIcon, TrashIcon, 
-    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon
+    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon
 } from './icons';
 import { View } from '../types';
 
@@ -37,8 +37,8 @@ const menuGroups = [
     {
         title: 'PEMANTAUAN & PELAPORAN',
         items: [
+            { icon: <DesktopComputerIcon className="h-5 w-5" />, name: 'Monitoring', view: 'eAdvokasiDashboard' as View },
             { icon: <CalendarIcon className="h-5 w-5" />, name: 'Kalender Sidang', view: 'eAdvokasiKalender' as View },
-            { icon: <DesktopComputerIcon className="h-5 w-5" />, name: 'Monitoring', view: 'eAdvokasiMonitoring' as View },
             { icon: <DocumentTextIcon className="h-5 w-5" />, name: 'Laporan', view: 'eAdvokasiLaporan' as View },
         ]
     },
