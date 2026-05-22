@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BellIcon, ViewGridIcon } from './icons';
 import { View } from '../types';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 
 interface HeaderProps {
     onNavigate: (view: View) => void;
@@ -10,6 +11,11 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const globalRole = useAdvokasiStore((state) => state.globalRole);
+  const setGlobalRole = useAdvokasiStore((state) => state.setGlobalRole);
+  const teamRole = useAdvokasiStore((state) => state.teamRole);
+  const setTeamRole = useAdvokasiStore((state) => state.setTeamRole);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -59,12 +65,53 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
         <h1 className="text-xl font-bold">satu kemenkeu</h1>
       </div>
       <div className="flex items-center space-x-4">
+        {/* Role Switcher Widget */}
+        <div className="flex items-center space-x-2 bg-white/15 px-3 py-1.5 rounded-full border border-white/25 shadow-inner">
+          <span className="text-xs text-blue-100 font-medium whitespace-nowrap">Role:</span>
+          <select 
+            value={globalRole} 
+            onChange={(e) => {
+              const val = e.target.value as any;
+              setGlobalRole(val);
+              useAdvokasiStore.getState().showNotification(`Peran berganti: ${val}`, 'info');
+            }}
+            className="bg-transparent text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-6"
+          >
+            <option value="Super Admin">Super Admin</option>
+            <option value="Manajer">Manajer</option>
+            <option value="Operator">Operator</option>
+            <option value="Pegawai">Pegawai</option>
+          </select>
+
+          {globalRole === 'Pegawai' && (
+            <>
+              <span className="text-white/40 font-light mx-1">|</span>
+              <select 
+                value={teamRole} 
+                onChange={(e) => {
+                  const val = e.target.value as any;
+                  setTeamRole(val);
+                  useAdvokasiStore.getState().showNotification(`Peran Tim (Pegawai) berganti: ${val}`, 'info');
+                }}
+                className="bg-transparent text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-6"
+              >
+                <option value="PIC">PIC</option>
+                <option value="Editor">Editor</option>
+                <option value="Viewer">Viewer</option>
+              </select>
+            </>
+          )}
+        </div>
+
         <button className="p-2 rounded-full hover:bg-white/20">
           <BellIcon className="h-6 w-6" />
         </button>
         <div className="flex items-center space-x-2">
            <img src="https://i.pravatar.cc/40?img=1" alt="User" className="h-8 w-8 rounded-full" />
-           <span className="hidden md:block">User Name</span>
+           <div className="text-left leading-tight hidden md:block">
+              <p className="text-sm font-semibold">Sukiyem</p>
+              <p className="text-[10px] text-blue-100 font-medium">{globalRole === 'Pegawai' ? `${globalRole} (${teamRole})` : globalRole}</p>
+           </div>
         </div>
       </div>
     </header>

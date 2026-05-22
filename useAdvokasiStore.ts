@@ -97,6 +97,10 @@ interface AdvokasiState {
   handleAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan') => void;
   handleSetPermohonanPic: (recordId: string, picId: string | null) => void;
   handleUpdatePermohonanTeam: (recordId: string, team: TeamMember[]) => void;
+  globalRole: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai';
+  teamRole: 'PIC' | 'Editor' | 'Viewer';
+  setGlobalRole: (role: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai') => void;
+  setTeamRole: (role: 'PIC' | 'Editor' | 'Viewer') => void;
 }
 
 export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
@@ -112,6 +116,8 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   selectedPerkara: null,
   putusanRecords: [],
   selectedPutusan: null,
+  globalRole: 'Super Admin',
+  teamRole: 'PIC',
 
   setPermohonanList: (list) => set((state) => ({ 
     permohonanList: typeof list === 'function' ? list(state.permohonanList) : list 
@@ -142,6 +148,9 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   setSelectedPutusan: (r) => set((state) => ({
     selectedPutusan: typeof r === 'function' ? r(state.selectedPutusan) : r
   })),
+
+  setGlobalRole: (role) => set({ globalRole: role }),
+  setTeamRole: (role) => set({ teamRole: role }),
 
   // Concrete handlers
   handleSelectPermohonan: (permohonan) => {

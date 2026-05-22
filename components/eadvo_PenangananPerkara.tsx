@@ -4,6 +4,7 @@ import { PlusIcon, SearchIcon, DotsVerticalIcon, EyeIcon, ArrowUpIcon, ReplyIcon
 import ConfirmationModal from './ConfirmationModal';
 import Breadcrumb from './Breadcrumb';
 import Pagination from './Pagination';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 
 const getPicName = (record: PerkaraRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -50,6 +51,15 @@ interface PenangananPerkaraProps {
 }
 
 const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, daftarPerkara, onUpdateStatus, onSave, onDelete, onView, onNavigate, onForward }) => {
+    const globalRole = useAdvokasiStore((state) => state.globalRole);
+    const teamRole = useAdvokasiStore((state) => state.teamRole);
+
+    const isPegawai = globalRole === 'Pegawai';
+    const canCreate = !isPegawai || teamRole === 'PIC';
+    const canEdit = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+    const canDelete = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+    const canComplete = !isPegawai || teamRole === 'PIC';
+
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'Aktif' | 'Selesai'>('Aktif');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -164,10 +174,16 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
         </div>
 
         <div className="flex justify-between items-center">
-          <button onClick={() => onNavigate('eAdvokasiPerkaraEdit')} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-            <PlusIcon className="h-5 w-5" />
-            <span>Tambah Perkara</span>
-          </button>
+          {canCreate ? (
+            <button onClick={() => onNavigate('eAdvokasiPerkaraEdit')} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+              <PlusIcon className="h-5 w-5" />
+              <span>Tambah Perkara</span>
+            </button>
+          ) : (
+            <div className="text-xs bg-gray-100 border border-gray-200 text-gray-500 px-3 py-2 rounded-lg font-medium">
+              Tambah Perkara Baru Terbatas (Hanya PIC)
+            </div>
+          )}
           <div className="flex items-center space-x-2">
               <div className="relative">
                   <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -189,7 +205,7 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">Perkara Baru</h2>
           <p className="text-sm text-gray-500 mb-4">
-            Daftar permohonan penanganan perkara yang telah disetujui dari inbox dan siap untuk direkam menjadi perkara aktif.
+            Daftar permohonan penanganan perkara yang telah disetujui dari inbox and siap untuk direkam menjadi perkara aktif.
           </p>
           <div className="overflow-y-auto max-h-64">
             <table className="min-w-full divide-y divide-gray-200">
@@ -210,7 +226,11 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                     <td className="px-6 py-4 text-sm text-gray-800 max-w-sm truncate" title={p.perihal}>{p.perihal}</td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.unit}>{p.unit}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button onClick={() => onNavigate('eAdvokasiPerkaraEdit', p)} className="text-blue-600 hover:text-blue-800 font-semibold">Record</button>
+                      {canCreate ? (
+                        <button onClick={() => onNavigate('eAdvokasiPerkaraEdit', p)} className="text-blue-600 hover:text-blue-800 font-semibold">Record</button>
+                      ) : (
+                        <span className="text-gray-400 italic cursor-not-allowed" title="Merekam perkara baru dibatasi (Hanya PIC)">Terbatas (Hanya PIC)</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -280,10 +300,30 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                       {p.statusPerkara === StatusPerkara.AKTIF ? (
                                           <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                                               <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
-                                              <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
-                                              <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><ArrowUpIcon className="h-4 w-4"/></button>
+                                              
+                                              {/* Edit Data */}
+                                              {canEdit ? (
+                                                  <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Edit Terbatas"><PencilIcon className="h-4 w-4"/></button>
+                                              )}
+
+                                              {/* Update Posisi */}
+                                              {canEdit ? (
+                                                  <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><ArrowUpIcon className="h-4 w-4"/></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Update Terbatas"><ArrowUpIcon className="h-4 w-4"/></button>
+                                              )}
+
                                               <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4"/></button>
-                                              <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
+                                              
+                                              {/* Penugasan Tim */}
+                                              {canEdit ? (
+                                                  <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Tim Terbatas"><UserIcon className="h-4 w-4"/></button>
+                                              )}
+
                                               <button 
                                                   onClick={() => {
                                                       onView(p);
@@ -294,7 +334,13 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                               >
                                                   <PrintIcon className="h-4 w-4"/>
                                               </button>
-                                              <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
+
+                                              {/* Hapus Data */}
+                                              {canDelete ? (
+                                                  <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hapus Data Terbatas"><TrashIcon className="h-4 w-4"/></button>
+                                              )}
                                           </div>
                                       ) : (
                                           <div className="grid grid-cols-5 grid-rows-2 gap-1 w-fit">
@@ -310,8 +356,20 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                                               >
                                                   <PrintIcon className="h-4 w-4"/>
                                               </button>
-                                              <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
-                                              <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Forward ke Putusan"><ForwardIcon className="h-4 w-4"/></button>
+                                              
+                                              {/* Restore ke Aktif */}
+                                              {canComplete ? (
+                                                  <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat restore"><RotateCcwIcon className="h-4 w-4" /></button>
+                                              )}
+
+                                              {/* Forward ke Putusan (Selesai/Forward) */}
+                                              {canComplete ? (
+                                                  <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Forward ke Putusan"><ForwardIcon className="h-4 w-4"/></button>
+                                              ) : (
+                                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat meneruskan perkara"><ForwardIcon className="h-4 w-4"/></button>
+                                              )}
                                           </div>
                                       )}
                                   </div>

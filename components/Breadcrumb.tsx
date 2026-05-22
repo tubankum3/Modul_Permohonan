@@ -20,6 +20,7 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiRecycleBin': { label: 'Recycle Bin' },
     'eAdvokasiFaq': { label: 'FAQ' },
     'eAdvokasiInformasi': { label: 'Informasi' },
+    'eAdvokasiKalender': { label: 'Kalender Persidangan' },
     'eAdvokasiPendampinganDetail': { label: 'Detail Pendampingan', parent: 'eAdvokasiPendampingan' },
     'eAdvokasiPendampinganTim': { label: 'Tim Advokasi', parent: 'eAdvokasiPendampingan' },
     'eAdvokasiPendampinganPosisi': { label: 'Posisi Pendampingan', parent: 'eAdvokasiPendampingan' },

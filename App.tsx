@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './services/queryClient';
 import { useAdvokasiStore } from './useAdvokasiStore';
 import { Layout } from './components/Layout';
+import { checkViewAccess } from './components/eadvo_Sidebar';
 import { NadineLayout } from './components/nadine_Layout';
 import Notification from './components/Notification';
 import { ArrowLeftIcon } from './components/icons';
@@ -217,6 +218,8 @@ const AppContent: React.FC = () => {
     handleAssignToExisting,
     handleSetPermohonanPic,
     handleUpdatePermohonanTeam,
+    globalRole,
+    teamRole,
   } = useAdvokasiStore();
 
   const currentView = pathToView(pathname).view;
@@ -307,6 +310,14 @@ const AppContent: React.FC = () => {
     setNotification({ message, type });
   }, [setNotification]);
 
+  // Redirect to eAdvokasiBeranda if user role changes and they lose access to current active view
+  useEffect(() => {
+    if (pathname.startsWith('/eadvokasi') && !checkViewAccess(globalRole, currentView)) {
+      navigate('/eadvokasi');
+      showNotification('Akses terbatas untuk peran Anda saat ini.', 'info');
+    }
+  }, [globalRole, currentView, pathname, navigate, showNotification]);
+
   const handleSelectPermohonan = (permohonan: Permohonan) => {
     setSelectedPermohonan(permohonan);
     if(currentView !== 'eAdvokasiPengelolaan') {
@@ -315,6 +326,31 @@ const AppContent: React.FC = () => {
   };
 
   const renderMainContent = () => {
+    const isAuthorized = checkViewAccess(globalRole, currentView);
+    if (!isAuthorized && pathname.startsWith('/eadvokasi')) {
+      return (
+        <div id="restricted-access-panel" className="p-12 max-w-2xl mx-auto mt-16 text-center bg-white rounded-xl shadow-lg border border-red-100">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-red-650 mb-6 border border-red-200">
+            {/* Padlock Icon */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-650" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v3m0-3h3m-3 0H9m1.414-4.586a1.5 1.5 0 002.172 0l3-3a1.5 1.5 0 00-2.172-2.172l-3 3a1.5 1.5 0 000 2.172zM12 2a10 10 0 100 20 10 10 0 000-20z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Akses Terbatas</h2>
+          <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+            Halaman ini membutuhkan kewenangan khusus. Peran Anda saat ini (<strong>{globalRole}</strong>) tidak memiliki izin untuk melihat modul ini.
+          </p>
+          <button 
+            onClick={() => handleNavigate('eAdvokasiBeranda')} 
+            className="px-5 py-2.5 bg-[#0055A5] text-white font-semibold rounded-lg hover:bg-blue-700 hover:shadow-md transition text-sm flex items-center justify-center mx-auto"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Kembali ke Beranda E-Advokasi
+          </button>
+        </div>
+      );
+    }
+
     switch (currentView) {
       case 'beranda': 
         return <BerandaPage content={berandaContent} onNavigate={handleNavigate} />;

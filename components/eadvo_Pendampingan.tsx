@@ -5,6 +5,7 @@ import ConfirmationModal from './ConfirmationModal';
 import FormPendampinganModal from './eadvo_EditPendampingan';
 import Breadcrumb from './Breadcrumb';
 import Pagination from './Pagination';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 
 const getPicName = (record: PendampinganRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -27,6 +28,15 @@ interface PendampinganProps {
 }
 
 const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, daftarPendampingan, onUpdateStatus, onSave, onDelete, onView, onNavigate, onManagePosisi, showNotification }) => {
+    const globalRole = useAdvokasiStore((state) => state.globalRole);
+    const teamRole = useAdvokasiStore((state) => state.teamRole);
+
+    const isPegawai = globalRole === 'Pegawai';
+    const canCreate = !isPegawai || teamRole === 'PIC';
+    const canEdit = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+    const canDelete = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+    const canComplete = !isPegawai || teamRole === 'PIC';
+
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'Aktif' | 'Selesai'>('Aktif');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -161,10 +171,16 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
 
         {/* Actions */}
         <div className="flex justify-between items-center">
-          <button onClick={() => handleOpenForm()} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-            <PlusIcon className="h-5 w-5" />
-            <span>Tambah Pendampingan</span>
-          </button>
+          {canCreate ? (
+            <button onClick={() => handleOpenForm()} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+              <PlusIcon className="h-5 w-5" />
+              <span>Tambah Pendampingan</span>
+            </button>
+          ) : (
+            <div className="text-xs bg-gray-100 border border-gray-200 text-gray-500 px-3 py-2 rounded-lg font-medium">
+              Tambah Kasus Baru Terbatas (Hanya PIC)
+            </div>
+          )}
           <div className="flex items-center space-x-2">
               <div className="relative">
                   <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -207,7 +223,11 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                     <td className="px-6 py-4 text-sm text-gray-800 max-w-sm truncate" title={p.perihal}>{p.perihal}</td>
                     <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={p.unit}>{p.unit}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button onClick={() => handleOpenForm(p)} className="text-blue-600 hover:text-blue-800 font-semibold">Record</button>
+                      {canCreate ? (
+                        <button onClick={() => handleOpenForm(p)} className="text-blue-600 hover:text-blue-800 font-semibold">Record</button>
+                      ) : (
+                        <span className="text-gray-400 italic cursor-not-allowed" title="Merekam kasus baru dibatasi (Hanya PIC)">Terbatas (Hanya PIC)</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -277,11 +297,27 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                                          {p.statusPendampingan === StatusPendampingan.AKTIF ? (
                                              <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                                                  <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4"/></button>
-                                                 <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
-                                                 <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><ArrowUpIcon className="h-4 w-4"/></button>
+                                                 {canEdit ? (
+                                                     <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4"/></button>
+                                                 ) : (
+                                                     <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Edit Terbatas"><PencilIcon className="h-4 w-4"/></button>
+                                                 )}
+                                                 {canEdit ? (
+                                                     <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Posisi"><ArrowUpIcon className="h-4 w-4"/></button>
+                                                 ) : (
+                                                     <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Update Terbatas"><ArrowUpIcon className="h-4 w-4"/></button>
+                                                 )}
                                                  <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4"/></button>
-                                                 <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
-                                                 <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
+                                                 {canEdit ? (
+                                                     <button onClick={() => handleAction('manage-tim', p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4"/></button>
+                                                 ) : (
+                                                     <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Tim Terbatas"><UserIcon className="h-4 w-4"/></button>
+                                                 )}
+                                                 {canComplete ? (
+                                                     <button onClick={() => handleAction('selesai', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckCircleIcon className="h-4 w-4"/></button>
+                                                 ) : (
+                                                     <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat menyelesaikan kasus"><CheckCircleIcon className="h-4 w-4"/></button>
+                                                 )}
                                                  <button 
                                                      onClick={() => {
                                                          onView(p);
@@ -292,7 +328,11 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
                                                  >
                                                      <PrintIcon className="h-4 w-4" />
                                                  </button>
-                                                 <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
+                                                 {canDelete ? (
+                                                     <button onClick={() => handleAction('hapus', p)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4"/></button>
+                                                 ) : (
+                                                     <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hapus Data Terbatas"><TrashIcon className="h-4 w-4"/></button>
+                                                 )}
                                              </div>
                                          ) : (
                                              <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">

@@ -3,6 +3,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { PerkaraRecord, PosisiSidangEntry, View } from '../types';
 import { ChevronLeftIcon, ChevronRightIcon, CalendarIcon, ClockIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
 
 interface EAdvokasiKalenderProps {
   daftarPerkara: PerkaraRecord[];
@@ -174,6 +175,7 @@ const EAdvokasiKalender: React.FC<EAdvokasiKalenderProps> = ({ daftarPerkara, on
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen flex flex-col">
+      <Breadcrumb currentView="eAdvokasiKalender" onNavigate={onNavigate} />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Kalender Persidangan</h1>
         <p className="text-gray-600 mt-1">Monitoring Agenda Sidang Harian.</p>

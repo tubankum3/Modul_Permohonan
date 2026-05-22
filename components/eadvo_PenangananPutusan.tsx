@@ -4,6 +4,7 @@ import { EyeIcon, PencilIcon, ArrowUpIcon, UserGroupIcon, TrashIcon, CheckIcon, 
 import ConfirmationModal from './ConfirmationModal';
 import Breadcrumb from './Breadcrumb';
 import Pagination from './Pagination';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 
 const getPicName = (record: PerkaraRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
@@ -38,6 +39,14 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
     onRestore,
     onNavigate
 }) => {
+  const globalRole = useAdvokasiStore((state) => state.globalRole);
+  const teamRole = useAdvokasiStore((state) => state.teamRole);
+
+  const isPegawai = globalRole === 'Pegawai';
+  const canEdit = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+  const canDelete = !isPegawai || teamRole === 'PIC' || teamRole === 'Editor';
+  const canComplete = !isPegawai || teamRole === 'PIC';
+
   const [activeTab, setActiveTab] = useState<'aktif' | 'selesai'>('aktif');
   const [setStatusModalState, setSetStatusModalState] = useState<{ isOpen: boolean; targetId: string | null }>({ isOpen: false, targetId: null });
   const [searchTerm, setSearchTerm] = useState('');
@@ -117,11 +126,37 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                     {!isSelesai ? (
                         <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
                             <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
+                            
+                            {/* Edit Data */}
+                            {canEdit ? (
+                                <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Edit Terbatas"><PencilIcon className="h-4 w-4" /></button>
+                            )}
+
+                            {/* Update Tindak Lanjut */}
+                            {canEdit ? (
+                                <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Update Terbatas"><ArrowUpIcon className="h-4 w-4" /></button>
+                            )}
+
                             <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
-                            <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                            
+                            {/* Penugasan Tim */}
+                            {canEdit ? (
+                                <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Tim Terbatas"><UserIcon className="h-4 w-4" /></button>
+                            )}
+
+                            {/* Set Selesai */}
+                            {canComplete ? (
+                                <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat menyelesaikan kasus"><CheckIcon className="h-4 w-4" /></button>
+                            )}
+
                             <button 
                                 onClick={() => {
                                     onView(p);
@@ -132,7 +167,13 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                             >
                                 <PrintIcon className="h-4 w-4" />
                             </button>
-                            <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
+
+                            {/* Hapus Data */}
+                            {canDelete ? (
+                                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hapus Data Terbatas"><TrashIcon className="h-4 w-4" /></button>
+                            )}
                         </div>
                     ) : (
                         <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
@@ -148,7 +189,13 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                             >
                                 <PrintIcon className="h-4 w-4" />
                             </button>
-                            <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+
+                            {/* Restore ke Aktif */}
+                            {canComplete ? (
+                                <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                            ) : (
+                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat restore"><RotateCcwIcon className="h-4 w-4" /></button>
+                            )}
                         </div>
                     )}
                 </div>
