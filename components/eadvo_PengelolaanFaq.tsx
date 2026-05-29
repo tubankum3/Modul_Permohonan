@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaqCategory, FaqItem } from '../types';
+import { FaqCategory, FaqItem, View } from '../types';
 import { PlusIcon, TrashIcon, PencilIcon, XIcon, ChevronUpIcon, ChevronDownIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
 
 interface PengelolaanFaqProps {
   faqData: FaqCategory[];
   onSave: (newFaqData: FaqCategory[]) => void;
+  onNavigate?: (view: View) => void;
 }
 
-const PengelolaanFaq: React.FC<PengelolaanFaqProps> = ({ faqData, onSave }) => {
+const PengelolaanFaq: React.FC<PengelolaanFaqProps> = ({ faqData, onSave, onNavigate }) => {
   const [localFaqData, setLocalFaqData] = useState<FaqCategory[]>([]);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -87,6 +89,7 @@ const PengelolaanFaq: React.FC<PengelolaanFaqProps> = ({ faqData, onSave }) => {
   return (
     <>
       <div className="p-8 bg-gray-50 h-full flex flex-col">
+        {onNavigate && <Breadcrumb currentView="eAdvokasiFaq" onNavigate={onNavigate} />}
         <div className="flex-shrink-0 flex justify-between items-center mb-6">
             <div>
                 <h1 className="text-3xl font-bold text-gray-800">Pengelolaan FAQ</h1>

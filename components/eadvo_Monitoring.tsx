@@ -8,6 +8,7 @@ import {
     TrendingUpIcon, TrendingDownIcon, ArchiveIcon
 } from './icons';
 import Breadcrumb from './Breadcrumb';
+import { CariDokumen } from './eadvo_CariDokumen';
 import { 
     BarChart, 
     Bar, 
@@ -166,6 +167,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Perkara', view: 'eAdvokasiPencarianPerkara' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Pendampingan', view: 'eAdvokasiPencarianPendampingan' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Penanganan Putusan', view: 'eAdvokasiPencarianPutusan' as View },
+            { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Dokumen', view: 'eAdvokasiPencarianDokumen' as View },
         ]},
         { group: 'MONITORING BERKALA', items: [
             { icon: <CalendarIcon className="h-4 w-4" />, name: 'Persidangan', view: 'eAdvokasiMonitoringPersidangan' as View },
@@ -784,6 +786,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             case 'eAdvokasiPencarianPerkara': return renderSearchPage('Pencarian Penanganan Perkara', 'Cari berdasarkan Nomor Perkara, Nama Pihak, atau Unit...');
             case 'eAdvokasiPencarianPendampingan': return renderSearchPage('Pencarian Pendampingan', 'Cari berdasarkan Nomor Tiket, Subjek, atau Pemohon...');
             case 'eAdvokasiPencarianPutusan': return renderSearchPage('Pencarian Penanganan Putusan', 'Cari berdasarkan Nomor Putusan, Amar, atau Klasifikasi...');
+            case 'eAdvokasiPencarianDokumen': return <CariDokumen currentView={currentView} onNavigate={onNavigate} />;
             case 'eAdvokasiMonitoringPersidangan': return renderMonitoringTable('Monitoring Persidangan', ['Jadwal Sidang', 'No. Perkara', 'Pengadilan', 'Agenda', 'Status']);
             case 'eAdvokasiMonitoringPutusan': return renderMonitoringTable('Monitoring Putusan', ['Tgl. Putusan', 'No. Putusan', 'Amar Putusan', 'Status BHT', 'Tindak Lanjut']);
             case 'eAdvokasiMonitoringPendampingan': return renderMonitoringTable('Monitoring Pendampingan', ['Tahun', 'Pihak Terkait', 'Pokok Permasalahan', 'Progress', 'Posisi']);

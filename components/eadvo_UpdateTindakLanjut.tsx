@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { PerkaraRecord, TindakLanjut } from '../types';
+import { PerkaraRecord, TindakLanjut, View } from '../types';
 import { ArrowLeftIcon, PlusIcon, TrashIcon, XIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
 
 interface UpdateTindakLanjutProps {
   record: PerkaraRecord;
   onSave: (record: PerkaraRecord) => void;
   onBack: () => void;
+  onNavigate?: (view: View) => void;
 }
 
-const UpdateTindakLanjut: React.FC<UpdateTindakLanjutProps> = ({ record, onSave, onBack }) => {
+const UpdateTindakLanjut: React.FC<UpdateTindakLanjutProps> = ({ record, onSave, onBack, onNavigate }) => {
   const [tindakLanjutList, setTindakLanjutList] = useState<TindakLanjut[]>(record.tindakLanjut || []);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +88,7 @@ const UpdateTindakLanjut: React.FC<UpdateTindakLanjutProps> = ({ record, onSave,
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
+      {onNavigate && <Breadcrumb currentView="eAdvokasiPutusanUpdateTindakLanjut" onNavigate={onNavigate} />}
       <div className="flex items-center mb-6">
         <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 mr-4">
           <ArrowLeftIcon className="h-6 w-6 text-gray-700" />

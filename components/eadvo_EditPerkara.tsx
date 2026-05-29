@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, Majelis, StatusPerkara, AnalisisPerkara, Permohonan } from '../types';
+import { PerkaraRecord, Pihak, Tuntutan, Majelis, StatusPerkara, AnalisisPerkara, Permohonan, View } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, SearchIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
+import Breadcrumb from './Breadcrumb';
 
 const referenceTags = ['Strategis', 'Non-Strategis', 'Penting', 'Perdata', 'Pidana', 'TUN', 'Penting Mendesak', 'Keuangan Negara'];
 
@@ -229,11 +230,12 @@ interface EditPerkaraProps {
     onSave: (record: PerkaraRecord) => void;
     onBack: () => void;
     showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void;
+    onNavigate?: (view: View) => void;
 }
 
 type EditTab = 'abstraksi' | 'pihak' | 'tuntutan' | 'analisis';
 
-const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, showNotification }) => {
+const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, showNotification, onNavigate }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
     const [activeTab, setActiveTab] = useState<EditTab>('abstraksi');
     const [modal, setModal] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
@@ -486,6 +488,11 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
 
     return (
         <div className="h-full flex flex-col bg-gray-100">
+            {onNavigate && (
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView="eAdvokasiPerkaraEdit" onNavigate={onNavigate} />
+                </div>
+            )}
             {modal.isOpen && (
                 <CrudModal isOpen={modal.isOpen} onClose={() => setModal({ type: '', isOpen: false, data: null })} onSave={handleCrudSave}
                     title={`${modal.data.id ? 'Edit' : 'Tambah'} ${ { 'pihak-P': 'Pihak P', 'pihak-T': 'Pihak T', 'tuntutan': 'Objek Tuntutan' }[modal.type] }`}
@@ -533,7 +540,7 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
                 </button>
                 <div>
                     <h1 className="text-lg font-bold text-gray-800">
-                         {formData.statusPerkara ? 'Edit Informasi Perkara' : 'Rekam Perkara Baru'}
+                         {initialData && 'statusPerkara' in initialData ? 'Edit Data Perkara' : 'Rekam Data Perkara'}
                     </h1>
                     <p className="text-sm text-gray-500 mt-1">
                         {formData.abstraksiPerkara?.noPerkara || formData.Nomor} - {formData.perihal}

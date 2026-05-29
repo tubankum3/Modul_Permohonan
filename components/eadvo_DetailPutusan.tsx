@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, Putusan, TuntutanAkhir } from '../types';
+import { PerkaraRecord, Pihak, Tuntutan, Putusan, TuntutanAkhir, View } from '../types';
 import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, PrintIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
 
 interface DetailPutusanProps {
   record: PerkaraRecord;
   onBack: () => void;
+  onNavigate?: (view: View, record?: any) => void;
 }
 
 type DetailTab = 'informasi' | 'putusan' | 'tindak_lanjut' | 'dokumen' | 'riwayat';
@@ -432,7 +434,7 @@ const RiwayatTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
     );
 };
 
-const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
+const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('informasi');
 
   const handlePrint = () => {
@@ -441,12 +443,21 @@ const DetailPutusan: React.FC<DetailPutusanProps> = ({ record, onBack }) => {
 
   return (
     <div className="p-8 bg-white h-full flex flex-col print:p-0">
-        <header className="flex-shrink-0 mb-6 flex justify-between items-start print:mb-4">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-800 print:text-xl">Informasi Penanganan Putusan</h1>
-                <button onClick={onBack} className="text-sm text-blue-600 hover:underline mt-2 print:hidden">
-                    &larr; Kembali ke Daftar Putusan
+        {onNavigate && <Breadcrumb currentView="eAdvokasiPutusanDetail" onNavigate={onNavigate} />}
+        <header className="flex-shrink-0 mb-6 flex justify-between items-start border-b border-gray-100 pb-4 print:mb-4">
+            <div className="flex items-start">
+                <button 
+                    onClick={onBack} 
+                    className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors mr-3 mt-1 print:hidden"
+                >
+                    <ArrowLeftIcon className="h-5 w-5" />
                 </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800 print:text-xl">Informasi Penanganan Putusan</h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {record.abstraksiPerkara?.noPerkara || record.Nomor || record.id} - {record.perihal}
+                    </p>
+                </div>
             </div>
             <button 
                 onClick={handlePrint}

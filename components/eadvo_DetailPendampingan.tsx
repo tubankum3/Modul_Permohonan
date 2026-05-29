@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { PendampinganRecord, FileData, PosisiUpdate, Riwayat } from '../types';
+import { PendampinganRecord, FileData, PosisiUpdate, Riwayat, View } from '../types';
 import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon, PrintIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
 
 type DetailTab = 'informasi' | 'posisi' | 'dokumen' | 'riwayat';
 
@@ -381,9 +382,10 @@ const RiwayatTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
 interface DetailPendampinganProps {
   record: PendampinganRecord;
   onBack: () => void;
+  onNavigate?: (view: View, record?: any) => void;
 }
 
-const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack }) => {
+const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('informasi');
 
   const handlePrint = () => {
@@ -392,12 +394,21 @@ const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack 
 
   return (
     <div className="p-8 bg-white h-full flex flex-col print:p-0">
-        <header className="flex-shrink-0 mb-6 flex justify-between items-start print:mb-4">
-            <div>
-                <h1 className="text-3xl font-bold text-gray-800 print:text-xl">Informasi Pendampingan</h1>
-                <button onClick={onBack} className="text-sm text-blue-600 hover:underline mt-2 print:hidden">
-                    &larr; Kembali ke Daftar Pendampingan
+        {onNavigate && <Breadcrumb currentView="eAdvokasiPendampinganDetail" onNavigate={onNavigate} />}
+        <header className="flex-shrink-0 mb-6 flex justify-between items-start border-b border-gray-100 pb-4 print:mb-4">
+            <div className="flex items-start">
+                <button 
+                    onClick={onBack} 
+                    className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors mr-3 mt-1 print:hidden"
+                >
+                    <ArrowLeftIcon className="h-5 w-5" />
                 </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800 print:text-xl">Informasi Pendampingan</h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {record.Nomor || record.id} - {record.perihal}
+                    </p>
+                </div>
             </div>
             <button 
                 onClick={handlePrint}

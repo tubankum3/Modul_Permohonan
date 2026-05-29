@@ -710,12 +710,17 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           });
       }
 
+      const updatedPermohonanList = state.permohonanList.map(p => p.id === permohonanId ? { ...p, status: StatusPermohonan.DIPROSES, assignedTo: targetId } : p);
+      const updatedSelected = updatedPermohonanList.find(p => p.id === permohonanId) || null;
+
       return {
         pendampinganRecords: nextPendampingan,
         perkaraRecords: nextPerkara,
         putusanRecords: nextPutusan,
-        permohonanList: state.permohonanList.map(p => p.id === permohonanId ? { ...p, status: StatusPermohonan.DIPROSES, assignedTo: targetId } : p),
-        notification: { message: `Permohonan berhasil di-assign ke ${targetType} existing.`, type: 'success' }
+        permohonanList: updatedPermohonanList,
+        selectedPermohonan: state.selectedPermohonan?.id === permohonanId ? updatedSelected : state.selectedPermohonan,
+        currentPermohonanToProses: state.currentPermohonanToProses?.id === permohonanId ? updatedSelected : state.currentPermohonanToProses,
+        notification: { message: `Permohonan berhasil di-assign ke ${targetType} existing dan dipindahkan ke Pengelolaan Permohonan.`, type: 'success' }
       };
     });
   },

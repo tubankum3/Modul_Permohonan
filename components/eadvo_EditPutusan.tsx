@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { PerkaraRecord, Pihak, Tuntutan, TuntutanAkhir, Putusan, Majelis } from '../types';
+import { PerkaraRecord, Pihak, Tuntutan, TuntutanAkhir, Putusan, Majelis, View } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
+import Breadcrumb from './Breadcrumb';
 
 const JENIS_OBJEK_TUNTUTAN_OPTIONS = ['Tanah', 'Bangunan', 'Uang/Dana', 'Aset Tetap/BMN', 'Aset Lainnya', 'Sita Jaminan', 'Lain-lain'];
 const JENIS_TUNTUTAN_OPTIONS = ['Materiil', 'Immateriil', 'Dwangsom'];
@@ -314,9 +315,10 @@ interface EditPutusanProps {
     initialData: PerkaraRecord | null;
     onSave: (record: PerkaraRecord) => void;
     onBack: () => void;
+    onNavigate?: (view: View) => void;
 }
 
-const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack }) => {
+const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, onNavigate }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
     const [modal, setModal] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
     const [deleteConfirm, setDeleteConfirm] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
@@ -392,6 +394,11 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack }
 
     return (
         <div className="h-full flex flex-col bg-white">
+            {onNavigate && (
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView="eAdvokasiPutusanEdit" onNavigate={onNavigate} />
+                </div>
+            )}
             {modal.isOpen && (
                 <CrudModal isOpen={modal.isOpen} onClose={() => setModal({ type: '', isOpen: false, data: null })} onSave={handleCrudSave}
                     title={`${modal.data.id ? 'Edit' : 'Tambah'} Tuntutan Akhir`}

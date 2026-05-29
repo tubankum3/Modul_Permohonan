@@ -108,7 +108,7 @@ export const initialPermohonan: Permohonan[] = [
     jenis: JenisPermohonan.PENDAMPINGAN,
     perihal: 'Draft Permohonan Bantuan Pendampingan Saksi Perkara DAK',
     uraian: 'Permohonan untuk bantuan hukum terkait masalah Dana alokasi khusus.',
-    files: [],
+    files: [{ name: 'suratSPGL DAK.pdf', size: 123, type: 'application/pdf' }],
     status: StatusPermohonan.DRAFT,
     tanggal: '15/07/2024',
     history: [],

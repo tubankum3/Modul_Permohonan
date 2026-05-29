@@ -3,6 +3,10 @@ import { Permohonan, Riwayat, PendampinganRecord, PerkaraRecord, PosisiSidangEnt
 import DetailPermohonan from './satkem_DetailPermohonan';
 import AssignTeam from './AssignTeam';
 import { ArrowLeftIcon, SearchIcon } from './icons';
+import Breadcrumb from './Breadcrumb';
+import DetailPendampingan from './eadvo_DetailPendampingan';
+import DetailPerkara from './eadvo_DetailPerkara';
+import DetailPutusan from './eadvo_DetailPutusan';
 
 interface ProsesPermohonanProps {
   permohonan: Permohonan;
@@ -17,6 +21,7 @@ interface ProsesPermohonanProps {
   onDeleteReply: (permohonanId: string, historyId: number) => void;
   onUpdateTeam: (permohonanId: string, team: any[]) => void;
   onSetPic: (permohonanId: string, picId: string | null) => void;
+  onNavigate: (view: any, data?: any) => void;
 }
 
 const getPicName = (record: PendampinganRecord | PerkaraRecord): string => {
@@ -64,12 +69,22 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   onUpdateReply,
   onDeleteReply,
   onUpdateTeam,
-  onSetPic
+  onSetPic,
+  onNavigate
 }) => {
   const [activeTab, setActiveTab] = useState<'rincian' | 'assign' | 'assignExisting'>('rincian');
   const [selectedTargetType, setSelectedTargetType] = useState<'pendampingan' | 'perkara' | 'putusan'>('pendampingan');
   const [selectedTargetId, setSelectedTargetId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewingRecord, setViewingRecord] = useState<{ record: any; type: 'pendampingan' | 'perkara' | 'putusan' } | null>(null);
+
+  const handleTopLevelAcceptAndProcess = () => {
+    if (selectedTargetId) {
+      onAssignToExisting(permohonan.id, selectedTargetId, selectedTargetType);
+    } else {
+      onAccept(permohonan.id);
+    }
+  };
 
   const handleAssign = () => {
     if (selectedTargetId) {
@@ -145,16 +160,26 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
       const isSelected = selectedTargetId === record.id;
       const rowClass = `hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`;
       const actionButton = (
-          <button
-              onClick={() => setSelectedTargetId(record.id)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold ${
-                  isSelected
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-50'
-              }`}
-          >
-              {isSelected ? 'Terpilih' : 'Pilih'}
-          </button>
+          <div className="flex items-center justify-end space-x-2">
+              <button
+                  type="button"
+                  onClick={() => setViewingRecord({ record, type: selectedTargetType })}
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-md text-xs font-semibold transition"
+              >
+                  View
+              </button>
+              <button
+                  type="button"
+                  onClick={() => setSelectedTargetId(record.id)}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold ${
+                      isSelected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-50'
+                  }`}
+              >
+                  {isSelected ? 'Terpilih' : 'Pilih'}
+              </button>
+          </div>
       );
 
       if (selectedTargetType === 'pendampingan') {
@@ -202,27 +227,36 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
 
   return (
     <div className="h-full flex flex-col bg-gray-50">
-      <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <button onClick={onBack} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
-            <ArrowLeftIcon className="h-5 w-5" />
-          </button>
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">Proses Permohonan</h2>
-            <p className="text-base font-semibold text-gray-700 mt-1">
-                {permohonan?.Nomor || permohonan?.id || 'N/A'}
-            </p>
-            {permohonan?.perihal && (
-                <p className="text-sm text-gray-600 mt-1">{permohonan.perihal}</p>
-            )}
-          </div>
+      <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200">
+        <div className="mb-3">
+          <Breadcrumb currentView="eAdvokasiProses" onNavigate={onNavigate} />
         </div>
-        <button
-          onClick={() => onAccept(permohonan.id)}
-          className="bg-green-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-green-700"
-        >
-          Terima & Proses Permohonan
-        </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button onClick={onBack} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">
+                {permohonan?.status === 'Diproses' || permohonan?.status === 'Selesai' ? 'Rincian Permohonan' : 'Proses Permohonan'}
+              </h2>
+              <p className="text-base font-semibold text-gray-700 mt-1">
+                  {permohonan?.Nomor || permohonan?.id || 'N/A'}
+              </p>
+              {permohonan?.perihal && (
+                  <p className="text-sm text-gray-600 mt-1">{permohonan.perihal}</p>
+              )}
+            </div>
+          </div>
+          {permohonan?.status !== 'Diproses' && permohonan?.status !== 'Selesai' && (
+            <button
+              onClick={handleTopLevelAcceptAndProcess}
+              className="bg-green-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-green-700"
+            >
+              Terima & Proses Permohonan
+            </button>
+          )}
+        </div>
       </header>
       
       <div className="border-b border-gray-200 bg-white">
@@ -339,28 +373,68 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-750">
                         {selectedTargetId ? (
-                            <span>
-                                Data terpilih: <span className="font-semibold">{selectedRecord?.Nomor || selectedRecord?.id}</span>
-                            </span>
+                            <div className="flex items-center space-x-2">
+                                <span>
+                                    Data terpilih: <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">{selectedRecord?.Nomor || selectedRecord?.id}</span>
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedTargetId('')}
+                                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white border border-transparent rounded-md text-xs font-semibold shadow-sm transition-colors"
+                                >
+                                    Batal
+                                </button>
+                            </div>
                         ) : (
-                            <span>Belum ada data yang dipilih</span>
+                            <span className="text-gray-500">Belum ada data yang dipilih. Hubungkan permohonan dengan memilih salah satu data di atas lalu tekan tombol "Terima & Proses Permohonan" di pojok kanan atas.</span>
                         )}
                     </div>
-                    <button
-                        onClick={handleAssign}
-                        disabled={!selectedTargetId}
-                        className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                            !selectedTargetId ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
-                        }`}
-                    >
-                        Assign & Proses
-                    </button>
                 </div>
             </div>
         )}
       </div>
+
+      {/* Pratinjau Detail Record Dialog / Modal Overlay */}
+      {viewingRecord && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+              <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] overflow-hidden relative border border-gray-100 flex flex-col">
+                  <header className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center sticky top-0 z-10 flex-shrink-0">
+                      <div>
+                          <h4 className="text-lg font-bold text-gray-850">
+                              Pratinjau Detail {viewingRecord.type === 'pendampingan' ? 'Pendampingan' : viewingRecord.type === 'perkara' ? 'Penanganan Perkara' : 'Penanganan Putusan'}
+                          </h4>
+                          <p className="text-xs text-gray-500">Nomor: {viewingRecord.record?.Nomor || viewingRecord.record?.id || 'N/A'}</p>
+                      </div>
+                      <button 
+                          onClick={() => setViewingRecord(null)}
+                          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-750 font-semibold rounded-lg text-sm border border-gray-300 shadow-sm transition"
+                      >
+                          Tutup Pratinjau
+                      </button>
+                  </header>
+                  <div className="flex-1 overflow-y-auto p-2 bg-gray-50">
+                      {viewingRecord.type === 'pendampingan' && (
+                          <DetailPendampingan record={viewingRecord.record} onBack={() => setViewingRecord(null)} />
+                      )}
+                      {viewingRecord.type === 'perkara' && (
+                          <DetailPerkara 
+                              record={viewingRecord.record} 
+                              onBack={() => setViewingRecord(null)} 
+                              onNavigate={(view, r) => {
+                                  setViewingRecord(null);
+                                  onNavigate(view, r);
+                              }} 
+                          />
+                      )}
+                      {viewingRecord.type === 'putusan' && (
+                          <DetailPutusan record={viewingRecord.record} onBack={() => setViewingRecord(null)} />
+                      )}
+                  </div>
+              </div>
+          </div>
+      )}
     </div>
   );
 };

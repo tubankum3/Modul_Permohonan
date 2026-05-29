@@ -173,7 +173,6 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-4 space-y-4">
       <div className="mb-4">
         <h2 className="text-xl font-bold text-gray-800">E-Advokasi</h2>
-        <p className="text-xs text-gray-500">Back Office</p>
       </div>
       <nav className="flex-1 overflow-y-auto">
         {filteredGroups.map((group, groupIndex) => (

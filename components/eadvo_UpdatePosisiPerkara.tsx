@@ -4,6 +4,7 @@ import { PerkaraRecord, PosisiSidangEntry, Putusan, View, StatusPerkara, Majelis
 import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon, ChevronDownIcon, ChevronUpIcon, PrintIcon, DocumentTextIcon, EyeIcon, SearchIcon, CheckIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
+import Breadcrumb from './Breadcrumb';
 
 // Specialized Modal for Posisi Sidang
 const SidangModal: React.FC<{ 
@@ -653,6 +654,11 @@ const UpdatePosisiPerkara: React.FC<UpdatePosisiPerkaraProps> = ({ record, onSav
 
     return (
         <div className="h-full flex flex-col bg-gray-100">
+            {onNavigate && (
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView="eAdvokasiPerkaraUpdatePosisi" onNavigate={onNavigate} />
+                </div>
+            )}
              {modal.isOpen && modal.type === 'sidang' && (
                  <SidangModal 
                     isOpen={modal.isOpen} 

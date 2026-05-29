@@ -8,6 +8,7 @@ import { checkViewAccess } from './components/eadvo_Sidebar';
 import { NadineLayout } from './components/nadine_Layout';
 import Notification from './components/Notification';
 import { ArrowLeftIcon } from './components/icons';
+import Breadcrumb from './components/Breadcrumb';
 import { 
   Permohonan, View, JenisPermohonan, StatusPermohonan, 
   PendampinganRecord, PerkaraRecord, StatusPerkara, StatusPutusan, Riwayat, TeamMember 
@@ -75,7 +76,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPendampinganDokumen': return id ? `/eadvokasi/pendampingan/dokumen/${id}` : '/eadvokasi/pendampingan';
     case 'eAdvokasiPenangananPerkara': return '/eadvokasi/perkara';
     case 'eAdvokasiPerkaraDetail': return id ? `/eadvokasi/perkara/detail/${id}` : '/eadvokasi/perkara';
-    case 'eAdvokasiPerkaraEdit': return id ? `/eadvokasi/perkara/edit/${id}` : '/eadvokasi/perkara';
+    case 'eAdvokasiPerkaraEdit': return id ? `/eadvokasi/perkara/edit/${id}` : '/eadvokasi/perkara/create';
     case 'eAdvokasiPerkaraUpdatePosisi': return id ? `/eadvokasi/perkara/posisi/${id}` : '/eadvokasi/perkara';
     case 'eAdvokasiPerkaraDokumen': return id ? `/eadvokasi/perkara/dokumen/${id}` : '/eadvokasi/perkara';
     case 'eAdvokasiPerkaraTim': return id ? `/eadvokasi/perkara/tim/${id}` : '/eadvokasi/perkara';
@@ -91,6 +92,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPencarianPerkara': return '/eadvokasi/monitoring/cari-perkara';
     case 'eAdvokasiPencarianPendampingan': return '/eadvokasi/monitoring/cari-pendampingan';
     case 'eAdvokasiPencarianPutusan': return '/eadvokasi/monitoring/cari-putusan';
+    case 'eAdvokasiPencarianDokumen': return '/eadvokasi/monitoring/cari-dokumen';
     case 'eAdvokasiMonitoringPersidangan': return '/eadvokasi/monitoring/persidangan';
     case 'eAdvokasiMonitoringPutusan': return '/eadvokasi/monitoring/putusan';
     case 'eAdvokasiMonitoringPendampingan': return '/eadvokasi/monitoring/pendampingan';
@@ -129,6 +131,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname.startsWith('/eadvokasi/pendampingan/posisi/')) return { view: 'eAdvokasiPendampinganPosisi', id: pathname.replace('/eadvokasi/pendampingan/posisi/', '') };
   if (pathname.startsWith('/eadvokasi/pendampingan/dokumen/')) return { view: 'eAdvokasiPendampinganDokumen', id: pathname.replace('/eadvokasi/pendampingan/dokumen/', '') };
   if (pathname === '/eadvokasi/perkara') return { view: 'eAdvokasiPenangananPerkara' };
+  if (pathname === '/eadvokasi/perkara/create') return { view: 'eAdvokasiPerkaraEdit' };
   if (pathname.startsWith('/eadvokasi/perkara/detail/')) return { view: 'eAdvokasiPerkaraDetail', id: pathname.replace('/eadvokasi/perkara/detail/', '') };
   if (pathname.startsWith('/eadvokasi/perkara/edit/')) return { view: 'eAdvokasiPerkaraEdit', id: pathname.replace('/eadvokasi/perkara/edit/', '') };
   if (pathname.startsWith('/eadvokasi/perkara/posisi/')) return { view: 'eAdvokasiPerkaraUpdatePosisi', id: pathname.replace('/eadvokasi/perkara/posisi/', '') };
@@ -146,6 +149,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname === '/eadvokasi/monitoring/cari-perkara') return { view: 'eAdvokasiPencarianPerkara' };
   if (pathname === '/eadvokasi/monitoring/cari-pendampingan') return { view: 'eAdvokasiPencarianPendampingan' };
   if (pathname === '/eadvokasi/monitoring/cari-putusan') return { view: 'eAdvokasiPencarianPutusan' };
+  if (pathname === '/eadvokasi/monitoring/cari-dokumen') return { view: 'eAdvokasiPencarianDokumen' };
   if (pathname === '/eadvokasi/monitoring/persidangan') return { view: 'eAdvokasiMonitoringPersidangan' };
   if (pathname === '/eadvokasi/monitoring/putusan') return { view: 'eAdvokasiMonitoringPutusan' };
   if (pathname === '/eadvokasi/monitoring/pendampingan') return { view: 'eAdvokasiMonitoringPendampingan' };
@@ -238,7 +242,7 @@ const AppContent: React.FC = () => {
     if (!['eAdvokasiPendampinganDetail', 'eAdvokasiPendampinganPosisi', 'eAdvokasiPendampinganTim', 'eAdvokasiPendampinganDokumen'].includes(view)) {
         setSelectedPendampingan(null);
     }
-    if (!view.startsWith('eAdvokasiPerkara')) {
+    if (!view.startsWith('eAdvokasiPerkara') || (view === 'eAdvokasiPerkaraEdit' && !data)) {
         setSelectedPerkara(null);
     }
     if (!view.startsWith('eAdvokasiPutusan')) {
@@ -393,19 +397,20 @@ const AppContent: React.FC = () => {
               onDeleteReply={handleDeleteReply}
               onUpdateTeam={handleUpdatePermohonanTeam}
               onSetPic={handleSetPermohonanPic}
+              onNavigate={handleNavigate}
           />
         ) : <div className="p-8">Permohonan tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiInbox')} className="text-blue-600 underline">Inbox</button>.</div>;
       case 'eAdvokasiInfo': 
-        return <PengelolaanInformasi content={berandaContent} onSave={handleSaveBerandaContent} />;
+        return <PengelolaanInformasi content={berandaContent} onSave={handleSaveBerandaContent} onNavigate={handleNavigate} />;
       case 'eAdvokasiFaq': 
-        return <PengelolaanFaq faqData={faqData} onSave={handleSaveFaq} />;
+        return <PengelolaanFaq faqData={faqData} onSave={handleSaveFaq} onNavigate={handleNavigate} />;
       case 'eAdvokasiPendampingan':
         const pendampinganBaruList = permohonanList.filter(p => p.status === StatusPermohonan.DIPROSES && p.jenis === JenisPermohonan.PENDAMPINGAN && !pendampinganRecords.some(r => r.id === p.id) && !p.assignedTo);
         return <Pendampingan pendampinganBaruList={pendampinganBaruList} daftarPendampingan={pendampinganRecords.filter(r => !r.deletedAt)} onUpdateStatus={(id, status) => handleUpdateStatus(id, status)} onSave={handleSavePendampingan} onDelete={handleDeletePendampingan} onView={(record) => { setSelectedPendampingan(record); handleNavigate('eAdvokasiPendampinganDetail', record); }} onNavigate={handleNavigate} onManagePosisi={(record) => { setSelectedPendampingan(record); handleNavigate('eAdvokasiPendampinganPosisi', record); }} showNotification={showNotification} />;
       case 'eAdvokasiPendampinganDetail': 
-        return selectedPendampingan ? <DetailPendampingan record={selectedPendampingan} onBack={() => handleNavigate(selectedPendampingan.deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPendampingan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
+        return selectedPendampingan ? <DetailPendampingan record={selectedPendampingan} onBack={() => handleNavigate(selectedPendampingan.deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPendampingan')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
       case 'eAdvokasiPendampinganTim': 
-        return selectedPendampingan ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{selectedPendampingan.Nomor} - {selectedPendampingan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPendampingan.team || []} picId={selectedPendampingan.picId || null} onUpdateTeam={(team) => handleUpdatePendampinganTeam(selectedPendampingan.id, team)} onSetPic={(picId) => handleSetPendampinganPic(selectedPendampingan.id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
+        return selectedPendampingan ? (<div className="h-full flex flex-col bg-gray-50"><div className="px-6 pt-4 bg-white flex-shrink-0"><Breadcrumb currentView="eAdvokasiPendampinganTim" onNavigate={handleNavigate} /></div><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{selectedPendampingan.Nomor} - {selectedPendampingan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPendampingan.team || []} picId={selectedPendampingan.picId || null} onUpdateTeam={(team) => handleUpdatePendampinganTeam(selectedPendampingan.id, team)} onSetPic={(picId) => handleSetPendampinganPic(selectedPendampingan.id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
       case 'eAdvokasiPendampinganPosisi': 
         return selectedPendampingan ? (<PosisiPendampingan record={selectedPendampingan} onBack={() => handleNavigate('eAdvokasiPendampingan')} onAddPosisi={(posisi) => handleAddPosisiUpdate(selectedPendampingan.id, posisi)} onUpdatePosisi={(posisiId, posisi) => handleUpdatePosisiUpdate(selectedPendampingan.id, posisiId, posisi)} onDeletePosisi={(posisiId) => handleDeletePosisiUpdate(selectedPendampingan.id, posisiId)} onNavigate={handleNavigate}/>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPendampingan')} className="text-blue-600 underline">Daftar Pendampingan</button>.</div>;
       case 'eAdvokasiPendampinganDokumen': 
@@ -416,13 +421,13 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiPerkaraDetail': 
         return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DetailPerkara record={selectedPerkara as PerkaraRecord} onBack={() => handleNavigate((selectedPerkara as PerkaraRecord).deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPenangananPerkara')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraEdit': 
-        return <EditPerkara initialData={selectedPerkara} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} showNotification={showNotification} />;
+        return <EditPerkara initialData={selectedPerkara} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} showNotification={showNotification} onNavigate={handleNavigate} />;
       case 'eAdvokasiPerkaraUpdatePosisi': 
         return selectedPerkara && 'statusPerkara' in selectedPerkara ? <UpdatePosisiPerkara record={selectedPerkara as PerkaraRecord} onSave={handleSavePerkara} onBack={() => handleNavigate('eAdvokasiPenangananPerkara')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraDokumen': 
         return selectedPerkara && 'statusPerkara' in selectedPerkara ? <DokumenPerkara record={selectedPerkara as PerkaraRecord} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiPerkaraTim': 
-        return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{(selectedPerkara as PerkaraRecord).abstraksiPerkara?.noPerkara || (selectedPerkara as PerkaraRecord).Nomor} - {(selectedPerkara as PerkaraRecord).perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={(selectedPerkara as PerkaraRecord).team || []} picId={(selectedPerkara as PerkaraRecord).picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
+        return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><div className="px-6 pt-4 bg-white flex-shrink-0"><Breadcrumb currentView="eAdvokasiPerkaraTim" onNavigate={handleNavigate} /></div><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{(selectedPerkara as PerkaraRecord).abstraksiPerkara?.noPerkara || (selectedPerkara as PerkaraRecord).Nomor} - {(selectedPerkara as PerkaraRecord).perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={(selectedPerkara as PerkaraRecord).team || []} picId={(selectedPerkara as PerkaraRecord).picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiKalender': 
         return <EAdvokasiKalender daftarPerkara={perkaraRecords} onNavigate={handleNavigate} />;
       case 'eAdvokasiAgendaBerikutnya': 
@@ -430,13 +435,13 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiPenangananPutusan': 
         return <PenangananPutusan daftarPutusan={putusanRecords.filter(r => !r.deletedAt)} onView={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDetail', record); }} onEdit={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanEdit', record); }} onUpdateTindakLanjut={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanUpdateTindakLanjut', record); }} onManageTim={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanTim', record); }} onManageDokumen={(record) => { setSelectedPutusan(record); handleNavigate('eAdvokasiPutusanDokumen', record); }} onDelete={handleDeletePutusan} onSetSelesai={handleSetPutusanSelesai} onRestore={handleRestorePutusan} onNavigate={handleNavigate} />;
       case 'eAdvokasiPutusanDetail': 
-        return selectedPutusan ? <DetailPutusan record={selectedPutusan} onBack={() => handleNavigate(selectedPutusan.deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+        return selectedPutusan ? <DetailPutusan record={selectedPutusan} onBack={() => handleNavigate(selectedPutusan.deletedAt ? 'eAdvokasiRecycleBin' : 'eAdvokasiPenangananPutusan')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanEdit': 
-        return <EditPutusan initialData={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} />;
+        return <EditPutusan initialData={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} onNavigate={handleNavigate} />;
       case 'eAdvokasiPutusanUpdateTindakLanjut': 
-        return selectedPutusan ? <UpdateTindakLanjut record={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+        return selectedPutusan ? <UpdateTindakLanjut record={selectedPutusan} onSave={handleSavePutusan} onBack={() => handleNavigate('eAdvokasiPenangananPutusan')} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanTim': 
-        return selectedPutusan ? (<div className="h-full flex flex-col bg-gray-50"><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi Putusan</h2><p className="text-sm text-gray-500 mt-1">{selectedPutusan.abstraksiPerkara?.noPerkara || selectedPutusan.Nomor} - {selectedPutusan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPutusan.team || []} picId={selectedPutusan.picId || null} onUpdateTeam={(team) => { const updatedRecord = { ...selectedPutusan, team }; handleSavePutusan(updatedRecord); }} onSetPic={(picId) => { const updatedRecord = { ...selectedPutusan, picId: picId || undefined }; handleSavePutusan(updatedRecord); }}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+        return selectedPutusan ? (<div className="h-full flex flex-col bg-gray-50"><div className="px-6 pt-4 bg-white flex-shrink-0"><Breadcrumb currentView="eAdvokasiPutusanTim" onNavigate={handleNavigate} /></div><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi Putusan</h2><p className="text-sm text-gray-500 mt-1">{selectedPutusan.abstraksiPerkara?.noPerkara || selectedPutusan.Nomor} - {selectedPutusan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPutusan.team || []} picId={selectedPutusan.picId || null} onUpdateTeam={(team) => { const updatedRecord = { ...selectedPutusan, team }; handleSavePutusan(updatedRecord); }} onSetPic={(picId) => { const updatedRecord = { ...selectedPutusan, picId: picId || undefined }; handleSavePutusan(updatedRecord); }}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanDokumen': 
         return selectedPutusan ? <DokumenPutusan record={selectedPutusan} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiMonitoring':
@@ -444,6 +449,7 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiPencarianPerkara':
       case 'eAdvokasiPencarianPendampingan':
       case 'eAdvokasiPencarianPutusan':
+      case 'eAdvokasiPencarianDokumen':
       case 'eAdvokasiMonitoringPersidangan':
       case 'eAdvokasiMonitoringPutusan':
       case 'eAdvokasiMonitoringPendampingan':

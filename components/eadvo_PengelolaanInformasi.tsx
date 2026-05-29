@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { BerandaContent } from '../types';
+import { BerandaContent, View } from '../types';
+import Breadcrumb from './Breadcrumb';
 
 interface PengelolaanInformasiProps {
   content: BerandaContent;
   onSave: (newContent: BerandaContent) => void;
+  onNavigate?: (view: View) => void;
 }
 
-const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, onSave }) => {
+const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, onSave, onNavigate }) => {
   const [formData, setFormData] = useState(content);
 
   useEffect(() => {
@@ -31,6 +33,7 @@ const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, on
 
   return (
     <div className="p-8 bg-gray-50 h-full flex flex-col">
+      {onNavigate && <Breadcrumb currentView="eAdvokasiInfo" onNavigate={onNavigate} />}
       <div className="flex-shrink-0 flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Pengelolaan Informasi Beranda</h1>

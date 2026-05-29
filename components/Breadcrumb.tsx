@@ -2,6 +2,7 @@
 import React from 'react';
 import { View } from '../types';
 import { ChevronRightIcon, HomeIcon } from './icons';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 
 interface BreadcrumbProps {
     currentView: View;
@@ -20,6 +21,11 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiRecycleBin': { label: 'Recycle Bin' },
     'eAdvokasiFaq': { label: 'FAQ' },
     'eAdvokasiInformasi': { label: 'Informasi' },
+    'eAdvokasiInfo': { label: 'Informasi Beranda' },
+    'eAdvokasiPerkaraUpdatePosisi': { label: 'Update Posisi Perkara', parent: 'eAdvokasiPenangananPerkara' },
+    'eAdvokasiPutusanUpdateTindakLanjut': { label: 'Update Tindak Lanjut', parent: 'eAdvokasiPenangananPutusan' },
+    'eAdvokasiPendampinganEdit': { label: 'Edit Pendampingan', parent: 'eAdvokasiPendampingan' },
+    'eAdvokasiPendampinganCreate': { label: 'Rekam Pendampingan', parent: 'eAdvokasiPendampingan' },
     'eAdvokasiKalender': { label: 'Kalender Persidangan' },
     'eAdvokasiPendampinganDetail': { label: 'Detail Pendampingan', parent: 'eAdvokasiPendampingan' },
     'eAdvokasiPendampinganTim': { label: 'Tim Advokasi', parent: 'eAdvokasiPendampingan' },
@@ -38,6 +44,7 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiPencarianPerkara': { label: 'Cari Perkara', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiPencarianPendampingan': { label: 'Cari Pendampingan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiPencarianPutusan': { label: 'Cari Penanganan Putusan', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiPencarianDokumen': { label: 'Cari Dokumen (Semantic)', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPersidangan': { label: 'Persidangan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPutusan': { label: 'Putusan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPendampingan': { label: 'Pendampingan', parent: 'eAdvokasiMonitoring' },
@@ -47,12 +54,23 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
 };
 
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ currentView, onNavigate, extraLabel }) => {
+    const currentPermohonanToProses = useAdvokasiStore((state) => state.currentPermohonanToProses);
+    const isAccepted = currentPermohonanToProses?.status === 'Diproses' || currentPermohonanToProses?.status === 'Selesai';
+
     const getPath = (view: View): { view: View; label: string }[] => {
         const path = [];
         let curr = view;
-        while (curr && viewLabels[curr]) {
-            path.unshift({ view: curr, label: viewLabels[curr].label });
-            curr = viewLabels[curr].parent as View;
+
+        const dynamicLabels: Record<string, { label: string; parent?: View }> = {
+            ...viewLabels,
+            'eAdvokasiProses': isAccepted
+                ? { label: 'Rincian Permohonan', parent: 'eAdvokasiPengelolaan' as View }
+                : { label: 'Proses Permohonan', parent: 'eAdvokasiInbox' as View }
+        };
+
+        while (curr && dynamicLabels[curr]) {
+            path.unshift({ view: curr, label: dynamicLabels[curr].label });
+            curr = dynamicLabels[curr].parent as View;
         }
         return path;
     };

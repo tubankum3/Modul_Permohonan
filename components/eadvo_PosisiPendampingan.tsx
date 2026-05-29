@@ -18,6 +18,7 @@ import { PendampinganRecord, PosisiUpdate, View } from '../types';
 import { ArrowLeftIcon, PlusIcon, DocumentTextIcon, PencilIcon, TrashIcon, DownloadIcon, CloudIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import UpdatePosisiModal from './eadvo_UpdatePosisiPendampinganModal';
+import Breadcrumb from './Breadcrumb';
 
 interface PosisiPendampinganProps {
     record: PendampinganRecord;
@@ -406,6 +407,11 @@ const PosisiPendampingan: React.FC<PosisiPendampinganProps> = ({ record, onBack,
                 confirmText="Hapus"
             />
             <div className="h-full flex flex-col bg-gray-50">
+                {onNavigate && (
+                    <div className="px-6 pt-4 bg-white flex-shrink-0">
+                        <Breadcrumb currentView="eAdvokasiPendampinganPosisi" onNavigate={onNavigate} />
+                    </div>
+                )}
                 <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-center justify-between">
                     <div className="flex items-center">
                         <button onClick={onBack} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100">
