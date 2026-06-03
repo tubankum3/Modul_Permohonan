@@ -8,6 +8,37 @@ const JENIS_OBJEK_TUNTUTAN_OPTIONS = ['Tanah', 'Bangunan', 'Uang/Dana', 'Aset Te
 const JENIS_TUNTUTAN_OPTIONS = ['Materiil', 'Immateriil', 'Dwangsom'];
 const SATUAN_MATA_UANG_OPTIONS = ['IDR - Rupiah', 'USD - US Dollar', 'EUR - Euro', 'JPY - Yen', 'Lainnya'];
 
+const PREFILL_ANALISA = `1. Formil (Prosedur): 
+2. Materiil (Substansi): 
+3. Strategi Bantahan dan Penanganan`;
+
+const PREFILL_RISIKO = `1. Risiko
+2. Mitigasi`;
+
+const SimpleRichText: React.FC<{ value: string, onChange: (val: string) => void, label?: string, rows?: number }> = ({ value, onChange, label, rows = 6 }) => {
+    return (
+        <div className="w-full">
+            {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+            <div className="border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent bg-white">
+                <div className="bg-gray-50 border-b border-gray-300 px-3 py-1.5 flex gap-2">
+                    <button type="button" className="p-1 hover:bg-gray-200 rounded text-xs font-bold">B</button>
+                    <button type="button" className="p-1 hover:bg-gray-200 rounded text-xs italic">I</button>
+                    <button type="button" className="p-1 hover:bg-gray-200 rounded text-xs underline">U</button>
+                    <div className="w-[1px] h-4 bg-gray-300 mx-1 self-center"></div>
+                    <button type="button" className="p-1 hover:bg-gray-200 rounded text-xs">List</button>
+                </div>
+                <textarea
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    rows={rows}
+                    className="w-full p-3 focus:outline-none text-sm font-sans"
+                    placeholder="Ketik di sini..."
+                />
+            </div>
+        </div>
+    );
+};
+
 const referenceTags = ['Strategis', 'Non-Strategis', 'Penting', 'Perdata', 'Pidana', 'TUN', 'Penting Mendesak', 'Keuangan Negara'];
 
 const TagInput: React.FC<{ tags: string[], setTags: (tags: string[]) => void }> = ({ tags, setTags }) => {
@@ -320,14 +351,40 @@ interface EditPutusanProps {
 
 const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, onNavigate }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
+    const [activeTab, setActiveTab] = useState<'tuntutan' | 'analisis'>('tuntutan');
     const [modal, setModal] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
     const [deleteConfirm, setDeleteConfirm] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
 
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            const defaultAnalisis = {
+                isuKrusial: '',
+                analisaHukum: PREFILL_ANALISA,
+                potensiDampak: '',
+                risiko: 'Rendah' as const,
+                keteranganRisiko: PREFILL_RISIKO,
+                analisisSementara: '',
+                kesimpulanSementara: '',
+            };
+            setFormData({
+                ...initialData,
+                analisisPutusan: {
+                    ...defaultAnalisis,
+                    ...(initialData.analisisPutusan || {}),
+                }
+            });
         }
     }, [initialData]);
+
+    const handleAnalisisChange = (name: string, value: any) => {
+        setFormData(prev => ({
+            ...prev,
+            analisisPutusan: {
+                ...prev.analisisPutusan,
+                [name]: value,
+            },
+        }));
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -392,6 +449,20 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
         setDeleteConfirm({ type: '', isOpen: false, data: null });
     }
 
+    const TabButton = ({ tab, label }: { tab: 'tuntutan' | 'analisis', label: string }) => (
+        <button 
+            type="button" 
+            onClick={() => setActiveTab(tab)} 
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === tab 
+                    ? 'bg-white text-blue-600 border-gray-200 border-t border-x' 
+                    : 'bg-blue-500 text-white hover:bg-blue-400'
+            }`}
+        >
+            {label}
+        </button>
+    );
+
     return (
         <div className="h-full flex flex-col bg-white">
             {onNavigate && (
@@ -433,79 +504,152 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
                 </div>
             </header>
             
-            <main className="flex-1 overflow-y-auto p-8">
+            <main className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
                 <div className="max-w-5xl mx-auto">
-                    <div className="bg-blue-600 rounded-t-lg px-6 py-3">
-                        <h2 className="text-white font-bold text-lg">Tuntutan Akhir</h2>
+                    <div className="bg-blue-600 rounded-t-lg px-4 pt-2 flex gap-1">
+                        <TabButton tab="tuntutan" label="Tuntutan Akhir" />
+                        <TabButton tab="analisis" label="Analisis Putusan" />
                     </div>
-                    <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-6 shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-gray-800">Daftar Tuntutan Akhir</h3>
-                            <button 
-                                type="button" 
-                                onClick={() => setModal({ type: 'tuntutan-akhir', isOpen: true, data: {} })} 
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold flex items-center transition-colors"
-                            >
-                                <PlusIcon className="h-5 w-5 mr-1.5"/>
-                                Tuntutan Akhir
-                            </button>
-                        </div>
-                        
-                        <div className="overflow-x-auto rounded-lg border border-gray-200">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        {['No', 'Jenis Objek', 'Tuntutan', 'Satuan', 'Jumlah', 'Aksi'].map(h => (
-                                            <th key={h} className="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-widest">{h}</th>
+                    
+                    <div className="bg-white p-6 rounded-b-lg border-x border-b border-gray-200 shadow-sm animate-in fade-in duration-200">
+                        {activeTab === 'tuntutan' ? (
+                            <div>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-850">Daftar Tuntutan Akhir</h3>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setModal({ type: 'tuntutan-akhir', isOpen: true, data: {} })} 
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm flex items-center shadow-sm transition-all"
+                                    >
+                                        <PlusIcon className="h-4 w-4 mr-1"/>
+                                        Tuntutan Akhir
+                                    </button>
+                                </div>
+                                
+                                <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                {['No', 'Jenis Objek', 'Tuntutan', 'Satuan', 'Jumlah', 'Aksi'].map(h => (
+                                                    <th key={h} className="py-2.5 px-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                                            {(formData.tuntutanAkhir || []).map((t, i) => (
+                                                <tr key={t.id} className="hover:bg-gray-50/50 transition-colors">
+                                                    <td className="py-2.5 px-4 text-gray-600 font-medium">{i + 1}</td>
+                                                    <td className="py-2.5 px-4 text-gray-800 font-semibold">{t.jenisObjekTuntutan}</td>
+                                                    <td className="py-2.5 px-4 text-gray-700">{t.jenis}</td>
+                                                    <td className="py-2.5 px-4 text-gray-700">{t.satuan}</td>
+                                                    <td className="py-2.5 px-4 font-mono text-blue-700 font-bold">
+                                                        {typeof t.jumlahNominal === 'number' ? t.jumlahNominal.toLocaleString('id-ID') : t.jumlahNominal}
+                                                    </td>
+                                                    <td className="py-2.5 px-4 space-x-2">
+                                                        <button type="button" onClick={() => setModal({type: 'tuntutan-akhir', isOpen: true, data: t})} className="text-yellow-500 hover:text-yellow-600 inline-block p-1">
+                                                            <PencilIcon className="h-4 w-4"/>
+                                                        </button>
+                                                        <button type="button" onClick={() => setDeleteConfirm({type: 'tuntutan-akhir', isOpen: true, data: t})} className="text-red-500 hover:text-red-600 inline-block p-1">
+                                                            <TrashIcon className="h-4 w-4"/>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {(!formData.tuntutanAkhir || formData.tuntutanAkhir.length === 0) && (
+                                                <tr>
+                                                    <td colSpan={6} className="py-12 text-center text-gray-400 italic bg-gray-55/50">
+                                                        Belum ada data tuntutan akhir. Silakan tambah data.
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                <SimpleRichText 
+                                    label="Isu Krusial" 
+                                    value={formData.analisisPutusan?.isuKrusial || ''} 
+                                    onChange={(val) => handleAnalisisChange('isuKrusial', val)} 
+                                    rows={4}
+                                />
+                                <SimpleRichText 
+                                    label="Analisa Hukum" 
+                                    value={formData.analisisPutusan?.analisaHukum || ''} 
+                                    onChange={(val) => handleAnalisisChange('analisaHukum', val)} 
+                                    rows={5}
+                                />
+                                <SimpleRichText 
+                                    label="Potensi Dampak bagi Kemenkeu" 
+                                    value={formData.analisisPutusan?.potensiDampak || ''} 
+                                    onChange={(val) => handleAnalisisChange('potensiDampak', val)} 
+                                    rows={4}
+                                />
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Risiko</label>
+                                    <div className="flex gap-4">
+                                        {['Rendah', 'Sedang', 'Tinggi'].map(level => (
+                                            <label key={level} className="flex items-center space-x-2 cursor-pointer select-none">
+                                                <input 
+                                                    type="radio" 
+                                                    name="risiko-putusan" 
+                                                    value={level} 
+                                                    checked={formData.analisisPutusan?.risiko === level} 
+                                                    onChange={() => handleAnalisisChange('risiko', level as any)} 
+                                                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" 
+                                                />
+                                                <span className={`text-sm font-medium ${
+                                                    level === 'Tinggi' 
+                                                        ? 'text-red-600' 
+                                                        : level === 'Sedang' 
+                                                            ? 'text-yellow-600' 
+                                                            : 'text-green-600'
+                                                }`}>
+                                                    {level}
+                                                </span>
+                                            </label>
                                         ))}
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {(formData.tuntutanAkhir || []).map((t, i) => (
-                                        <tr key={t.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="py-3 px-4 text-sm text-gray-600 font-medium">{i + 1}</td>
-                                            <td className="py-3 px-4 text-sm text-gray-800 font-semibold">{t.jenisObjekTuntutan}</td>
-                                            <td className="py-3 px-4 text-sm text-gray-700">{t.jenis}</td>
-                                            <td className="py-3 px-4 text-sm text-gray-700 font-medium">{t.satuan}</td>
-                                            <td className="py-3 px-4 text-sm font-mono text-blue-700 font-bold">
-                                                {typeof t.jumlahNominal === 'number' ? t.jumlahNominal.toLocaleString('id-ID') : t.jumlahNominal}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm space-x-3">
-                                                <button type="button" onClick={() => setModal({type: 'tuntutan-akhir', isOpen: true, data: t})} className="text-blue-600 hover:text-blue-800 p-1">
-                                                    <PencilIcon className="h-5 w-5"/>
-                                                </button>
-                                                <button type="button" onClick={() => setDeleteConfirm({type: 'tuntutan-akhir', isOpen: true, data: t})} className="text-red-500 hover:text-red-700 p-1">
-                                                    <TrashIcon className="h-5 w-5"/>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {(!formData.tuntutanAkhir || formData.tuntutanAkhir.length === 0) && (
-                                        <tr>
-                                            <td colSpan={6} className="py-12 text-center text-gray-400 italic bg-gray-50">
-                                                Belum ada data tuntutan akhir. Silakan tambah data.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </div>
+                                </div>
+
+                                <SimpleRichText 
+                                    label="Keterangan Risiko" 
+                                    value={formData.analisisPutusan?.keteranganRisiko || ''} 
+                                    onChange={(val) => handleAnalisisChange('keteranganRisiko', val)} 
+                                    rows={4}
+                                />
+                                <SimpleRichText 
+                                    label="Analisis Sementara" 
+                                    value={formData.analisisPutusan?.analisisSementara || ''} 
+                                    onChange={(val) => handleAnalisisChange('analisisSementara', val)} 
+                                    rows={4}
+                                />
+                                <SimpleRichText 
+                                    label="Kesimpulan Sementara" 
+                                    value={formData.analisisPutusan?.kesimpulanSementara || ''} 
+                                    onChange={(val) => handleAnalisisChange('kesimpulanSementara', val)} 
+                                    rows={4}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>
             
-            <footer className="flex-shrink-0 flex justify-end items-center p-6 bg-gray-50 border-t border-gray-200 space-x-4">
+            <footer className="flex-shrink-0 flex justify-end items-center p-4 bg-white border-t border-gray-200 space-x-3">
                 <button 
                     type="button" 
                     onClick={onBack} 
-                    className="px-8 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 transition-colors"
+                    className="px-8 py-2 rounded-lg bg-red-650 bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors"
                 >
                     Batal
                 </button>
                 <button 
                     type="button" 
                     onClick={handleSave} 
-                    className="px-8 py-2.5 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-700 shadow-md transition-colors"
+                    className="px-8 py-2 rounded-lg bg-green-650 bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
                 >
                     Simpan Perubahan
                 </button>

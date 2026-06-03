@@ -273,6 +273,7 @@ export interface PerkaraRecord extends Permohonan {
   tindakLanjut?: TindakLanjut[];
   abstraksiPerkara?: AbstraksiPerkara;
   analisisPerkara?: AnalisisPerkara;
+  analisisPutusan?: AnalisisPerkara;
   pihakP?: Pihak[];
   pihakT?: Pihak[];
   tuntutan?: Tuntutan[];
