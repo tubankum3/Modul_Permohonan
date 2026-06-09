@@ -72,6 +72,15 @@ const InformasiUmumTab: React.FC<{ record: PendampinganRecord }> = ({ record }) 
                             <DetailRow label="Unit Pemanggil" value={abstraksi.unitPemanggil} />
                             <DetailRow label="Wilayah" value={abstraksi.wilayah} />
                             <DetailRow label="Rincian Pokok Permasalahan" value={<div className="whitespace-pre-wrap">{abstraksi.pokokPermasalahan}</div>} />
+                            <DetailRow label="Tags" value={abstraksi.tags && abstraksi.tags.length > 0 ? (
+                                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                                    {abstraksi.tags.map((tag, idx) => (
+                                        <span key={idx} className="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-md border border-blue-200">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : '-'} />
                         </tbody>
                     </table>
                 </div>

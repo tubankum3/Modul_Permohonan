@@ -109,6 +109,7 @@ export interface PendampinganRecord extends Permohonan {
       subSubPokokPerkara?: string;
       pokokPermasalahan?: string;
       keterangan?: string;
+      tags?: string[];
       // New fields for Penyelidikan/Pendampingan redesign
       statusPenyelidikan?: string;
       dasar?: { nomorSuratPerintah: string; tanggalSurat: string };

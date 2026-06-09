@@ -53,6 +53,85 @@ const SimpleRichText: React.FC<{ value: string, onChange: (val: string) => void,
     );
 };
 
+const referenceTags = ['Strategis', 'Non-Strategis', 'Penting', 'Perdata', 'Pidana', 'TUN', 'Penting Mendesak', 'Keuangan Negara'];
+
+const TagInput: React.FC<{ tags: string[], setTags: (tags: string[]) => void }> = ({ tags, setTags }) => {
+    const [inputValue, setInputValue] = useState('');
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setInputValue(value);
+        if (value) {
+            const filteredSuggestions = referenceTags.filter(
+                tag => tag.toLowerCase().includes(value.toLowerCase()) && !tags.includes(tag)
+            );
+            setSuggestions(filteredSuggestions);
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const addTag = (tag: string) => {
+        const trimmedTag = tag.trim();
+        if (trimmedTag && !tags.includes(trimmedTag)) {
+            setTags([...tags, trimmedTag]);
+        }
+        setInputValue('');
+        setSuggestions([]);
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setTags(tags.filter(tag => tag !== tagToRemove));
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addTag(inputValue);
+        }
+        if (e.key === 'Backspace' && !inputValue) {
+            removeTag(tags[tags.length - 1]);
+        }
+    };
+
+    return (
+        <div className="relative">
+            <div className="w-full p-2 border border-gray-300 rounded-lg flex flex-wrap items-center gap-2 bg-white min-h-[42px] focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
+                {tags.map((tag, index) => (
+                    <div key={index} className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded-full flex items-center">
+                        {tag}
+                        <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-blue-500 hover:text-blue-700">
+                            <XIcon className="h-3 w-3" />
+                        </button>
+                    </div>
+                ))}
+                <input
+                    type="text"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className="flex-grow bg-transparent focus:outline-none text-sm px-2"
+                    placeholder="Tambah tag..."
+                />
+            </div>
+            {suggestions.length > 0 && (
+                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                    {suggestions.map((suggestion, index) => (
+                        <li
+                            key={index}
+                            onClick={() => addTag(suggestion)}
+                            className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm text-gray-700"
+                        >
+                            {suggestion}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+};
+
 const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, onClose, onSave, initialData, showNotification }) => {
     const [formData, setFormData] = useState<Partial<PendampinganRecord>>({});
     const [activeTab, setActiveTab] = useState<'informasi' | 'pihak' | 'analisa'>('informasi');
@@ -62,7 +141,7 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
         if (isOpen && initialData) {
             const isPendampinganRecord = 'statusPendampingan' in initialData;
             
-            const prefilledRincian = `1. Dasar\n2. Focus\n3. Locus\n4. Tempus\n5. Dolus\n6. Modus\n7. Aktor`;
+            const prefilledRincian = `1. Focus:\n2. Locus:\n3. Tempus:\n4. Dolus:\n5. Modus:\n6. Aktor:`;
 
             const data: Partial<PendampinganRecord> = {
                 ...initialData,
@@ -345,6 +424,14 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
                                         value={formData.abstraksi?.pokokPermasalahan || ''} 
                                         onChange={(val) => handleAbstraksiChange('pokokPermasalahan', val)}
                                         rows={10}
+                                    />
+                                </div>
+
+                                <div className="mt-6">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2 font-sans uppercase tracking-wider text-[11px]">Tags</label>
+                                    <TagInput
+                                        tags={formData.abstraksi?.tags || []}
+                                        setTags={(newTags) => handleAbstraksiChange('tags', newTags)}
                                     />
                                 </div>
                             </div>
