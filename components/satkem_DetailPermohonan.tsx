@@ -29,19 +29,61 @@ const TabButton: React.FC<{ name: DetailTab, label: string, activeTab: DetailTab
     </button>
 );
 
-const RincianTab: React.FC<{ permohonan: Permohonan }> = ({ permohonan }) => (
-    <table className="w-full text-sm">
-        <tbody>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4 w-1/4">ID Permohonan</td><td className="text-gray-800 py-2.5">{permohonan.id}</td></tr>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">No Tiket/ND</td><td className="text-gray-800 py-2.5">{permohonan.Nomor || `Draft-${permohonan.id}`}</td></tr>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Tanggal</td><td className="text-gray-800 py-2.5">{permohonan.tanggal}</td></tr>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Pemohon</td><td className="text-gray-800 py-2.5">{permohonan.pemohon}</td></tr>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Unit</td><td className="text-gray-800 py-2.5">{permohonan.unit}</td></tr>
-            <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Jenis</td><td className="text-gray-800 py-2.5">{permohonan.jenis}</td></tr>
-            <tr><td className="font-medium text-gray-500 py-2.5 pr-4">Status</td><td className="text-gray-800 py-2.5">{permohonan.status}</td></tr>
-        </tbody>
-    </table>
-);
+const RincianTab: React.FC<{ permohonan: Permohonan }> = ({ permohonan }) => {
+    let statusPenanganan = '-';
+    if ('statusPendampingan' in permohonan) {
+        const pendampingan = permohonan as any;
+        if (pendampingan.posisi && pendampingan.posisi.length > 0) {
+            const latestPosisi = [...pendampingan.posisi].sort((a, b) => b.id - a.id)[0];
+            statusPenanganan = latestPosisi.posisiKasus || 'Belum ada';
+        } else {
+            statusPenanganan = 'Belum ada';
+        }
+    } else if ('statusPerkara' in permohonan) {
+        const perkara = permohonan as any;
+        if (perkara.posisiSidang) {
+            const allEntries = [
+                ...(perkara.posisiSidang.tkPK || []),
+                ...(perkara.posisiSidang.tkKasasi || []),
+                ...(perkara.posisiSidang.tkBanding || []),
+                ...(perkara.posisiSidang.tkPertama || []),
+            ];
+            if (allEntries.length > 0) {
+                const sortedEntries = allEntries.sort((a, b) => {
+                    try {
+                        const dateA = new Date(a.tanggalSidang.split('/').reverse().join('-'));
+                        const dateB = new Date(b.tanggalSidang.split('/').reverse().join('-'));
+                        return dateB.getTime() - dateA.getTime();
+                    } catch (e) {
+                        return b.id - a.id;
+                    }
+                });
+                statusPenanganan = sortedEntries[0]?.agendaSidang || 'Tidak ada agenda';
+            } else {
+                statusPenanganan = 'Belum ada sidang';
+            }
+        } else {
+            statusPenanganan = 'Belum ada';
+        }
+    } else if ('statusPutusan' in permohonan) {
+        statusPenanganan = (permohonan as any).statusPutusan;
+    }
+
+    return (
+        <table className="w-full text-sm">
+            <tbody>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4 w-1/4">ID Permohonan</td><td className="text-gray-800 py-2.5">{permohonan.id}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">No Tiket/ND</td><td className="text-gray-800 py-2.5">{permohonan.Nomor || `Draft-${permohonan.id}`}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Tanggal</td><td className="text-gray-800 py-2.5">{permohonan.tanggal}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Pemohon</td><td className="text-gray-800 py-2.5">{permohonan.pemohon}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Unit</td><td className="text-gray-800 py-2.5">{permohonan.unit}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Jenis</td><td className="text-gray-800 py-2.5">{permohonan.jenis}</td></tr>
+                <tr className="border-b border-gray-100"><td className="font-medium text-gray-500 py-2.5 pr-4">Status Permohonan</td><td className="text-gray-800 py-2.5">{permohonan.status}</td></tr>
+                <tr><td className="font-medium text-gray-500 py-2.5 pr-4">Status Penanganan</td><td className="text-gray-800 py-2.5">{statusPenanganan}</td></tr>
+            </tbody>
+        </table>
+    );
+};
 
 const PermohonanTab: React.FC<{ permohonan: Permohonan }> = ({ permohonan }) => (
     <div>
@@ -67,7 +109,7 @@ const DokumenTab: React.FC<{ permohonan: Permohonan }> = ({ permohonan }) => {
                         <DocumentTextIcon className="h-6 w-6 mr-3 text-gray-400 flex-shrink-0"/>
                         <div>
                             <p className="font-semibold text-gray-800">{file.name}</p>
-                            <p className="text-xs text-gray-500">Diunggah oleh {file.author} pada {file.timestamp.toLocaleDateString('id-ID')}</p>
+                            <p className="text-xs text-gray-500">Diunggah oleh {file.author} pada {file.timestamp ? new Date(file.timestamp).toLocaleDateString('id-ID') : '-'}</p>
                         </div>
                     </div>
                     <a href="#" className="p-2 rounded-full hover:bg-blue-100 text-blue-600 transition" aria-label={`Download ${file.name}`}>
@@ -183,7 +225,7 @@ const HistoryItem: React.FC<{
                     </div>
                 </div>
                 <div className={`mt-1 px-2 ${textAlign}`}>
-                    <span className="text-xs text-gray-500">{item.author}, {item.timestamp.toLocaleString('id-ID')}</span>
+                    <span className="text-xs text-gray-500">{item.author}, {item.timestamp ? new Date(item.timestamp).toLocaleString('id-ID') : '-'}</span>
                 </div>
             </div>
         </div>

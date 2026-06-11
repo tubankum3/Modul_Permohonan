@@ -17,7 +17,7 @@ const Pagination: React.FC<PaginationProps> = ({
     onPageChange,
     onItemsPerPageChange
 }) => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil((totalItems || 0) / (itemsPerPage || 1))) || 1;
     if (totalItems === 0) return null;
 
     const startItem = (currentPage - 1) * itemsPerPage + 1;

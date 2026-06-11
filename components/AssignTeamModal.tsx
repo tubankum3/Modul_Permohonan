@@ -25,18 +25,18 @@ interface AssignTeamModalProps {
 
 // FIX: Export ALL_PERSONNEL so it can be used for mapping in the parent component.
 export const ALL_PERSONNEL: Personnel[] = [
-  { id: '001', name: 'Andi Pratama', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Pusat', eselon3: 'KPP Pratama Jakarta Menteng Satu', role: 'Analis Hukum' },
-  { id: '002', name: 'Budi Santoso', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Selatan I', eselon3: 'KPP Pratama Jakarta Setiabudi Dua', role: 'Penelaah Kebijakan' },
+  { id: '001', name: 'Andi Pratama', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Pusat', eselon3: 'KPP Pratama Jakarta Menteng Satu', role: 'Ahli Madya' },
+  { id: '002', name: 'Budi Santoso', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Jakarta Selatan I', eselon3: 'KPP Pratama Jakarta Setiabudi Dua', role: 'Ahli Muda' },
   { id: '003', name: 'Citra Lestari', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'Kantor Pusat DJBC', eselon3: 'Direktorat Teknis Kepabeanan', role: 'Kepala Seksi' },
-  { id: '004', name: 'Dewi Anggraini', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'KPU Bea dan Cukai Tipe A Tanjung Priok', eselon3: 'Seksi Penindakan dan Penyidikan', role: 'Analis Hukum' },
+  { id: '004', name: 'Dewi Anggraini', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'KPU Bea dan Cukai Tipe A Tanjung Priok', eselon3: 'Seksi Penindakan dan Penyidikan', role: 'Ahli Pertama' },
   { id: '005', name: 'Eko Wijoyo', eselon1: 'Direktorat Jenderal Perbendaharaan', eselon2: 'Direktorat Sistem Perbendaharaan', eselon3: 'Subdirektorat Pengembangan Sistem', role: 'Kepala Subdirektorat' },
-  { id: '006', name: 'Fajar Nugroho', eselon1: 'Direktorat Jenderal Perbendaharaan', eselon2: 'Kanwil DJPb Provinsi DKI Jakarta', eselon3: 'Bidang Pembinaan Pelaksanaan Anggaran I', role: 'Analis Hukum' },
+  { id: '006', name: 'Fajar Nugroho', eselon1: 'Direktorat Jenderal Perbendaharaan', eselon2: 'Kanwil DJPb Provinsi DKI Jakarta', eselon3: 'Bidang Pembinaan Pelaksanaan Anggaran I', role: 'Ahli Pertama' },
   { id: '007', name: 'Gita Permata', eselon1: 'Direktorat Jenderal Kekayaan Negara', eselon2: 'Kantor Pusat DJKN', role: 'Penelaah Kebijakan' },
-  { id: '008', name: 'Hadi Wibowo', eselon1: 'Badan Kebijakan Fiskal', eselon2: 'Pusat Kebijakan APBN', role: 'Analis Kebijakan' },
-  { id: '009', name: 'Indah Cahyani', eselon1: 'Badan Kebijakan Fiskal', eselon2: 'Pusat Kebijakan Sektor Keuangan', role: 'Analis Hukum' },
-  { id: '010', name: 'Joko Susilo', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Wajib Pajak Besar', eselon3: 'KPP Wajib Pajak Besar Empat', role: 'Kepala Seksi' },
-  { id: '011', name: 'Kurniawan Prasetyo', eselon1: 'Direktorat Jenderal Perbendaharaan', eselon2: 'Direktorat Sistem Perbendaharaan', eselon3: 'Subdirektorat Pengembangan Sistem', eselon4: 'Seksi Pengembangan Aplikasi', role: 'Staff' },
-  { id: '012', name: 'Lina Marlina', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'Kantor Pusat DJBC', eselon3: 'Direktorat Teknis Kepabeanan', eselon4: 'Subdirektorat Klasifikasi Barang', role: 'Staff Pelaksana' },
+  { id: '008', name: 'Hadi Wibowo', eselon1: 'Badan Kebijakan Fiskal', eselon2: 'Pusat Kebijakan APBN', role: 'Kepala Subbagian' },
+  { id: '009', name: 'Indah Cahyani', eselon1: 'Badan Kebijakan Fiskal', eselon2: 'Pusat Kebijakan Sektor Keuangan', role: 'Kepala Bagian' },
+  { id: '010', name: 'Joko Susilo', eselon1: 'Direktorat Jenderal Pajak', eselon2: 'Kanwil DJP Wajib Pajak Besar', eselon3: 'KPP Wajib Pajak Besar Empat', role: 'Ahli Muda' },
+  { id: '011', name: 'Kurniawan Prasetyo', eselon1: 'Direktorat Jenderal Perbendaharaan', eselon2: 'Direktorat Sistem Perbendaharaan', eselon3: 'Subdirektorat Pengembangan Sistem', eselon4: 'Seksi Pengembangan Aplikasi', role: '{Pelaksana}' },
+  { id: '012', name: 'Lina Marlina', eselon1: 'Direktorat Jenderal Bea dan Cukai', eselon2: 'Kantor Pusat DJBC', eselon3: 'Direktorat Teknis Kepabeanan', eselon4: 'Subdirektorat Klasifikasi Barang', role: 'Pelaksana' },
 ];
 
 const eselon1Options = ['Semua', ...new Set(ALL_PERSONNEL.map(p => p.eselon1))];

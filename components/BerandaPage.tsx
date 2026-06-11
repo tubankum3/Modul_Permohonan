@@ -99,10 +99,10 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
             }).length;
 
             const activeTrend: 'up' | 'down' = currentMonthActive >= lastMonthActive ? 'up' : 'down';
-            const activePercent = lastMonthActive === 0 ? 100 : Math.abs(Math.round(((currentMonthActive - lastMonthActive) / lastMonthActive) * 100));
+            const activePercent = lastMonthActive === 0 ? 100 : Math.abs(Math.round(((currentMonthActive - lastMonthActive) / (lastMonthActive || 1)) * 100)) || 0;
             
             const selesaiTrend: 'up' | 'down' = currentMonthSelesai >= lastMonthSelesai ? 'up' : 'down';
-            const selesaiPercent = lastMonthSelesai === 0 ? 100 : Math.abs(Math.round(((currentMonthSelesai - lastMonthSelesai) / lastMonthSelesai) * 100));
+            const selesaiPercent = lastMonthSelesai === 0 ? 100 : Math.abs(Math.round(((currentMonthSelesai - lastMonthSelesai) / (lastMonthSelesai || 1)) * 100)) || 0;
 
             return {
                 total,

@@ -93,6 +93,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPencarianPendampingan': return '/eadvokasi/monitoring/cari-pendampingan';
     case 'eAdvokasiPencarianPutusan': return '/eadvokasi/monitoring/cari-putusan';
     case 'eAdvokasiPencarianDokumen': return '/eadvokasi/monitoring/cari-dokumen';
+    case 'eAdvokasiPencarianBankDalil': return '/eadvokasi/monitoring/bank-dalil';
     case 'eAdvokasiMonitoringPersidangan': return '/eadvokasi/monitoring/persidangan';
     case 'eAdvokasiMonitoringPutusan': return '/eadvokasi/monitoring/putusan';
     case 'eAdvokasiMonitoringPendampingan': return '/eadvokasi/monitoring/pendampingan';
@@ -150,6 +151,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname === '/eadvokasi/monitoring/cari-pendampingan') return { view: 'eAdvokasiPencarianPendampingan' };
   if (pathname === '/eadvokasi/monitoring/cari-putusan') return { view: 'eAdvokasiPencarianPutusan' };
   if (pathname === '/eadvokasi/monitoring/cari-dokumen') return { view: 'eAdvokasiPencarianDokumen' };
+  if (pathname === '/eadvokasi/monitoring/bank-dalil') return { view: 'eAdvokasiPencarianBankDalil' };
   if (pathname === '/eadvokasi/monitoring/persidangan') return { view: 'eAdvokasiMonitoringPersidangan' };
   if (pathname === '/eadvokasi/monitoring/putusan') return { view: 'eAdvokasiMonitoringPutusan' };
   if (pathname === '/eadvokasi/monitoring/pendampingan') return { view: 'eAdvokasiMonitoringPendampingan' };
@@ -450,6 +452,7 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiPencarianPendampingan':
       case 'eAdvokasiPencarianPutusan':
       case 'eAdvokasiPencarianDokumen':
+      case 'eAdvokasiPencarianBankDalil':
       case 'eAdvokasiMonitoringPersidangan':
       case 'eAdvokasiMonitoringPutusan':
       case 'eAdvokasiMonitoringPendampingan':

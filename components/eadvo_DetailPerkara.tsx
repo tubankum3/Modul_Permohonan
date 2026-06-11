@@ -75,7 +75,7 @@ const TuntutanTable: React.FC<{ data: Tuntutan[] }> = ({ data }) => (
                         <td className="px-3 py-2.5">{i + 1}</td>
                         <td className="px-3 py-2.5 font-medium">{t.objek}</td>
                         <td className="px-3 py-2.5">{t.jenis}</td>
-                        <td className="px-3 py-2.5 font-mono text-blue-700">{t.jumlahNominal.toLocaleString('id-ID')}</td>
+                        <td className="px-3 py-2.5 font-mono text-blue-700">{t.jumlahNominal != null ? Number(t.jumlahNominal).toLocaleString('id-ID') : '-'}</td>
                         <td className="px-3 py-2.5">{t.satuan}</td>
                         <td className="px-3 py-2.5 text-gray-600">{t.keterangan || '-'}</td>
                     </tr>)}

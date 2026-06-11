@@ -60,6 +60,7 @@ export const checkViewAccess = (role: string, view: string): boolean => {
         case 'eAdvokasiPencarianPerkara':
         case 'eAdvokasiPencarianPendampingan':
         case 'eAdvokasiPencarianPutusan':
+        case 'eAdvokasiPencarianDokumen':
         case 'eAdvokasiMonitoringPersidangan':
         case 'eAdvokasiMonitoringPutusan':
         case 'eAdvokasiMonitoringPendampingan':
@@ -98,12 +99,26 @@ export const checkViewAccess = (role: string, view: string): boolean => {
             // Manajemen User Role (User) -> Super Admin only
             return role === 'Super Admin';
 
+        case 'none': // For expandable headers
+            return true;
+
         default:
             return true;
     }
 };
 
-const menuGroups = [
+type MenuItem = {
+    icon: React.ReactNode;
+    name: string;
+    view: View;
+};
+
+type MenuGroup = {
+    title: string;
+    items: MenuItem[];
+};
+
+const menuGroups: MenuGroup[] = [
     {
         title: 'HOME',
         items: [
@@ -128,8 +143,9 @@ const menuGroups = [
     {
         title: 'PEMANTAUAN & PELAPORAN',
         items: [
-            { icon: <DesktopComputerIcon className="h-5 w-5" />, name: 'Monitoring', view: 'eAdvokasiDashboard' as View },
+            { icon: <SearchIcon className="h-5 w-5" />, name: 'Pencarian', view: 'eAdvokasiPencarianPerkara' as View },
             { icon: <CalendarIcon className="h-5 w-5" />, name: 'Kalender Sidang', view: 'eAdvokasiKalender' as View },
+            { icon: <DesktopComputerIcon className="h-5 w-5" />, name: 'Monitoring', view: 'eAdvokasiDashboard' as View },
             { icon: <DocumentTextIcon className="h-5 w-5" />, name: 'Laporan', view: 'eAdvokasiLaporan' as View },
         ]
     },
@@ -151,6 +167,7 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
     const globalRole = useAdvokasiStore((state) => state.globalRole);
   
     const isActive = (view: View) => {
+        if (view === 'none') return false;
         if (view === 'eAdvokasiPendampingan') {
             return currentView.startsWith('eAdvokasiPendampingan');
         }
@@ -159,6 +176,12 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
         }
         if (view === 'eAdvokasiPenangananPutusan') {
             return currentView.startsWith('eAdvokasiPutusan') || currentView === 'eAdvokasiPenangananPutusan';
+        }
+        if (view === 'eAdvokasiPencarianPerkara') {
+            return currentView.startsWith('eAdvokasiPencarian');
+        }
+        if (view === 'eAdvokasiDashboard') {
+            return currentView === 'eAdvokasiDashboard' || currentView.startsWith('eAdvokasiMonitoring') || currentView === 'eAdvokasiAuditTrail';
         }
         return currentView === view;
     };
@@ -178,21 +201,21 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
         {filteredGroups.map((group, groupIndex) => (
           <div key={group.title} className={groupIndex > 0 ? "mt-4" : ""}>
             <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{group.title}</h3>
-            <ul>
+            <ul className="space-y-1">
               {group.items.map((item, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => onNavigate(item.view)}
-                    className={`w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left ${
-                      isActive(item.view) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      {item.icon}
-                      <span>{item.name}</span>
-                    </div>
-                  </button>
-                </li>
+                  <li key={index}>
+                    <button
+                      onClick={() => onNavigate(item.view)}
+                      className={`w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left ${
+                        isActive(item.view) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        {item.icon}
+                        <span>{item.name}</span>
+                      </div>
+                    </button>
+                  </li>
               ))}
             </ul>
           </div>
@@ -203,3 +226,4 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
 };
 
 export default EAdvokasiSidebar;
+

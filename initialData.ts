@@ -194,12 +194,14 @@ export const initialPendampinganRecords: PendampinganRecord[] = [
             { id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-08-11', agenda: 'Pemeriksaan saksi', tanggalAgenda: '2021-08-11', suratPemanggilan: 'SPGL-12', pemanggil: ['Joko bareskrim mabes polri'], terpanggil: ['Pihak Terkait'], posisiKasus: 'Penyelidikan', lokasi: 'RR Rapat Bareskrim', durasi: 180, rincian: 'di cecar pertanyaan menjebak', timestamp: new Date('2021-08-11') },
         ],
         team: [
-            { id: '19XXXXX-XXXXXX-XXXXX-MADE', nama: 'Made', nip: '19XXXXX XXXXXX XXXXX', unit: 'Subbagian Advokasi IIIA, Bagian Advokasi III, Biro Advokasi, Sekretariat Jenderal', role: 'Analis Hukum', teamRole: 'Editor' },
-            { id: 'k1', nama: 'Joko', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Analis Hukum', teamRole: 'Editor' },
-            { id: 'k2', nama: 'Supeno', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Penelaah Kebijakan', teamRole: 'Editor' },
-            { id: 'k3', nama: 'Marjuki', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Kepala Seksi', teamRole: 'Viewer' },
+            { id: 'k0', nama: 'Made', nip: '19XXXXX XXXXXX XXXXX', unit: 'Subbagian Advokasi IIIA, Bagian Advokasi III, Biro Advokasi, Sekretariat Jenderal', role: 'Analis Kebijakan', teamRole: 'Editor' },
+            { id: 'k1', nama: 'Joko', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Madya', teamRole: 'PIC' },
+            { id: 'k2', nama: 'Supeno', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Muda', teamRole: 'PIC' },
+            { id: 'k3', nama: 'Marjuki', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Pertama', teamRole: 'PIC' },
+            { id: 'k4', nama: 'Margono', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Penelaah Teknis Kebijakan', teamRole: 'Editor' },
+            { id: 'k5', nama: 'Bowo', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Kepala Seksi KPKNL Jkt 48', teamRole: 'Viewer' },
         ],
-        picId: '19XXXXX-XXXXXX-XXXXX-MADE',
+        picId: 'k1',
         auditTrail: [
             { id: 1, timestamp: new Date('2021-08-10T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Pendampingan dari Permohonan #pd-1' },
             { id: 2, timestamp: new Date('2021-08-11T09:30:00Z'), user: 'Made', action: 'menambahkan', details: 'Posisi Pendampingan "Pemeriksaan saksi"' },
@@ -277,14 +279,16 @@ export const initialPerkaraRecords: PerkaraRecord[] = [
             { id: 1, noNaskah: 'XXX', jenis: 'SKU', deskripsi: 'Lorem ipsum', timestamp: 'DD/MM/YYYY HH:MM:SS' }
         ],
         team: [
-            { id: 'k1', nama: 'Joko', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Analis Hukum', teamRole: 'Editor' },
-            { id: 'k2', nama: 'Supeno', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Penelaah Kebijakan', teamRole: 'Editor' },
-            { id: 'k3', nama: 'Marjuki', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Kepala Seksi', teamRole: 'Viewer' },
+            { id: 'k1', nama: 'Joko', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Madya', teamRole: 'PIC' },
+            { id: 'k2', nama: 'Supeno', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Muda', teamRole: 'PIC' },
+            { id: 'k3', nama: 'Marjuki', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Ahli Pertama', teamRole: 'PIC' },
+            { id: 'k4', nama: 'Margono', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Penelaah Teknis Kebijakan', teamRole: 'Editor' },
+            { id: 'k5', nama: 'Bowo', nip: '19XXXXX XXXXXX XXXXX', unit: 'Eselon IV, Eselon III, Eselon II, Eselon I', role: 'Kepala Seksi KPKNL Jkt 48', teamRole: 'Viewer' },
         ],
         picId: 'k1',
         auditTrail: [
             { id: 1, timestamp: new Date('2021-12-25T01:46:37Z'), user: 'Admin System', action: 'merekam', details: 'Perkara dari Permohonan #11223344' },
-            { id: 2, timestamp: new Date('2021-11-12T01:46:37Z'), user: 'Joko', action: 'memperbarui', details: 'Posisi Sidang Tk. Pertama' },
+            { id: 2, timestamp: new Date('2021-11-12T01:46:37Z'), user: 'Joko (PIC)', action: 'memperbarui', details: 'Posisi Sidang Tk. Pertama' },
         ],
     },
 ];

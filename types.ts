@@ -83,7 +83,7 @@ export interface TeamMember {
     nip: string;
     unit: string;
     role: string; // Job title
-    teamRole: 'Editor' | 'Viewer';
+    teamRole: 'Editor' | 'Viewer' | 'PIC';
 }
 
 export interface AuditTrailEntry {
@@ -344,5 +344,5 @@ export type View =
   'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' | 'eAdvokasiPendampinganDokumen' |
   'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' | 'eAdvokasiPerkaraDokumen' |
   'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim' | 'eAdvokasiPutusanDokumen' |
-  'eAdvokasiDashboard' | 'eAdvokasiPencarianPerkara' | 'eAdvokasiPencarianPendampingan' | 'eAdvokasiPencarianPutusan' | 'eAdvokasiPencarianDokumen' | 'eAdvokasiMonitoringPersidangan' | 'eAdvokasiMonitoringPutusan' | 
+  'eAdvokasiDashboard' | 'eAdvokasiPencarianPerkara' | 'eAdvokasiPencarianPendampingan' | 'eAdvokasiPencarianPutusan' | 'eAdvokasiPencarianDokumen' | 'eAdvokasiPencarianBankDalil' | 'eAdvokasiMonitoringPersidangan' | 'eAdvokasiMonitoringPutusan' | 
   'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail';

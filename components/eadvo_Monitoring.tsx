@@ -159,25 +159,25 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
         { name: 'Putusan', value: 285 },
     ];
 
-    const monitoringMenus = [
-        { group: 'VISUALISASI', items: [
-            { icon: <DesktopComputerIcon className="h-4 w-4" />, name: 'Dashboard', view: 'eAdvokasiDashboard' as View },
-        ]},
+    const isPencarianView = currentView.includes('Pencarian');
+
+    const menus = isPencarianView ? [
         { group: 'PENCARIAN DATA', items: [
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Perkara', view: 'eAdvokasiPencarianPerkara' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Pendampingan', view: 'eAdvokasiPencarianPendampingan' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Penanganan Putusan', view: 'eAdvokasiPencarianPutusan' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Dokumen', view: 'eAdvokasiPencarianDokumen' as View },
-        ]},
-        { group: 'MONITORING BERKALA', items: [
+            { icon: <SearchIcon className="h-4 w-4" />, name: 'Bank Dalil', view: 'eAdvokasiPencarianBankDalil' as View },
+        ]}
+    ] : [
+        { group: 'MONITORING', items: [
+            { icon: <DesktopComputerIcon className="h-4 w-4" />, name: 'Dashboard', view: 'eAdvokasiDashboard' as View },
             { icon: <CalendarIcon className="h-4 w-4" />, name: 'Persidangan', view: 'eAdvokasiMonitoringPersidangan' as View },
             { icon: <DocumentTextIcon className="h-4 w-4" />, name: 'Putusan', view: 'eAdvokasiMonitoringPutusan' as View },
             { icon: <UserGroupIcon className="h-4 w-4" />, name: 'Pendampingan', view: 'eAdvokasiMonitoringPendampingan' as View },
             { icon: <ShieldCheckIcon className="h-4 w-4" />, name: 'Perkara', view: 'eAdvokasiMonitoringPerkara' as View },
             { icon: <InformationCircleIcon className="h-4 w-4" />, name: 'Risiko Hukum', view: 'eAdvokasiMonitoringRisikoHukum' as View },
-        ]},
-        { group: 'SISTEM', items: [
-            { icon: <ClockIcon className="h-4 w-4" />, name: 'Audit Trail', view: 'eAdvokasiAuditTrail' as View },
+            { icon: <ClockIcon className="h-4 w-4" />, name: 'Riwayat (Audit Trail)', view: 'eAdvokasiAuditTrail' as View },
         ]}
     ];
 
@@ -787,6 +787,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             case 'eAdvokasiPencarianPendampingan': return renderSearchPage('Pencarian Pendampingan', 'Cari berdasarkan Nomor Tiket, Subjek, atau Pemohon...');
             case 'eAdvokasiPencarianPutusan': return renderSearchPage('Pencarian Penanganan Putusan', 'Cari berdasarkan Nomor Putusan, Amar, atau Klasifikasi...');
             case 'eAdvokasiPencarianDokumen': return <CariDokumen currentView={currentView} onNavigate={onNavigate} />;
+            case 'eAdvokasiPencarianBankDalil': return renderSearchPage('Bank Dalil', 'Cari dalil, yurisprudensi, atau referensi hukum...');
             case 'eAdvokasiMonitoringPersidangan': return renderMonitoringTable('Monitoring Persidangan', ['Jadwal Sidang', 'No. Perkara', 'Pengadilan', 'Agenda', 'Status']);
             case 'eAdvokasiMonitoringPutusan': return renderMonitoringTable('Monitoring Putusan', ['Tgl. Putusan', 'No. Putusan', 'Amar Putusan', 'Status BHT', 'Tindak Lanjut']);
             case 'eAdvokasiMonitoringPendampingan': return renderMonitoringTable('Monitoring Pendampingan', ['Tahun', 'Pihak Terkait', 'Pokok Permasalahan', 'Progress', 'Posisi']);
@@ -802,11 +803,11 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             {/* Local Sidebar */}
             <aside className="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
                 <div className="p-6 border-b border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-800">Monitoring</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{isPencarianView ? 'Pencarian' : 'Monitoring'}</h2>
                 </div>
                 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-6 mt-2 custom-scrollbar">
-                    {monitoringMenus.map((group) => (
+                    {menus.map((group) => (
                         <div key={group.group}>
                             <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{group.group}</h3>
                             <ul className="space-y-1">
