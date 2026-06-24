@@ -167,7 +167,7 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
     const globalRole = useAdvokasiStore((state) => state.globalRole);
   
     const isActive = (view: View) => {
-        if (view === 'none') return false;
+        if ((view as any) === 'none') return false;
         if (view === 'eAdvokasiPendampingan') {
             return currentView.startsWith('eAdvokasiPendampingan');
         }

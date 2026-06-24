@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     DesktopComputerIcon,
     CursorClickIcon,
@@ -11,9 +11,13 @@ import {
     BriefcaseIcon,
     UserGroupIcon,
     DocumentTextIcon,
-    ArchiveIcon
+    ArchiveIcon,
+    SearchIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon
 } from './icons';
 import { BerandaContent, Permohonan, PendampinganRecord, PerkaraRecord, StatusPermohonan, StatusPendampingan, StatusPerkara, StatusPutusan, View } from '../types';
+import { useAdvokasiStore } from '../useAdvokasiStore';
 import Breadcrumb from './Breadcrumb';
 import { 
     BarChart, 
@@ -58,6 +62,33 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
     putusanRecords = [],
     onNavigate
 }) => {
+    const userName = useAdvokasiStore(state => state.userName);
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    const carouselImages = content?.carouselImages || [
+        "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200", // law theme
+        "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200", // law theme 2
+        "https://images.unsplash.com/photo-1505664173622-b8146bf78162?auto=format&fit=crop&q=80&w=1200", // law theme 3
+        "/alur_permohonan.jpg" // flow image
+    ];
+
+    useEffect(() => {
+        if (!isDashboard) {
+            const timer = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+            }, 5000);
+            return () => clearInterval(timer);
+        }
+    }, [isDashboard, carouselImages.length]);
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (onNavigate) {
+            // Trigger navigation if needed, or we could handle search in the current view
+            onNavigate('eAdvokasiPencarianPerkara');
+        }
+    };
     
     const stats = useMemo(() => {
         const now = new Date();
@@ -224,47 +255,104 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
     if (!content) return null;
 
     return (
-        <div className="p-8 bg-gray-100 h-full overflow-y-auto">
-            <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg mb-8">
-                <h1 className="text-2xl font-bold text-blue-800">{content.pageTitle}</h1>
+        <div className="p-0 bg-gray-50 h-full overflow-y-auto">
+            <style>{`
+                .rich-text-content h1 { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; }
+                .rich-text-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; }
+                .rich-text-content h3 { font-size: 1.17em; font-weight: bold; margin-bottom: 0.5em; }
+                .rich-text-content ul { list-style-type: disc; margin-left: 1.5em; margin-bottom: 1em; }
+                .rich-text-content ol { list-style-type: decimal; margin-left: 1.5em; margin-bottom: 1em; }
+                .rich-text-content p { margin-bottom: 1em; }
+                .rich-text-content a { color: #2563EB; text-decoration: underline; }
+                .rich-text-content table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
+                .rich-text-content th, .rich-text-content td { border: 1px solid #E5E7EB; padding: 0.5em; }
+                .rich-text-content th { background-color: #F9FAFB; font-weight: bold; }
+            `}</style>
+            
+            {/* Page Header Greeting */}
+            <div className="bg-white py-6 px-8 shadow-sm border-b border-gray-200">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        {content.pageTitle.includes('[User]') 
+                            ? content.pageTitle.replace('[User]', userName) 
+                            : content.pageTitle}
+                    </h1>
+                </div>
             </div>
 
-            <div className="bg-white p-8 rounded-lg shadow-md relative">
-                <div className="flex items-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-800 tracking-tight">{content.flowTitle}</h2>
-                </div>
+            {/* Hero Section with Carousel */}
+            <div className="relative w-full h-[400px] overflow-hidden bg-gray-900">
+                {carouselImages.map((img, index) => (
+                    <div 
+                        key={index}
+                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                    >
+                        <img src={img} alt={`Slide ${index + 1}`} className="w-full h-full object-cover opacity-60" />
+                    </div>
+                ))}
+                
+                {/* Carousel Controls */}
+                <button 
+                    onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition z-10"
+                >
+                    <ChevronLeftIcon className="w-6 h-6" />
+                </button>
+                <button 
+                    onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition z-10"
+                >
+                    <ChevronRightIcon className="w-6 h-6" />
+                </button>
 
-                <div className="relative">
-                    <div className="flex flex-col md:flex-row items-start justify-center md:space-x-4 space-y-8 md:space-y-0">
-                         {content.flowSteps.map((item, index) => (
-                             <div key={item.step} className="relative w-full md:w-1/5 flex flex-col items-center text-center px-2">
-                                <div className="relative mb-4">
-                                    <div className="flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full shadow-inner">
-                                        {flowIcons[index % flowIcons.length]}
-                                    </div>
-                                    <div className="absolute -top-1 -right-1 flex items-center justify-center w-8 h-8 bg-[#0055A5] text-white font-bold text-lg rounded-full border-2 border-white">
-                                        {item.step}
-                                    </div>
+                {/* Hero Content Overlay (Removed pageTitle as requested to put it as header above carousel) */}
+            </div>
 
-                                </div>
-                                <h3 className="text-md font-semibold text-gray-800">{item.title}</h3>
-                                <p className="mt-1 text-xs text-gray-600 h-16">{item.description}</p>
-                                {index < content.flowSteps.length - 1 && (
-                                     <div className="hidden md:block absolute top-10 left-1/2 w-full h-0.5 bg-gray-300 -z-10"></div>
-                                )}
-                            </div>
-                        ))}
+            {/* Main Content Sections */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+                
+                {/* Search Bar */}
+                <div className="flex justify-center -mt-20 relative z-20 mb-8">
+                    <div className="w-full max-w-3xl bg-white p-2 rounded-xl shadow-xl border border-gray-100 flex items-center">
+                        <div className="pl-4 text-gray-400">
+                            <SearchIcon className="w-6 h-6" />
+                        </div>
+                        <form onSubmit={handleSearch} className="flex-1 flex">
+                            <input 
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Cari Perkara (Nomor Perkara, Nama Pihak, Unit)..."
+                                className="w-full pl-3 pr-4 py-4 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 text-lg outline-none"
+                            />
+                            <button 
+                                type="submit"
+                                className="px-8 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+                            >
+                                Cari
+                            </button>
+                        </form>
                     </div>
                 </div>
-                
-                <div className="mt-12 pt-8 border-t border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">{content.eAdvokasiTitle}</h3>
-                    <p className="text-gray-600 leading-relaxed mb-4">
-                        {content.eAdvokasiParagraph1}
-                    </p>
-                    <p className="text-gray-600 leading-relaxed">
-                        {content.eAdvokasiParagraph2}
-                    </p>
+
+                {/* Description Section */}
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center max-w-4xl mx-auto">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-6">{content.eAdvokasiTitle}</h3>
+                    {content.eAdvokasiHtml ? (
+                        <div 
+                            className="text-gray-600 leading-relaxed text-lg text-left rich-text-content"
+                            dangerouslySetInnerHTML={{ __html: content.eAdvokasiHtml }}
+                        />
+                    ) : (
+                        <>
+                            <p className="text-gray-600 leading-relaxed mb-4 text-lg">
+                                {content.eAdvokasiParagraph1}
+                            </p>
+                            <p className="text-gray-600 leading-relaxed text-lg">
+                                {content.eAdvokasiParagraph2}
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

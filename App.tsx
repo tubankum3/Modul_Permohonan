@@ -51,7 +51,8 @@ const DokumenPendampingan = React.lazy(() => import('./components/eadvo_DokumenP
 const Arsip = React.lazy(() => import('./components/eadvo_Arsip'));
 const RecycleBin = React.lazy(() => import('./components/eadvo_RecycleBin'));
 const Monitoring = React.lazy(() => import('./components/eadvo_Monitoring'));
-
+const Laporan = React.lazy(() => import('./components/eadvo_Laporan'));
+const Referensi = React.lazy(() => import('./components/eadvo_Referensi'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -89,6 +90,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPutusanTim': return id ? `/eadvokasi/putusan/tim/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiPutusanDokumen': return id ? `/eadvokasi/putusan/dokumen/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiDashboard': return '/eadvokasi/monitoring/dashboard';
+    case 'eAdvokasiPencarian': return '/eadvokasi/monitoring/cari-perkara';
     case 'eAdvokasiPencarianPerkara': return '/eadvokasi/monitoring/cari-perkara';
     case 'eAdvokasiPencarianPendampingan': return '/eadvokasi/monitoring/cari-pendampingan';
     case 'eAdvokasiPencarianPutusan': return '/eadvokasi/monitoring/cari-putusan';
@@ -361,7 +363,7 @@ const AppContent: React.FC = () => {
       case 'beranda': 
         return <BerandaPage content={berandaContent} onNavigate={handleNavigate} />;
       case 'eAdvokasiBeranda': 
-        return <BerandaPage isDashboard permohonanList={permohonanList} pendampinganRecords={pendampinganRecords} perkaraRecords={perkaraRecords} putusanRecords={putusanRecords} onNavigate={handleNavigate} />;
+        return <BerandaPage content={berandaContent} onNavigate={handleNavigate} />;
       case 'list':
       case 'detail':
       case 'create':
@@ -448,6 +450,7 @@ const AppContent: React.FC = () => {
         return selectedPutusan ? <DokumenPutusan record={selectedPutusan} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiMonitoring':
       case 'eAdvokasiDashboard':
+      case 'eAdvokasiPencarian':
       case 'eAdvokasiPencarianPerkara':
       case 'eAdvokasiPencarianPendampingan':
       case 'eAdvokasiPencarianPutusan':
@@ -461,11 +464,11 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiAuditTrail':
         return <Monitoring currentView={currentView} onNavigate={handleNavigate} />;
       case 'eAdvokasiLaporan': 
-        return <div className="p-8"><h1 className="text-2xl font-bold">Laporan</h1><p className="mt-4">Fitur pelaporan statistik advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
+        return <Laporan onNavigate={handleNavigate} />;
       case 'eAdvokasiUser': 
         return <div className="p-8"><h1 className="text-2xl font-bold">Manajemen User</h1><p className="mt-4">Fitur manajemen akses dan peran sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiReferensi': 
-        return <div className="p-8"><h1 className="text-2xl font-bold">Referensi</h1><p className="mt-4">Fitur pengelolaan data referensi (unit, wilayah, pengadilan) sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
+        return <Referensi onNavigate={handleNavigate} />;
       case 'eAdvokasiTim': 
         return <div className="p-8"><h1 className="text-2xl font-bold">Pengelolaan Tim</h1><p className="mt-4">Fitur master data tim advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
       case 'eAdvokasiArsip': 

@@ -99,8 +99,10 @@ interface AdvokasiState {
   handleUpdatePermohonanTeam: (recordId: string, team: TeamMember[]) => void;
   globalRole: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai';
   teamRole: 'PIC' | 'Editor' | 'Viewer';
+  userName: string;
   setGlobalRole: (role: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai') => void;
   setTeamRole: (role: 'PIC' | 'Editor' | 'Viewer') => void;
+  setUserName: (name: string) => void;
 }
 
 export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
@@ -118,6 +120,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   selectedPutusan: null,
   globalRole: 'Super Admin',
   teamRole: 'PIC',
+  userName: 'Sukiyem',
 
   setPermohonanList: (list) => set((state) => ({ 
     permohonanList: typeof list === 'function' ? list(state.permohonanList) : list 
@@ -151,6 +154,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
 
   setGlobalRole: (role) => set({ globalRole: role }),
   setTeamRole: (role) => set({ teamRole: role }),
+  setUserName: (name) => set({ userName: name }),
 
   // Concrete handlers
   handleSelectPermohonan: (permohonan) => {

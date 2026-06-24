@@ -22,6 +22,7 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiFaq': { label: 'FAQ' },
     'eAdvokasiInformasi': { label: 'Informasi' },
     'eAdvokasiInfo': { label: 'Informasi Beranda' },
+    'eAdvokasiReferensi': { label: 'Manajemen Referensi' },
     'eAdvokasiPerkaraUpdatePosisi': { label: 'Update Posisi Perkara', parent: 'eAdvokasiPenangananPerkara' },
     'eAdvokasiPutusanUpdateTindakLanjut': { label: 'Update Tindak Lanjut', parent: 'eAdvokasiPenangananPutusan' },
     'eAdvokasiPendampinganEdit': { label: 'Edit Pendampingan', parent: 'eAdvokasiPendampingan' },
@@ -41,11 +42,12 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiPutusanDokumen': { label: 'Dokumen', parent: 'eAdvokasiPenangananPutusan' },
     'eAdvokasiMonitoring': { label: 'Monitoring' },
     'eAdvokasiDashboard': { label: 'Dashboard', parent: 'eAdvokasiMonitoring' },
-    'eAdvokasiPencarianPerkara': { label: 'Cari Perkara', parent: 'eAdvokasiMonitoring' },
-    'eAdvokasiPencarianPendampingan': { label: 'Cari Pendampingan', parent: 'eAdvokasiMonitoring' },
-    'eAdvokasiPencarianPutusan': { label: 'Cari Penanganan Putusan', parent: 'eAdvokasiMonitoring' },
-    'eAdvokasiPencarianDokumen': { label: 'Cari Dokumen (Semantic)', parent: 'eAdvokasiMonitoring' },
-    'eAdvokasiPencarianBankDalil': { label: 'Bank Dalil', parent: 'eAdvokasiMonitoring' },
+    'eAdvokasiPencarian': { label: 'Pencarian' },
+    'eAdvokasiPencarianPerkara': { label: 'Cari Perkara', parent: 'eAdvokasiPencarian' as View },
+    'eAdvokasiPencarianPendampingan': { label: 'Cari Pendampingan', parent: 'eAdvokasiPencarian' as View },
+    'eAdvokasiPencarianPutusan': { label: 'Cari Penanganan Putusan', parent: 'eAdvokasiPencarian' as View },
+    'eAdvokasiPencarianDokumen': { label: 'Cari Dokumen (Semantic)', parent: 'eAdvokasiPencarian' as View },
+    'eAdvokasiPencarianBankDalil': { label: 'Bank Dalil', parent: 'eAdvokasiPencarian' as View },
     'eAdvokasiMonitoringPersidangan': { label: 'Persidangan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPutusan': { label: 'Putusan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPendampingan': { label: 'Pendampingan', parent: 'eAdvokasiMonitoring' },
@@ -79,8 +81,8 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ currentView, onNavigate, extraL
     const path = getPath(currentView);
 
     return (
-        <nav className="flex mb-4" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-2">
+        <nav className="flex mb-6 bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-100" aria-label="Breadcrumb">
+            <ol className="inline-flex items-center space-x-1 md:space-x-3">
                 <li className="inline-flex items-center">
                     <button
                         onClick={() => onNavigate('eAdvokasiBeranda')}

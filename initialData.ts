@@ -131,7 +131,7 @@ export const initialPermohonan: Permohonan[] = [
 ];
 
 export const initialBerandaContent: BerandaContent = {
-  pageTitle: "Selamat Datang di Sistem Permohonan Bantuan Hukum",
+  pageTitle: "Selamat Datang, [User] di Aplikasi e-Advokasi!",
   flowTitle: "Alur Permohonan Bantuan Hukum",
   flowSteps: [
     { step: 1, title: "Akses e-Advokasi", description: "Pegawai mengakses aplikasi e-Advokasi melalui portal Satu Kemenkeu." },
@@ -143,6 +143,13 @@ export const initialBerandaContent: BerandaContent = {
   eAdvokasiTitle: "Tentang E-Advokasi",
   eAdvokasiParagraph1: "E-Advokasi adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan. Aplikasi ini bertujuan untuk menyederhanakan alur, meningkatkan transparansi, dan mempercepat respons terhadap permohonan yang masuk.",
   eAdvokasiParagraph2: "Melalui e-Advokasi, pegawai dapat dengan mudah mengajukan permohonan, melacak status, dan berkomunikasi dengan tim dari Biro Advokasi. Sistem ini merupakan bagian dari komitmen Kementerian Keuangan untuk memberikan dukungan hukum yang optimal bagi seluruh jajarannya.",
+  carouselImages: [
+    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200",
+    "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200",
+    "https://images.unsplash.com/photo-1505664173622-b8146bf78162?auto=format&fit=crop&q=80&w=1200",
+    "/alur_permohonan.jpg"
+  ],
+  eAdvokasiHtml: "<p><strong>E-Advokasi</strong> adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan. Aplikasi ini bertujuan untuk menyederhanakan alur, meningkatkan transparansi, dan mempercepat respons terhadap permohonan yang masuk.</p><p><br></p><p>Melalui e-Advokasi, pegawai dapat dengan mudah mengajukan permohonan, melacak status, dan berkomunikasi dengan tim dari Biro Advokasi. Sistem ini merupakan bagian dari komitmen Kementerian Keuangan untuk memberikan dukungan hukum yang optimal bagi seluruh jajarannya.</p>"
 };
 
 export const initialFaqData: FaqCategory[] = [

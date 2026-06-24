@@ -16,6 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const setGlobalRole = useAdvokasiStore((state) => state.setGlobalRole);
   const teamRole = useAdvokasiStore((state) => state.teamRole);
   const setTeamRole = useAdvokasiStore((state) => state.setTeamRole);
+  const userName = useAdvokasiStore((state) => state.userName);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
         <div className="flex items-center space-x-2">
            <img src="https://i.pravatar.cc/40?img=1" alt="User" className="h-8 w-8 rounded-full" />
            <div className="text-left leading-tight hidden md:block">
-              <p className="text-sm font-semibold">Sukiyem</p>
+              <p className="text-sm font-semibold">{userName}</p>
               <p className="text-[10px] text-blue-100 font-medium">{globalRole === 'Pegawai' ? `${globalRole} (${teamRole})` : globalRole}</p>
            </div>
         </div>

@@ -783,6 +783,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
     const renderContent = () => {
         switch (currentView) {
             case 'eAdvokasiDashboard': return renderDashboard();
+            case 'eAdvokasiPencarian':
             case 'eAdvokasiPencarianPerkara': return renderSearchPage('Pencarian Penanganan Perkara', 'Cari berdasarkan Nomor Perkara, Nama Pihak, atau Unit...');
             case 'eAdvokasiPencarianPendampingan': return renderSearchPage('Pencarian Pendampingan', 'Cari berdasarkan Nomor Tiket, Subjek, atau Pemohon...');
             case 'eAdvokasiPencarianPutusan': return renderSearchPage('Pencarian Penanganan Putusan', 'Cari berdasarkan Nomor Putusan, Amar, atau Klasifikasi...');
