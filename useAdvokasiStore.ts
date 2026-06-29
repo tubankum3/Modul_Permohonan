@@ -4,13 +4,14 @@ import {
   initialBerandaContent, 
   initialFaqData, 
   initialPendampinganRecords, 
-  initialPerkaraRecords 
+  initialPerkaraRecords,
+  initialUserAccounts
 } from './initialData';
 import { 
   Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, 
   JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, 
   PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, 
-  PerkaraRecord, StatusPerkara, StatusPutusan 
+  PerkaraRecord, StatusPerkara, StatusPutusan, UserAccount
 } from './types';
 
 const generateRandomId = () => {
@@ -97,6 +98,10 @@ interface AdvokasiState {
   handleAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan') => void;
   handleSetPermohonanPic: (recordId: string, picId: string | null) => void;
   handleUpdatePermohonanTeam: (recordId: string, team: TeamMember[]) => void;
+  userAccounts: UserAccount[];
+  handleSaveUserAccount: (user: UserAccount) => void;
+  handleUpdateUserStatus: (id: string, status: 'Aktif' | 'Tidak Aktif') => void;
+  handleUpdateUserRoles: (id: string, roles: string[]) => void;
   globalRole: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai';
   teamRole: 'PIC' | 'Editor' | 'Viewer';
   userName: string;
@@ -121,6 +126,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   globalRole: 'Super Admin',
   teamRole: 'PIC',
   userName: 'Sukiyem',
+  userAccounts: initialUserAccounts,
 
   setPermohonanList: (list) => set((state) => ({ 
     permohonanList: typeof list === 'function' ? list(state.permohonanList) : list 
@@ -155,6 +161,36 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   setGlobalRole: (role) => set({ globalRole: role }),
   setTeamRole: (role) => set({ teamRole: role }),
   setUserName: (name) => set({ userName: name }),
+
+  handleSaveUserAccount: (user) => {
+    set((state) => {
+      const exists = state.userAccounts.some(u => u.id === user.id);
+      let updatedUsers;
+      if (exists) {
+        updatedUsers = state.userAccounts.map(u => u.id === user.id ? user : u);
+      } else {
+        updatedUsers = [user, ...state.userAccounts];
+      }
+      return { 
+        userAccounts: updatedUsers,
+        notification: { message: exists ? 'Pengguna berhasil diperbarui.' : 'Pengguna berhasil ditambahkan.', type: 'success' }
+      };
+    });
+  },
+
+  handleUpdateUserStatus: (id, status) => {
+    set((state) => ({
+      userAccounts: state.userAccounts.map(u => u.id === id ? { ...u, status } : u),
+      notification: { message: `Status pengguna berhasil diubah menjadi ${status}.`, type: 'success' }
+    }));
+  },
+
+  handleUpdateUserRoles: (id, roles) => {
+    set((state) => ({
+      userAccounts: state.userAccounts.map(u => u.id === id ? { ...u, roles } : u),
+      notification: { message: 'Role pengguna berhasil diperbarui.', type: 'success' }
+    }));
+  },
 
   // Concrete handlers
   handleSelectPermohonan: (permohonan) => {

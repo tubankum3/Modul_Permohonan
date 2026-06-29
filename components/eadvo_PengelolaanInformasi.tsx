@@ -42,11 +42,23 @@ const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, on
     setFormData(prev => ({ ...prev, eAdvokasiHtml: value }));
   };
 
-  const handleFlowStepChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    const newFlowSteps = [...formData.flowSteps];
-    newFlowSteps[index] = { ...newFlowSteps[index], [name]: value };
-    setFormData(prev => ({ ...prev, flowSteps: newFlowSteps }));
+  const handleQuickLinkChange = (index: number, field: 'title' | 'url', value: string) => {
+    const newLinks = [...(formData.quickLinks || [])];
+    newLinks[index] = { ...newLinks[index], [field]: value };
+    setFormData(prev => ({ ...prev, quickLinks: newLinks }));
+  };
+
+  const handleAddQuickLink = () => {
+    setFormData(prev => ({
+      ...prev,
+      quickLinks: [...(prev.quickLinks || []), { title: '', url: '' }]
+    }));
+  };
+
+  const handleRemoveQuickLink = (index: number) => {
+    const newLinks = [...(formData.quickLinks || [])];
+    newLinks.splice(index, 1);
+    setFormData(prev => ({ ...prev, quickLinks: newLinks }));
   };
 
   const handleCarouselChange = (index: number, value: string) => {
@@ -105,45 +117,49 @@ const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, on
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Alur Permohonan</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-600 mb-1">Judul Bagian Alur</label>
-            <input
-              type="text"
-              name="flowTitle"
-              value={formData.flowTitle}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-700">Tautan Cepat (Quick Links)</h2>
+            <button
+                onClick={handleAddQuickLink}
+                className="flex items-center space-x-1 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition"
+            >
+                <PlusIcon className="w-4 h-4" />
+                <span>Tambah Tautan</span>
+            </button>
           </div>
           <div className="space-y-4">
-            {formData.flowSteps.map((step, index) => (
-              <div key={step.step} className="p-4 border border-gray-200 rounded-md bg-gray-50">
-                <p className="font-bold text-gray-600 mb-2">Langkah {step.step}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Judul Langkah</label>
+            {(formData.quickLinks || []).map((link, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
                         <input
-                        type="text"
-                        name="title"
-                        value={step.title}
-                        onChange={(e) => handleFlowStepChange(index, e)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                            type="text"
+                            value={link.title}
+                            onChange={(e) => handleQuickLinkChange(index, 'title', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                            placeholder="Judul Tautan (misal: Portal Satu Kemenkeu)"
+                        />
+                        <input
+                            type="text"
+                            value={link.url}
+                            onChange={(e) => handleQuickLinkChange(index, 'url', e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                            placeholder="URL (misal: https://satu.kemenkeu.go.id)"
                         />
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Deskripsi</label>
-                        <textarea
-                        name="description"
-                        value={step.description}
-                        onChange={(e) => handleFlowStepChange(index, e)}
-                        rows={2}
-                        className="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
+                    <button
+                        onClick={() => handleRemoveQuickLink(index)}
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition flex-shrink-0"
+                        title="Hapus Tautan"
+                    >
+                        <TrashIcon className="w-5 h-5" />
+                    </button>
                 </div>
-              </div>
             ))}
+            {(!formData.quickLinks || formData.quickLinks.length === 0) && (
+                <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg text-sm">
+                    Belum ada tautan cepat. Klik tombol di atas untuk menambahkan.
+                </div>
+            )}
           </div>
         </div>
 

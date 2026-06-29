@@ -257,16 +257,18 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
     return (
         <div className="p-0 bg-gray-50 h-full overflow-y-auto">
             <style>{`
-                .rich-text-content h1 { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; }
-                .rich-text-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; }
-                .rich-text-content h3 { font-size: 1.17em; font-weight: bold; margin-bottom: 0.5em; }
+                .rich-text-content h1 { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; color: #1F2937; }
+                .rich-text-content h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; color: #1F2937; }
+                .rich-text-content h3 { font-size: 1.17em; font-weight: bold; margin-bottom: 0.5em; color: #1F2937; }
                 .rich-text-content ul { list-style-type: disc; margin-left: 1.5em; margin-bottom: 1em; }
                 .rich-text-content ol { list-style-type: decimal; margin-left: 1.5em; margin-bottom: 1em; }
+                .rich-text-content li { margin-bottom: 0.25em; }
                 .rich-text-content p { margin-bottom: 1em; }
-                .rich-text-content a { color: #2563EB; text-decoration: underline; }
-                .rich-text-content table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
-                .rich-text-content th, .rich-text-content td { border: 1px solid #E5E7EB; padding: 0.5em; }
-                .rich-text-content th { background-color: #F9FAFB; font-weight: bold; }
+                .rich-text-content a { color: #2563EB; text-decoration: underline; font-weight: 500; }
+                .rich-text-content a:hover { color: #1D4ED8; }
+                .rich-text-content table { border-collapse: collapse; width: 100%; margin-bottom: 1.5em; border-radius: 0.5rem; overflow: hidden; }
+                .rich-text-content th, .rich-text-content td { border: 1px solid #E5E7EB; padding: 0.75em 1em; text-align: left; }
+                .rich-text-content th { background-color: #F8FAFC; font-weight: 600; color: #334155; }
             `}</style>
             
             {/* Page Header Greeting */}
@@ -335,24 +337,52 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
                     </div>
                 </div>
 
-                {/* Description Section */}
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center max-w-4xl mx-auto">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-6">{content.eAdvokasiTitle}</h3>
-                    {content.eAdvokasiHtml ? (
-                        <div 
-                            className="text-gray-600 leading-relaxed text-lg text-left rich-text-content"
-                            dangerouslySetInnerHTML={{ __html: content.eAdvokasiHtml }}
-                        />
-                    ) : (
-                        <>
-                            <p className="text-gray-600 leading-relaxed mb-4 text-lg">
-                                {content.eAdvokasiParagraph1}
-                            </p>
-                            <p className="text-gray-600 leading-relaxed text-lg">
-                                {content.eAdvokasiParagraph2}
-                            </p>
-                        </>
-                    )}
+                {/* Description & Quick Links Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    {/* Left side: Text Box */}
+                    <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 className="text-2xl font-bold text-gray-800 mb-6">{content.eAdvokasiTitle}</h3>
+                        {content.eAdvokasiHtml ? (
+                            <div 
+                                className="text-gray-600 leading-relaxed text-lg text-left rich-text-content"
+                                dangerouslySetInnerHTML={{ __html: content.eAdvokasiHtml }}
+                            />
+                        ) : (
+                            <>
+                                <p className="text-gray-600 leading-relaxed mb-4 text-lg">
+                                    {content.eAdvokasiParagraph1}
+                                </p>
+                                <p className="text-gray-600 leading-relaxed text-lg">
+                                    {content.eAdvokasiParagraph2}
+                                </p>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Right side: Quick Links Box */}
+                    <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-6">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 pb-3 border-b border-gray-100 flex items-center">
+                            <span className="w-1.5 h-5 bg-blue-600 rounded-full mr-2.5"></span>
+                            Tautan Cepat
+                        </h3>
+                        <div className="space-y-3">
+                            {(content.quickLinks || []).map((link, idx) => (
+                                <a
+                                    key={idx}
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-medium transition group border border-gray-100/80 hover:border-blue-100 text-sm md:text-base"
+                                >
+                                    <span className="truncate pr-2">{link.title || 'Tautan'}</span>
+                                    <ChevronRightIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition flex-shrink-0" />
+                                </a>
+                            ))}
+                            {(!content.quickLinks || content.quickLinks.length === 0) && (
+                                <p className="text-sm text-gray-500 italic py-4 text-center">Belum ada tautan cepat.</p>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

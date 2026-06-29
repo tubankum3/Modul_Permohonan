@@ -7,7 +7,8 @@ import {
   PendampinganRecord, 
   StatusPendampingan, 
   PerkaraRecord, 
-  StatusPerkara 
+  StatusPerkara,
+  UserAccount
 } from './types';
 
 export const initialPermohonan: Permohonan[] = [
@@ -149,7 +150,12 @@ export const initialBerandaContent: BerandaContent = {
     "https://images.unsplash.com/photo-1505664173622-b8146bf78162?auto=format&fit=crop&q=80&w=1200",
     "/alur_permohonan.jpg"
   ],
-  eAdvokasiHtml: "<p><strong>E-Advokasi</strong> adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan. Aplikasi ini bertujuan untuk menyederhanakan alur, meningkatkan transparansi, dan mempercepat respons terhadap permohonan yang masuk.</p><p><br></p><p>Melalui e-Advokasi, pegawai dapat dengan mudah mengajukan permohonan, melacak status, dan berkomunikasi dengan tim dari Biro Advokasi. Sistem ini merupakan bagian dari komitmen Kementerian Keuangan untuk memberikan dukungan hukum yang optimal bagi seluruh jajarannya.</p>"
+  eAdvokasiHtml: "<p><strong>E-Advokasi</strong> adalah sistem informasi digital yang dikembangkan untuk memfasilitasi proses permohonan bantuan hukum bagi pegawai di lingkungan Kementerian Keuangan. Aplikasi ini bertujuan untuk menyederhanakan alur, meningkatkan transparansi, dan mempercepat respons terhadap permohonan yang masuk.</p><p><br></p><p>Melalui e-Advokasi, pegawai dapat dengan mudah mengajukan permohonan, melacak status, dan berkomunikasi dengan tim dari Biro Advokasi. Sistem ini merupakan bagian dari komitmen Kementerian Keuangan untuk memberikan dukungan hukum yang optimal bagi seluruh jajarannya.</p>",
+  quickLinks: [
+    { title: "Portal Satu Kemenkeu", url: "https://satu.kemenkeu.go.id" },
+    { title: "JDIH Kemenkeu", url: "https://jdih.kemenkeu.go.id" },
+    { title: "Kemenkeu RI", url: "https://www.kemenkeu.go.id" }
+  ]
 };
 
 export const initialFaqData: FaqCategory[] = [
@@ -298,4 +304,11 @@ export const initialPerkaraRecords: PerkaraRecord[] = [
             { id: 2, timestamp: new Date('2021-11-12T01:46:37Z'), user: 'Joko (PIC)', action: 'memperbarui', details: 'Posisi Sidang Tk. Pertama' },
         ],
     },
+];
+
+export const initialUserAccounts: UserAccount[] = [
+  { id: 'usr-1', nama: 'Sukiyem', nip: '198203122005012001', unit: 'Biro Advokasi - Setjen', roles: ['Super Admin'], status: 'Aktif' },
+  { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Kanwil DJP Jakarta Pusat', roles: ['Manajer'], status: 'Aktif' },
+  { id: 'usr-3', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Kanwil DJP Jakarta Selatan I', roles: ['Operator'], status: 'Aktif' },
+  { id: 'usr-4', nama: 'Citra Lestari', nip: '198807202011012003', unit: 'Kantor Pusat DJBC', roles: ['Pegawai'], status: 'Tidak Aktif' },
 ];

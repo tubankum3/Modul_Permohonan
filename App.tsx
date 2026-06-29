@@ -53,6 +53,7 @@ const RecycleBin = React.lazy(() => import('./components/eadvo_RecycleBin'));
 const Monitoring = React.lazy(() => import('./components/eadvo_Monitoring'));
 const Laporan = React.lazy(() => import('./components/eadvo_Laporan'));
 const Referensi = React.lazy(() => import('./components/eadvo_Referensi'));
+const ManajemenUser = React.lazy(() => import('./components/eadvo_ManajemenUser'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -466,7 +467,7 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiLaporan': 
         return <Laporan onNavigate={handleNavigate} />;
       case 'eAdvokasiUser': 
-        return <div className="p-8"><h1 className="text-2xl font-bold">Manajemen User</h1><p className="mt-4">Fitur manajemen akses dan peran sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
+        return <ManajemenUser onNavigate={handleNavigate} />;
       case 'eAdvokasiReferensi': 
         return <Referensi onNavigate={handleNavigate} />;
       case 'eAdvokasiTim': 

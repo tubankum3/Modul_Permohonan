@@ -86,6 +86,15 @@ export interface TeamMember {
     teamRole: 'Editor' | 'Viewer' | 'PIC';
 }
 
+export interface UserAccount {
+    id: string;
+    nama: string;
+    nip: string;
+    unit: string;
+    roles: string[];
+    status: 'Aktif' | 'Tidak Aktif';
+}
+
 export interface AuditTrailEntry {
   id: number;
   timestamp: Date;
@@ -324,6 +333,11 @@ export interface BerandaFlowStep {
     description: string;
 }
 
+export interface QuickLink {
+    title: string;
+    url: string;
+}
+
 export interface BerandaContent {
     pageTitle: string;
     flowTitle: string;
@@ -333,6 +347,7 @@ export interface BerandaContent {
     eAdvokasiParagraph2: string;
     carouselImages?: string[];
     eAdvokasiHtml?: string;
+    quickLinks?: QuickLink[];
 }
 
 
