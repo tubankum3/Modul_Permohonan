@@ -68,6 +68,7 @@ const RoleDropdown = ({ member, onUpdateRole }: { member: TeamMember, onUpdateRo
 
 const AssignTeam: React.FC<AssignTeamProps> = ({ team, picId, onUpdateTeam, onSetPic }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Normalize legacy data (where PIC was managed by picId) into teamRole on initial mount or update if needed, but doing it in the mapping is better.
   const normalizedTeam = team.map(m => {
@@ -76,6 +77,12 @@ const AssignTeam: React.FC<AssignTeamProps> = ({ team, picId, onUpdateTeam, onSe
       }
       return m;
   });
+
+  const filteredTeam = normalizedTeam.filter(member => 
+      member.nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (member.teamRole && member.teamRole.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const handleSaveTeam = (selectedPersonnel: Personnel[]) => {
     const newTeamMembers: TeamMember[] = selectedPersonnel.map(person => {
@@ -172,10 +179,29 @@ const AssignTeam: React.FC<AssignTeamProps> = ({ team, picId, onUpdateTeam, onSe
               <span>Kelola Anggota Tim</span>
             </button>
           </div>
+          
+          {normalizedTeam.length > 0 && (
+              <div className="mb-4">
+                  <input
+                      type="text"
+                      placeholder="Cari berdasarkan nama atau peran..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+                  />
+              </div>
+          )}
+
           <div className="mt-4">
-            {normalizedTeam.length > 0 ? (
+            {normalizedTeam.length === 0 ? (
+              <div className="text-center py-16 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                <UserGroupIcon className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <p className="font-bold text-gray-700 text-lg">Belum ada anggota tim yang ditugaskan</p>
+                <p className="text-sm text-gray-500 mt-2">Klik tombol "Kelola Anggota Tim" untuk menambahkan personel.</p>
+              </div>
+            ) : filteredTeam.length > 0 ? (
               <ul className="space-y-3">
-                {normalizedTeam.map(member => (
+                {filteredTeam.map(member => (
                   <li key={member.id} className="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-xl hover:bg-white hover:shadow-sm hover:border-gray-200 transition-all">
                     <div className="flex items-center">
                         <div className="bg-blue-100 rounded-full p-2 mr-4 text-blue-600">
@@ -204,10 +230,8 @@ const AssignTeam: React.FC<AssignTeamProps> = ({ team, picId, onUpdateTeam, onSe
                 ))}
               </ul>
             ) : (
-              <div className="text-center py-16 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                <UserGroupIcon className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <p className="font-bold text-gray-700 text-lg">Belum ada anggota tim yang ditugaskan</p>
-                <p className="text-sm text-gray-500 mt-2">Klik tombol "Kelola Anggota Tim" untuk menambahkan personel.</p>
+              <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                <p className="font-bold text-gray-700">Tidak ada anggota tim yang cocok dengan kriteria pencarian.</p>
               </div>
             )}
           </div>

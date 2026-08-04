@@ -17,6 +17,7 @@ interface PerkaraSelesai {
     wilayah?: string;
     pihakP?: string;
     pihakT?: string;
+    arsipData?: Partial<ArsipPerkaraSelesai>;
 }
 
 interface Peminjaman {
@@ -41,6 +42,11 @@ interface ArsipPerkaraSelesai {
     status: string;
     peminjaman?: Peminjaman[];
 }
+
+const initialPerkaraAktif: PerkaraSelesai[] = [
+    { id: '11', nomorPerkara: '123/Pdt.G/2023/PN.Jkt.Sel', jenisPerkara: 'Perdata', tahunMasuk: 2023, pengadilan: 'PN Jakarta Selatan', wilayah: 'DKI Jakarta', pihakP: 'PT Sinar Makmur', pihakT: 'Kementerian Keuangan' },
+    { id: '12', nomorPerkara: '45/TUN/2023/PTUN.Jkt', jenisPerkara: 'Tata Usaha Negara', tahunMasuk: 2023, pengadilan: 'PTUN Jakarta', wilayah: 'DKI Jakarta', pihakP: 'Bambang S', pihakT: 'Kementerian Keuangan' },
+];
 
 const initialPerkaraSelesai: PerkaraSelesai[] = [
     { id: '1', nomorPerkara: '276/Pdt.G/2017/PN.Jkt.Pst', jenisPerkara: 'Perdata', tahunMasuk: 2017, pengadilan: 'PN Jakarta Pusat', wilayah: 'DKI Jakarta', pihakP: 'PT ABC', pihakT: 'Kementerian Keuangan' },
@@ -90,10 +96,12 @@ const ArsipModal: React.FC<{
     onSave: (data: Partial<ArsipPerkaraSelesai>) => void;
     initialData?: Partial<ArsipPerkaraSelesai>;
     isEdit?: boolean;
-}> = ({ record, onClose, onSave, initialData, isEdit = false }) => {
+    isAktif?: boolean;
+}> = ({ record, onClose, onSave, initialData, isEdit = false, isAktif = false }) => {
     const [formData, setFormData] = useState({
         kodeKlasifikasi: initialData?.kodeKlasifikasi || '',
         tahunSelesai: initialData?.tahunSelesai?.toString() || '',
+        tahunMasuk: initialData?.tahunMasuk?.toString() || record.tahunMasuk?.toString() || '',
         tingkatPerkembangan: initialData?.tingkatPerkembangan || '',
         jumlahBerkas: initialData?.jumlahBerkas || '',
         lokasiSimpan: initialData?.lokasiSimpan || '',
@@ -105,6 +113,7 @@ const ArsipModal: React.FC<{
         onSave({
             ...formData,
             tahunSelesai: parseInt(formData.tahunSelesai) || 0,
+            tahunMasuk: parseInt(formData.tahunMasuk) || record.tahunMasuk,
             status: isEdit ? initialData?.status : 'Terarsip'
         });
     };
@@ -115,7 +124,7 @@ const ArsipModal: React.FC<{
                 <div className="bg-[#f5f5f5] shadow-sm px-6 py-3 border-b border-gray-200 flex justify-between items-center">
                     <div className="flex items-center text-gray-800 font-bold">
                         <span className="mr-2 text-xl">■</span>
-                        {isEdit ? 'Edit Arsip Perkara Selesai' : 'Arsip Perkara Selesai'}
+                        {isEdit ? `Edit Arsip Perkara ${isAktif ? 'Aktif' : 'Selesai'}` : `Arsip Perkara ${isAktif ? 'Aktif' : 'Selesai'}`}
                     </div>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
                         <XIcon className="h-5 w-5" />
@@ -138,17 +147,31 @@ const ArsipModal: React.FC<{
                             />
                         </div>
                         
-                        <div className="grid grid-cols-[280px_1fr] items-center gap-8">
-                            <label className="text-sm font-bold text-gray-700 text-right">Tahun Selesai <span className="text-red-500">*</span></label>
-                            <input 
-                                required
-                                type="text" 
-                                className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm shadow-sm"
-                                placeholder="Tahun Selesai"
-                                value={formData.tahunSelesai}
-                                onChange={(e) => setFormData({...formData, tahunSelesai: e.target.value})}
-                            />
-                        </div>
+                        {isAktif ? (
+                            <div className="grid grid-cols-[280px_1fr] items-center gap-8">
+                                <label className="text-sm font-bold text-gray-700 text-right">Tahun Masuk <span className="text-red-500">*</span></label>
+                                <input 
+                                    required
+                                    type="text" 
+                                    className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm shadow-sm"
+                                    placeholder="Tahun Masuk"
+                                    value={formData.tahunMasuk}
+                                    onChange={(e) => setFormData({...formData, tahunMasuk: e.target.value})}
+                                />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-[280px_1fr] items-center gap-8">
+                                <label className="text-sm font-bold text-gray-700 text-right">Tahun Selesai <span className="text-red-500">*</span></label>
+                                <input 
+                                    required
+                                    type="text" 
+                                    className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm shadow-sm"
+                                    placeholder="Tahun Selesai"
+                                    value={formData.tahunSelesai}
+                                    onChange={(e) => setFormData({...formData, tahunSelesai: e.target.value})}
+                                />
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-[280px_1fr] items-center gap-8">
                             <label className="text-sm font-bold text-gray-700 text-right">Tingkat Perkembangan <span className="text-red-500">*</span></label>
@@ -156,7 +179,7 @@ const ArsipModal: React.FC<{
                                 required
                                 type="text" 
                                 className="w-full p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm shadow-sm"
-                                placeholder="Tingkat Perkembangan"
+                                placeholder={isAktif ? "Status Posisi Perkara" : "Tingkat Perkembangan"}
                                 value={formData.tingkatPerkembangan}
                                 onChange={(e) => setFormData({...formData, tingkatPerkembangan: e.target.value})}
                             />
@@ -218,7 +241,8 @@ const DetailArsipModal: React.FC<{
     original: PerkaraSelesai | undefined;
     onClose: () => void;
     onReturn?: (borrowingId: string) => void;
-}> = ({ archive, original, onClose, onReturn }) => {
+    isAktif?: boolean;
+}> = ({ archive, original, onClose, onReturn, isAktif = false }) => {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in duration-200 border border-gray-300">
@@ -249,10 +273,17 @@ const DetailArsipModal: React.FC<{
                             <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Kode Klasifikasi</div>
                             <div className="text-sm font-medium text-gray-800">{archive.kodeKlasifikasi}</div>
                         </div>
-                        <div className="border-b border-gray-100 pb-2">
-                            <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tahun Selesai</div>
-                            <div className="text-sm font-medium text-gray-800">{archive.tahunSelesai}</div>
-                        </div>
+                        {isAktif ? (
+                            <div className="border-b border-gray-100 pb-2">
+                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tahun Masuk</div>
+                                <div className="text-sm font-medium text-gray-800">{original?.tahunMasuk || archive.tahunMasuk || archive.tahunSelesai}</div>
+                            </div>
+                        ) : (
+                            <div className="border-b border-gray-100 pb-2">
+                                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tahun Selesai</div>
+                                <div className="text-sm font-medium text-gray-800">{archive.tahunSelesai}</div>
+                            </div>
+                        )}
                         <div className="border-b border-gray-100 pb-2">
                             <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Tingkat Perkembangan</div>
                             <div className="text-sm font-medium text-gray-800">{archive.tingkatPerkembangan}</div>
@@ -410,8 +441,16 @@ const PinjamModal: React.FC<{
 };
 
 const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
+    const [mainTab, setMainTab] = useState<'Aktif' | 'Selesai'>('Selesai');
+    
+    // Perkara Selesai States
     const [perkaraSelesai, setPerkaraSelesai] = useState<PerkaraSelesai[]>(initialPerkaraSelesai);
     const [arsipSelesai, setArsipSelesai] = useState<ArsipPerkaraSelesai[]>([]);
+    
+    // Perkara Aktif States
+    const [perkaraAktif, setPerkaraAktif] = useState<PerkaraSelesai[]>(initialPerkaraAktif);
+    const [arsipAktif, setArsipAktif] = useState<ArsipPerkaraSelesai[]>([]);
+
     const [searchTermSelesai, setSearchTermSelesai] = useState('');
     const [searchTermArsip, setSearchTermArsip] = useState('');
     const [selectedPerkara, setSelectedPerkara] = useState<PerkaraSelesai | null>(null);
@@ -425,11 +464,12 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
     const [itemsPerPageArsip, setItemsPerPageArsip] = useState(10);
 
     const filteredSelesai = useMemo(() => {
-        return perkaraSelesai.filter(p => 
+        const sourceList = mainTab === 'Selesai' ? perkaraSelesai : perkaraAktif;
+        return sourceList.filter(p => 
             p.nomorPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase()) ||
             p.jenisPerkara.toLowerCase().includes(searchTermSelesai.toLowerCase())
         );
-    }, [perkaraSelesai, searchTermSelesai]);
+    }, [perkaraSelesai, perkaraAktif, searchTermSelesai, mainTab]);
 
     const paginatedSelesai = useMemo(() => {
         const start = (currentPageSelesai - 1) * itemsPerPageSelesai;
@@ -437,11 +477,12 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
     }, [filteredSelesai, currentPageSelesai, itemsPerPageSelesai]);
 
     const filteredArsip = useMemo(() => {
-        return arsipSelesai.filter(p => 
+        const sourceArsip = mainTab === 'Selesai' ? arsipSelesai : arsipAktif;
+        return sourceArsip.filter(p => 
             p.nomorPerkara.toLowerCase().includes(searchTermArsip.toLowerCase()) ||
             p.jenisPerkara.toLowerCase().includes(searchTermArsip.toLowerCase())
         );
-    }, [arsipSelesai, searchTermArsip]);
+    }, [arsipSelesai, arsipAktif, searchTermArsip, mainTab]);
 
     const paginatedArsip = useMemo(() => {
         const start = (currentPageArsip - 1) * itemsPerPageArsip;
@@ -455,7 +496,7 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
             id: selectedPerkara.id,
             nomorPerkara: selectedPerkara.nomorPerkara,
             jenisPerkara: selectedPerkara.jenisPerkara,
-            tahunMasuk: selectedPerkara.tahunMasuk,
+            tahunMasuk: details.tahunMasuk || selectedPerkara.tahunMasuk,
             kodeKlasifikasi: details.kodeKlasifikasi || '',
             tahunSelesai: details.tahunSelesai || 0,
             tingkatPerkembangan: details.tingkatPerkembangan || '',
@@ -466,37 +507,74 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
             peminjaman: []
         };
 
-        setArsipSelesai(prev => [...prev, newArsip]);
-        setPerkaraSelesai(prev => prev.filter(p => p.id !== selectedPerkara.id));
+        if (mainTab === 'Selesai') {
+            setArsipSelesai(prev => [...prev, newArsip]);
+            setPerkaraSelesai(prev => prev.filter(p => p.id !== selectedPerkara.id));
+        } else {
+            if (details.tingkatPerkembangan === 'BHT') {
+                setPerkaraSelesai(prev => [...prev, { ...selectedPerkara, arsipData: newArsip }]);
+                setPerkaraAktif(prev => prev.filter(p => p.id !== selectedPerkara.id));
+            } else {
+                setArsipAktif(prev => [...prev, newArsip]);
+                setPerkaraAktif(prev => prev.filter(p => p.id !== selectedPerkara.id));
+            }
+        }
         setSelectedPerkara(null);
     };
 
     const handleUpdateArchive = (details: Partial<ArsipPerkaraSelesai>) => {
         if (!editingArchive) return;
-        setArsipSelesai(prev => prev.map(a => a.id === editingArchive.id ? { ...a, ...details } : a));
+        if (mainTab === 'Selesai') {
+            setArsipSelesai(prev => prev.map(a => a.id === editingArchive.id ? { ...a, ...details } : a));
+        } else {
+            if (details.tingkatPerkembangan === 'BHT') {
+                setArsipAktif(prev => prev.filter(a => a.id !== editingArchive.id));
+                const p: PerkaraSelesai = {
+                    id: editingArchive.id,
+                    nomorPerkara: details.nomorPerkara || editingArchive.nomorPerkara,
+                    jenisPerkara: details.jenisPerkara || editingArchive.jenisPerkara,
+                    tahunMasuk: details.tahunMasuk || editingArchive.tahunMasuk,
+                    arsipData: { ...editingArchive, ...details }
+                };
+                setPerkaraSelesai(prev => [...prev, p]);
+            } else {
+                setArsipAktif(prev => prev.map(a => a.id === editingArchive.id ? { ...a, ...details } : a));
+            }
+        }
         setEditingArchive(null);
     };
 
     const handleRecordBorrowing = (borrowing: Peminjaman) => {
         if (!borrowingArchiveId) return;
-        setArsipSelesai(prev => prev.map(a => a.id === borrowingArchiveId ? { 
+        const updater = (prev: ArsipPerkaraSelesai[]) => prev.map(a => a.id === borrowingArchiveId ? { 
             ...a, 
             peminjaman: [...(a.peminjaman || []), borrowing],
             status: 'Dipinjam'
-        } : a));
+        } : a);
+        if (mainTab === 'Selesai') {
+            setArsipSelesai(updater);
+        } else {
+            setArsipAktif(updater);
+        }
         setBorrowingArchiveId(null);
     };
 
     const handleReturnArchive = (archiveId: string, borrowingId: string) => {
         const today = new Date().toISOString().split('T')[0];
-        setArsipSelesai(prev => prev.map(a => a.id === archiveId ? {
+        const updater = (prev: ArsipPerkaraSelesai[]) => prev.map(a => a.id === archiveId ? {
             ...a,
             status: 'Terarsip', // For now assume returning one means it's back
             peminjaman: a.peminjaman?.map(p => p.id === borrowingId ? {
                 ...p,
                 tanggalKembali: today
             } : p)
-        } : a));
+        } : a);
+
+        if (mainTab === 'Selesai') {
+            setArsipSelesai(updater);
+        } else {
+            setArsipAktif(updater);
+        }
         
         // Update viewing archive state to reflect changes immediately in modal
         setViewingArchive(prev => {
@@ -521,7 +599,22 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
             <div>
                 <h1 className="text-3xl font-bold text-gray-800">Manajemen Arsip</h1>
                 <p className="text-gray-600 mt-1">Kelola arsip perkara yang telah selesai dan riwayat peminjamannya.</p>
-                <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
+                <div className="border-b-4 border-blue-600 w-16 mt-4 mb-6"></div>
+                
+                <div className="flex space-x-1 border-b border-gray-200">
+                    <button
+                        onClick={() => setMainTab('Aktif')}
+                        className={`py-2 px-6 font-medium text-sm border-b-2 outline-none ${mainTab === 'Aktif' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Perkara Aktif
+                    </button>
+                    <button
+                        onClick={() => setMainTab('Selesai')}
+                        className={`py-2 px-6 font-medium text-sm border-b-2 outline-none ${mainTab === 'Selesai' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                    >
+                        Perkara Selesai
+                    </button>
+                </div>
             </div>
 
             {/* Modal Record Arsip */}
@@ -530,17 +623,20 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
                     record={selectedPerkara} 
                     onClose={() => setSelectedPerkara(null)} 
                     onSave={handleArchive} 
+                    isAktif={mainTab === 'Aktif'}
+                    initialData={selectedPerkara.arsipData}
                 />
             )}
 
             {/* Modal Edit Arsip */}
             {editingArchive && (
                 <ArsipModal 
-                    record={arsipSelesai.find(a => a.id === editingArchive.id) as any} // Using initial data workaround
+                    record={(mainTab === 'Selesai' ? arsipSelesai : arsipAktif).find(a => a.id === editingArchive.id) as any} // Using initial data workaround
                     initialData={editingArchive}
                     onClose={() => setEditingArchive(null)} 
                     onSave={handleUpdateArchive}
                     isEdit={true}
+                    isAktif={mainTab === 'Aktif'}
                 />
             )}
 
@@ -548,9 +644,10 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
             {viewingArchive && (
                 <DetailArsipModal 
                     archive={viewingArchive}
-                    original={initialPerkaraSelesai.find(p => p.id === viewingArchive.id)}
+                    original={(mainTab === 'Selesai' ? initialPerkaraSelesai : initialPerkaraAktif).find(p => p.id === viewingArchive.id)}
                     onClose={() => setViewingArchive(null)}
                     onReturn={(borrowingId) => handleReturnArchive(viewingArchive.id, borrowingId)}
+                    isAktif={mainTab === 'Aktif'}
                 />
             )}
 
@@ -563,11 +660,11 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
                 />
             )}
 
-            {/* Table 1: Daftar Perkara Selesai */}
+            {/* Table 1: Daftar Perkara */}
             <div className="bg-white rounded shadow-sm border border-gray-200 overflow-visible relative pt-2">
                 <div className="absolute -top-4 left-6 bg-white px-3 py-1 text-gray-700 font-bold flex items-center text-sm border border-gray-200 rounded-t-md shadow-sm border-b-white">
                     <FileTextIcon className="h-4 w-4 mr-2 text-gray-600" />
-                    <span>Daftar Perkara Selesai</span>
+                    <span>Daftar Perkara {mainTab}</span>
                 </div>
                 
                 <div className="p-6">
@@ -575,7 +672,7 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
                         <input 
                             type="text" 
                             className="w-full pl-5 pr-12 py-2.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner text-sm"
-                            placeholder="Search Perkara Selesai"
+                            placeholder={`Search Perkara ${mainTab}`}
                             value={searchTermSelesai}
                             onChange={(e) => setSearchTermSelesai(e.target.value)}
                         />
@@ -612,7 +709,7 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
                                     </tr>
                                 ))}
                                 {paginatedSelesai.length === 0 && (
-                                    <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-500 italic">Tidak ada perkara selesai yang ditemukan.</td></tr>
+                                    <tr><td colSpan={5} className="px-5 py-10 text-center text-gray-500 italic">Tidak ada perkara yang ditemukan.</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -632,7 +729,7 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
             <div className="bg-white rounded shadow-sm border border-gray-200 overflow-visible relative pt-2">
                 <div className="absolute -top-4 left-6 bg-white px-3 py-1 text-gray-700 font-bold flex items-center text-sm border border-gray-200 rounded-t-md shadow-sm border-b-white">
                     <FileTextIcon className="h-4 w-4 mr-2 text-gray-600" />
-                    <span>Daftar Arsip Perkara Selesai</span>
+                    <span>Daftar Arsip Perkara {mainTab}</span>
                 </div>
                 
                 <div className="p-6">
@@ -640,7 +737,7 @@ const Arsip: React.FC<ArsipProps> = ({ onNavigate }) => {
                         <input 
                             type="text" 
                             className="w-full pl-5 pr-12 py-2.5 border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner text-sm"
-                            placeholder="Search Daftar Arsip Perkara Selesai"
+                            placeholder={`Search Daftar Arsip Perkara ${mainTab}`}
                             value={searchTermArsip}
                             onChange={(e) => setSearchTermArsip(e.target.value)}
                         />

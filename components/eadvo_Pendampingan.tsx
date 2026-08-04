@@ -133,6 +133,7 @@ const Pendampingan: React.FC<PendampinganProps> = ({ pendampinganBaruList, dafta
             onSave={handleSaveForm}
             initialData={selectedRecord}
             showNotification={showNotification}
+            onNavigate={onNavigate}
         />
       )}
       {isDeleteModalOpen && selectedRecord && (

@@ -61,16 +61,31 @@ const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, on
     setFormData(prev => ({ ...prev, quickLinks: newLinks }));
   };
 
-  const handleCarouselChange = (index: number, value: string) => {
+  const handleCarouselChange = (index: number, field: 'url' | 'fit', value: string) => {
     const newImages = [...(formData.carouselImages || [])];
-    newImages[index] = value;
+    const current = newImages[index];
+    if (typeof current === 'string') {
+        newImages[index] = { url: current, fit: 'cover' };
+    }
+    (newImages[index] as any)[field] = value;
     setFormData(prev => ({ ...prev, carouselImages: newImages }));
+  };
+
+  const handleCarouselUpload = (index: number, file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      if (base64) {
+        handleCarouselChange(index, 'url', base64);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleAddCarouselImage = () => {
     setFormData(prev => ({
         ...prev,
-        carouselImages: [...(prev.carouselImages || []), '']
+        carouselImages: [...(prev.carouselImages || []), { url: '', fit: 'cover' }]
     }));
   };
 
@@ -175,31 +190,67 @@ const PengelolaanInformasi: React.FC<PengelolaanInformasiProps> = ({ content, on
             </button>
           </div>
           <div className="space-y-4">
-            {(formData.carouselImages || []).map((img, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                    <div className="flex-1">
-                        <input
-                            type="text"
-                            value={img}
-                            onChange={(e) => handleCarouselChange(index, e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md"
-                            placeholder="URL Gambar (misal: https://images.unsplash.com/...)"
-                        />
+            {(formData.carouselImages || []).map((img, index) => {
+                const imgUrl = typeof img === 'string' ? img : img.url;
+                const imgFit = typeof img === 'string' ? 'cover' : img.fit || 'cover';
+                return (
+                <div key={index} className="flex flex-col md:flex-row items-start space-y-3 md:space-y-0 md:space-x-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="flex-1 space-y-3 w-full">
+                        <div className="flex space-x-2">
+                            <input
+                                type="text"
+                                value={imgUrl}
+                                onChange={(e) => handleCarouselChange(index, 'url', e.target.value)}
+                                className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="URL Gambar (misal: https://...)"
+                            />
+                            <div className="relative">
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            handleCarouselUpload(index, e.target.files[0]);
+                                        }
+                                    }}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                    title="Upload Gambar"
+                                />
+                                <button type="button" className="px-3 py-2 bg-blue-100 text-blue-700 font-medium text-sm rounded-md border border-blue-200 hover:bg-blue-200 transition">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <label className="text-sm text-gray-600 font-medium">Fit Gambar:</label>
+                            <select 
+                                value={imgFit} 
+                                onChange={(e) => handleCarouselChange(index, 'fit', e.target.value)}
+                                className="p-1.5 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="cover">Cover (Penuhi Area)</option>
+                                <option value="contain">Contain (Tampilkan Penuh)</option>
+                                <option value="fill">Fill (Regangkan)</option>
+                            </select>
+                        </div>
                     </div>
-                    {img && (
-                        <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
-                            <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                    {imgUrl && (
+                        <div className="w-full md:w-48 h-32 rounded-md overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-300 relative shadow-inner">
+                            <img src={imgUrl} alt="Preview" className={`w-full h-full ${imgFit === 'contain' ? 'object-contain' : imgFit === 'fill' ? 'object-fill' : 'object-cover'}`} />
+                            <div className="absolute inset-0 bg-black/5 flex items-center justify-center pointer-events-none">
+                                <span className="bg-black/50 text-white text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">{imgFit}</span>
+                            </div>
                         </div>
                     )}
                     <button
                         onClick={() => handleRemoveCarouselImage(index)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition"
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition self-start"
                         title="Hapus Gambar"
                     >
                         <TrashIcon className="w-5 h-5" />
                     </button>
                 </div>
-            ))}
+            )})}
             {(!formData.carouselImages || formData.carouselImages.length === 0) && (
                 <div className="text-center py-6 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
                     Belum ada gambar carousel.

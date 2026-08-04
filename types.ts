@@ -345,7 +345,7 @@ export interface BerandaContent {
     eAdvokasiTitle: string;
     eAdvokasiParagraph1: string;
     eAdvokasiParagraph2: string;
-    carouselImages?: string[];
+    carouselImages?: (string | { url: string; fit: 'cover' | 'contain' | 'fill' })[];
     eAdvokasiHtml?: string;
     quickLinks?: QuickLink[];
 }
@@ -362,4 +362,4 @@ export type View =
   'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' | 'eAdvokasiPerkaraDokumen' |
   'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim' | 'eAdvokasiPutusanDokumen' |
   'eAdvokasiDashboard' | 'eAdvokasiPencarian' | 'eAdvokasiPencarianPerkara' | 'eAdvokasiPencarianPendampingan' | 'eAdvokasiPencarianPutusan' | 'eAdvokasiPencarianDokumen' | 'eAdvokasiPencarianBankDalil' | 'eAdvokasiMonitoringPersidangan' | 'eAdvokasiMonitoringPutusan' | 
-  'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail';
+  'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail' | 'eAdvokasiStatistikPerkara';

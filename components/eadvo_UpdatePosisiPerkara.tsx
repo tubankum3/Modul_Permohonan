@@ -81,8 +81,8 @@ const SidangModal: React.FC<{
                     {activeTab === 'tambah' && (
                         <div className="max-w-3xl mx-auto space-y-4">
                             <div className="flex flex-col gap-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="md:col-span-2">
+                                <div className="flex flex-col gap-4">
+                                    <div className="">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Posisi Sidang</label>
                                         <select 
                                             name="posisiSidangType"
@@ -97,7 +97,7 @@ const SidangModal: React.FC<{
                                         </select>
                                     </div>
 
-                                    <div className="md:col-span-2">
+                                    <div className="">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Surat Tugas</label>
                                         <div className="flex gap-2">
                                             <input 
@@ -172,7 +172,7 @@ const SidangModal: React.FC<{
                                         />
                                     </div>
 
-                                    <div className="md:col-span-2">
+                                    <div className="">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Keterangan Beracara/Persidangan</label>
                                         <div className="border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
                                             <div className="bg-gray-50 border-b border-gray-300 px-3 py-1 flex gap-2">

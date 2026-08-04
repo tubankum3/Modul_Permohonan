@@ -98,6 +98,7 @@ interface AdvokasiState {
   handleAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan') => void;
   handleSetPermohonanPic: (recordId: string, picId: string | null) => void;
   handleUpdatePermohonanTeam: (recordId: string, team: TeamMember[]) => void;
+  handleBulkReplaceTeamMember: (oldUserId: string, newUserId: string, newUserName: string, recordIds: { pendampingan: string[], perkara: string[], putusan: string[] }) => void;
   userAccounts: UserAccount[];
   handleSaveUserAccount: (user: UserAccount) => void;
   handleUpdateUserStatus: (id: string, status: 'Aktif' | 'Tidak Aktif') => void;
@@ -814,6 +815,66 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
         selectedPermohonan: state.selectedPermohonan?.id === recordId ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === recordId ? updatedSelected : state.currentPermohonanToProses,
         notification: { message: 'Tim advokasi permohonan berhasil diperbarui.', type: 'success' }
+      };
+    });
+  },
+
+  handleBulkReplaceTeamMember: (oldUserId, newUserId, newUserName, recordIds) => {
+    set((state) => {
+      const replaceMember = (team: TeamMember[] | undefined): TeamMember[] | undefined => {
+        if (!team) return team;
+        return team.map(m => m.id === oldUserId ? { ...m, id: newUserId, nama: newUserName } : m);
+      };
+
+      const auditEntry = (recordName: string) => ({
+        id: Date.now(),
+        timestamp: new Date(),
+        user: state.userName,
+        action: 'memperbarui',
+        details: `Mengganti anggota tim dari ID ${oldUserId} ke ${newUserName} (ID: ${newUserId}) secara bulk pada ${recordName}`
+      });
+
+      const nextPendampingan = state.pendampinganRecords.map(r => {
+        if (recordIds.pendampingan.includes(r.id)) {
+          return { 
+            ...r, 
+            team: replaceMember(r.team),
+            picId: r.picId === oldUserId ? newUserId : r.picId,
+            auditTrail: [...(r.auditTrail || []), auditEntry('Pendampingan')]
+          };
+        }
+        return r;
+      });
+
+      const nextPerkara = state.perkaraRecords.map(r => {
+        if (recordIds.perkara.includes(r.id)) {
+          return {
+            ...r,
+            team: replaceMember(r.team),
+            picId: r.picId === oldUserId ? newUserId : r.picId,
+            auditTrail: [...(r.auditTrail || []), auditEntry('Perkara')]
+          };
+        }
+        return r;
+      });
+
+      const nextPutusan = state.putusanRecords.map(r => {
+        if (recordIds.putusan.includes(r.id)) {
+          return {
+            ...r,
+            team: replaceMember(r.team),
+            picId: r.picId === oldUserId ? newUserId : r.picId,
+            auditTrail: [...(r.auditTrail || []), auditEntry('Putusan')]
+          };
+        }
+        return r;
+      });
+
+      return {
+        pendampinganRecords: nextPendampingan,
+        perkaraRecords: nextPerkara,
+        putusanRecords: nextPutusan,
+        notification: { message: `Anggota tim berhasil diganti secara massal.`, type: 'success' }
       };
     });
   }

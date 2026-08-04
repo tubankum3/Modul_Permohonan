@@ -54,6 +54,7 @@ const Monitoring = React.lazy(() => import('./components/eadvo_Monitoring'));
 const Laporan = React.lazy(() => import('./components/eadvo_Laporan'));
 const Referensi = React.lazy(() => import('./components/eadvo_Referensi'));
 const ManajemenUser = React.lazy(() => import('./components/eadvo_ManajemenUser'));
+const PengelolaanTim = React.lazy(() => import('./components/eadvo_PengelolaanTim'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -104,6 +105,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiMonitoringRisikoHukum': return '/eadvokasi/monitoring/risiko-hukum';
     case 'eAdvokasiAuditTrail': return '/eadvokasi/monitoring/audit-trail';
     case 'eAdvokasiArsip': return '/eadvokasi/arsip';
+    case 'eAdvokasiStatistikPerkara': return '/eadvokasi/statistik-perkara';
     case 'eAdvokasiRecycleBin': return '/eadvokasi/recycle-bin';
     case 'eAdvokasiLaporan': return '/eadvokasi/laporan';
     case 'eAdvokasiUser': return '/eadvokasi/user';
@@ -162,6 +164,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname === '/eadvokasi/monitoring/risiko-hukum') return { view: 'eAdvokasiMonitoringRisikoHukum' };
   if (pathname === '/eadvokasi/monitoring/audit-trail') return { view: 'eAdvokasiAuditTrail' };
   if (pathname === '/eadvokasi/arsip') return { view: 'eAdvokasiArsip' };
+  if (pathname === '/eadvokasi/statistik-perkara') return { view: 'eAdvokasiStatistikPerkara' };
   if (pathname === '/eadvokasi/recycle-bin') return { view: 'eAdvokasiRecycleBin' };
   if (pathname === '/eadvokasi/laporan') return { view: 'eAdvokasiLaporan' };
   if (pathname === '/eadvokasi/user') return { view: 'eAdvokasiUser' };
@@ -463,6 +466,7 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiMonitoringPerkara':
       case 'eAdvokasiMonitoringRisikoHukum':
       case 'eAdvokasiAuditTrail':
+      case 'eAdvokasiStatistikPerkara':
         return <Monitoring currentView={currentView} onNavigate={handleNavigate} />;
       case 'eAdvokasiLaporan': 
         return <Laporan onNavigate={handleNavigate} />;
@@ -471,7 +475,7 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiReferensi': 
         return <Referensi onNavigate={handleNavigate} />;
       case 'eAdvokasiTim': 
-        return <div className="p-8"><h1 className="text-2xl font-bold">Pengelolaan Tim</h1><p className="mt-4">Fitur master data tim advokasi sedang dalam pengembangan.</p><button onClick={() => handleNavigate('beranda')} className="mt-4 text-blue-600 hover:underline flex items-center"><ArrowLeftIcon className="h-4 w-4 mr-2"/>Kembali ke Beranda</button></div>;
+        return <PengelolaanTim onNavigate={handleNavigate} />;
       case 'eAdvokasiArsip': 
         return <Arsip onNavigate={handleNavigate} />;
       case 'eAdvokasiRecycleBin':

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PendampinganRecord, Permohonan, StatusPendampingan, JenisPermohonan } from '../types';
 import { XIcon, PlusIcon, TrashIcon, ArrowLeftIcon, SearchIcon, CheckIcon } from './icons';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
+import Breadcrumb from './Breadcrumb';
 
 interface FormPendampinganModalProps {
     isOpen: boolean;
@@ -9,6 +10,7 @@ interface FormPendampinganModalProps {
     onSave: (record: PendampinganRecord) => void;
     initialData: PendampinganRecord | Permohonan | null;
     showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void;
+    onNavigate?: (view: any) => void;
 }
 
 const UNIT_KEMENKEU = ['Sekretariat Jenderal', 'Direktorat Jenderal Pajak', 'Direktorat Jenderal Bea dan Cukai', 'Direktorat Jenderal Perbendaharaan', 'Direktorat Jenderal Kekayaan Negara', 'Direktorat Jenderal Perimbangan Keuangan', 'Direktorat Jenderal Pengelolaan Pembiayaan dan Risiko', 'Inspektorat Jenderal', 'Badan Kebijakan Fiskal', 'Badan Pendidikan dan Pelatihan Keuangan'];
@@ -132,7 +134,7 @@ const TagInput: React.FC<{ tags: string[], setTags: (tags: string[]) => void }> 
     );
 };
 
-const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, onClose, onSave, initialData, showNotification }) => {
+const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, onClose, onSave, initialData, showNotification, onNavigate }) => {
     const [formData, setFormData] = useState<Partial<PendampinganRecord>>({});
     const [activeTab, setActiveTab] = useState<'informasi' | 'pihak' | 'analisa'>('informasi');
     const [isNadineModalOpen, setIsNadineModalOpen] = useState(false);
@@ -275,6 +277,12 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
                     setIsNadineModalOpen(false);
                 }}
             />
+
+            {onNavigate && (
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView={"eAdvokasiPendampinganEdit" as any} onNavigate={onNavigate} />
+                </div>
+            )}
 
             <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
                 <button 

@@ -67,10 +67,10 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
     
     const carouselImages = content?.carouselImages || [
-        "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200", // law theme
-        "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200", // law theme 2
-        "https://images.unsplash.com/photo-1505664173622-b8146bf78162?auto=format&fit=crop&q=80&w=1200", // law theme 3
-        "/alur_permohonan.jpg" // flow image
+        { url: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1200", fit: "cover" }, // law theme
+        { url: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200", fit: "cover" }, // law theme 2
+        { url: "https://images.unsplash.com/photo-1505664173622-b8146bf78162?auto=format&fit=crop&q=80&w=1200", fit: "cover" }, // law theme 3
+        { url: "/alur_permohonan.jpg", fit: "cover" } // flow image
     ];
 
     useEffect(() => {
@@ -284,14 +284,17 @@ const BerandaPage: React.FC<BerandaPageProps> = ({
 
             {/* Hero Section with Carousel */}
             <div className="relative w-full h-[400px] overflow-hidden bg-gray-900">
-                {carouselImages.map((img, index) => (
+                {carouselImages.map((img, index) => {
+                    const imgUrl = typeof img === 'string' ? img : img.url;
+                    const imgFit = typeof img === 'string' ? 'cover' : img.fit || 'cover';
+                    return (
                     <div 
                         key={index}
-                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out flex items-center justify-center ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        <img src={img} alt={`Slide ${index + 1}`} className="w-full h-full object-cover opacity-60" />
+                        <img src={imgUrl} alt={`Slide ${index + 1}`} className={`w-full h-full opacity-60 ${imgFit === 'contain' ? 'object-contain' : imgFit === 'fill' ? 'object-fill' : 'object-cover'}`} />
                     </div>
-                ))}
+                )})}
                 
                 {/* Carousel Controls */}
                 <button 

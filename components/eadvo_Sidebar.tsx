@@ -3,7 +3,7 @@ import React from 'react';
 import { 
     MailIcon, BriefcaseIcon, HomeIcon, UserGroupIcon, ShieldCheckIcon, 
     DocumentTextIcon, CalendarIcon, DesktopComputerIcon, ArchiveIcon, TrashIcon, 
-    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon
+    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon, TrendingUpIcon
 } from './icons';
 import { View } from '../types';
 import { useAdvokasiStore } from '../useAdvokasiStore';

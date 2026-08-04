@@ -83,6 +83,43 @@ export const initialPermohonan: Permohonan[] = [
       { id: 2, author: 'Administrator', message: 'Permohonan diterima dan sedang diproses.', files: [], timestamp: new Date('2026-01-16T11:30:00') }
     ],
     sumber: 'Internal',
+    disposisi: [
+        {
+            id: 1,
+            pengirim: 'Biro Advokasi (Rofii Edy Purnomo)',
+            tujuan: [
+                'Bagian Advokasi I [SJ.41]',
+                'Bagian Advokasi II [SJ.42]',
+                'Bagian Advokasi III [SJ.43]',
+                'Bagian Advokasi IV [SJ.44]',
+            ],
+            catatan: '-',
+            petunjukDisposisi: ['Untuk Perhatian', 'Selesaikan Sesuai Dengan Ketentuan Yang Berlaku'],
+            tanggalKirim: '31-01-2026 12:16:02',
+        },
+        {
+            id: 2,
+            pengirim: 'Bagian Advokasi III (Helda Anggraini Octavina)',
+            tujuan: [
+                'Subbagian Advokasi IIIA [SJ.431]',
+                'Subbagian Advokasi IIIB [SJ.432]',
+                'Subbagian Advokasi IIIC [SJ.433]',
+            ],
+            catatan: '',
+            petunjukDisposisi: ['Edarkan'],
+            tanggalKirim: '02-02-2026 05:36:18',
+        },
+        {
+            id: 3,
+            pengirim: 'Subbagian Advokasi IIIA (Lulus Hadi Purnawan)',
+            tujuan: [
+                'Hendra Cahyono',
+            ],
+            catatan: '',
+            petunjukDisposisi: ['Selesaikan Sesuai Dengan Ketentuan Yang Berlaku'],
+            tanggalKirim: '02-02-2026 09:01:25',
+        }
+    ]
   },
   {
     id: '33445566',

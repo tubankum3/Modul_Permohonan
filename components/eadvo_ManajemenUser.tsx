@@ -3,6 +3,7 @@ import { useAdvokasiStore } from '../useAdvokasiStore';
 import { UserAccount } from '../types';
 import { SearchIcon, PlusIcon, XIcon } from './icons';
 import AssignTeamModal, { Personnel, ALL_PERSONNEL } from './AssignTeamModal';
+import Breadcrumb from './Breadcrumb';
 
 interface ManajemenUserProps {
   onNavigate: (view: any) => void;
@@ -87,7 +88,10 @@ const eadvo_ManajemenUser: React.FC<ManajemenUserProps> = ({ onNavigate }) => {
 
   return (
     <div className="h-full flex flex-col bg-gray-50">
-      <header className="bg-white p-6 shadow-sm flex items-center justify-between z-10 border-b border-gray-200">
+      <div className="px-6 pt-6">
+        <Breadcrumb currentView="eAdvokasiUser" onNavigate={onNavigate} />
+      </div>
+      <header className="bg-transparent px-6 pb-6 pt-2 flex items-center justify-between z-10 border-b border-gray-200">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Manajemen Pengguna</h1>
           <p className="text-sm text-gray-500 mt-1">Kelola daftar pengguna, peran (roles), dan status akses</p>

@@ -21,8 +21,8 @@ const TabButton: React.FC<{ name: DetailTab, label: string, activeTab: DetailTab
 
 const DetailRow: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
     <tr className="border-b border-gray-100">
-        <td className="py-2.5 pr-4 align-top text-sm font-medium text-gray-500 w-1/4">:{label}</td>
-        <td className="py-2.5 text-sm text-gray-800">{value}</td>
+        <td className="py-2.5 pr-4 align-top text-sm font-medium text-gray-500 w-1/4">{label}</td>
+        <td className="py-2.5 text-sm text-gray-800">{value || '-'}</td>
     </tr>
 );
 
@@ -71,6 +71,9 @@ const InformasiUmumTab: React.FC<{ record: PendampinganRecord }> = ({ record }) 
                             <DetailRow label="Unit Pemohon" value={abstraksi.unitPemohon} />
                             <DetailRow label="Unit Pemanggil" value={abstraksi.unitPemanggil} />
                             <DetailRow label="Wilayah" value={abstraksi.wilayah} />
+                            <DetailRow label="Jenis Pokok Perkara" value={abstraksi.jenisPokokPerkara} />
+                            <DetailRow label="Sub Pokok Perkara" value={abstraksi.subPokokPerkara} />
+                            <DetailRow label="Sub-Sub Pokok Perkara" value={abstraksi.subSubPokokPerkara} />
                             <DetailRow label="Rincian Pokok Permasalahan" value={<div className="whitespace-pre-wrap">{abstraksi.pokokPermasalahan}</div>} />
                             <DetailRow label="Tags" value={abstraksi.tags && abstraksi.tags.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5 mt-0.5">

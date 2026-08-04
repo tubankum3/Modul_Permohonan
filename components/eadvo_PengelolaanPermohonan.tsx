@@ -105,6 +105,9 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     if (managementView === 'detail' && selectedPermohonan) {
         return (
             <div className="h-full flex flex-col bg-gray-50">
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView="eAdvokasiPengelolaan" onNavigate={onNavigate} />
+                </div>
                 <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
                     <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1">
                         <ArrowLeftIcon className="h-5 w-5" />
@@ -135,6 +138,9 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     if (managementView === 'team' && selectedPermohonan) {
          return (
             <div className="h-full flex flex-col bg-gray-50">
+                <div className="px-6 pt-4 bg-white flex-shrink-0">
+                    <Breadcrumb currentView="eAdvokasiPengelolaan" onNavigate={onNavigate} />
+                </div>
                 <header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start">
                     <button onClick={handleBackToList} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1">
                         <ArrowLeftIcon className="h-5 w-5" />
