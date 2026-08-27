@@ -123,6 +123,8 @@ const menuGroups: MenuGroup[] = [
         title: 'HOME',
         items: [
             { icon: <HomeIcon className="h-5 w-5" />, name: 'Beranda', view: 'eAdvokasiBeranda' as View },
+            { icon: <MailIcon className="h-5 w-5" />, name: 'Permohonan Bantuan Hukum', view: 'list' as View },
+            { icon: <QuestionMarkCircleIcon className="h-5 w-5" />, name: 'FAQ & Bantuan', view: 'faq' as View },
         ]
     },
     {

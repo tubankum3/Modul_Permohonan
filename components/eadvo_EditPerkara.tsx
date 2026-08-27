@@ -187,36 +187,38 @@ const CrudModal: React.FC<{ isOpen: boolean, onClose: () => void, onSave: (data:
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden">
-                <header className="flex items-center justify-between p-4 border-b bg-blue-600 text-white">
-                    <h2 className="text-lg font-bold">{title}</h2>
-                    <button type="button" onClick={onClose} className="p-1 rounded-full hover:bg-white/20"><XIcon className="h-5 w-5" /></button>
+        <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+            <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+                <header className="flex items-center justify-between p-5 border-b bg-white">
+                    <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+                    <button type="button" onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"><XIcon className="h-5 w-5" /></button>
                 </header>
-                <main className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    {fields.map(field => (
-                        <div key={field.name}>
-                            {field.type === 'rich' ? (
-                                <SimpleRichText label={field.label} value={formData[field.name] || ''} onChange={(val) => handleChange(field.name, val)} rows={4} />
-                            ) : (
-                                <>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
-                                    {field.type === 'select' ? (
-                                        <select name={field.name} value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)} className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                                            <option value="">Pilih {field.label}</option>
-                                            {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                        </select>
-                                    ) : (
-                                        <input type={field.type} name={field.name} value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" />
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    ))}
+                <main className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                    <div className="flex flex-col gap-5">
+                        {fields.map(field => (
+                            <div key={field.name}>
+                                {field.type === 'rich' ? (
+                                    <SimpleRichText label={field.label} value={formData[field.name] || ''} onChange={(val) => handleChange(field.name, val)} rows={4} />
+                                ) : (
+                                    <>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+                                        {field.type === 'select' ? (
+                                            <select name={field.name} value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)} className="w-full p-2 border border-gray-300 rounded-md bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700">
+                                                <option value="">Pilih {field.label}</option>
+                                                {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                            </select>
+                                        ) : (
+                                            <input type={field.type} name={field.name} value={formData[field.name] || ''} onChange={(e) => handleChange(field.name, e.target.value)} className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-gray-700" />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </main>
-                <footer className="flex justify-end items-center p-4 bg-gray-50 space-x-3">
-                    <button type="button" onClick={onClose} className="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold">Batal</button>
-                    <button type="submit" className="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold">Simpan</button>
+                <footer className="flex justify-end items-center p-5 bg-gray-50 border-t border-gray-100 space-x-3">
+                    <button type="button" onClick={onClose} className="px-5 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 shadow-sm transition-colors">Batal</button>
+                    <button type="submit" className="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-sm transition-colors">Simpan</button>
                 </footer>
             </form>
         </div>

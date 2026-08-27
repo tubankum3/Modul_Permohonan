@@ -39,13 +39,13 @@ const SimpleRichText: React.FC<{ value: string, onChange: (val: string) => void,
 };
 
 const TwoColumnRow: React.FC<{ label: string, children: React.ReactNode }> = ({ label, children }) => (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start border-b border-gray-100 py-4 last:border-0">
-        <div className="md:col-span-4 self-center">
+    <div className="flex flex-col gap-2 items-start border-b border-gray-100 py-4 last:border-0">
+        <div className="w-full">
             <label className="block text-sm font-bold text-gray-600 font-sans uppercase tracking-wider text-[11px]">
                 {label}
             </label>
         </div>
-        <div className="md:col-span-8">
+        <div className="w-full">
             {children}
         </div>
     </div>

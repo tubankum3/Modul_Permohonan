@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PerkaraRecord, TindakLanjut, View } from '../types';
-import { ArrowLeftIcon, PlusIcon, TrashIcon, XIcon } from './icons';
+import { ArrowLeftIcon, PlusIcon, TrashIcon, XIcon, EyeIcon, DownloadIcon } from './icons';
 import Breadcrumb from './Breadcrumb';
 
 interface UpdateTindakLanjutProps {
@@ -151,9 +151,17 @@ const UpdateTindakLanjut: React.FC<UpdateTindakLanjutProps> = ({ record, onSave,
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
                                 {item.file ? <a href={item.file.url} target="_blank" rel="noreferrer" className="hover:underline">{item.file.name}</a> : '-'}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onClick={() => handleRemove(item.id)} className="text-red-600 hover:text-red-900">
-                                    <TrashIcon className="h-5 w-5" />
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                                <button type="button" className="text-blue-600 hover:text-blue-900 transition-colors" title="Lihat Detail">
+                                    <EyeIcon className="h-5 w-5 inline-block" />
+                                </button>
+                                {item.file && (
+                                    <a href={item.file.url} target="_blank" rel="noreferrer" className="text-green-600 hover:text-green-900 transition-colors inline-block" title="Unduh File">
+                                        <DownloadIcon className="h-5 w-5 inline-block" />
+                                    </a>
+                                )}
+                                <button type="button" onClick={() => handleRemove(item.id)} className="text-red-600 hover:text-red-900 transition-colors" title="Hapus">
+                                    <TrashIcon className="h-5 w-5 inline-block" />
                                 </button>
                             </td>
                         </tr>

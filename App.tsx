@@ -58,8 +58,8 @@ const PengelolaanTim = React.lazy(() => import('./components/eadvo_PengelolaanTi
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
-    case 'beranda': return '/';
-    case 'eAdvokasiBeranda': return '/eadvokasi';
+    case 'beranda': return '/satkem';
+    case 'eAdvokasiBeranda': return '/';
     case 'list': return '/satkem/permohonan';
     case 'create': return '/satkem/permohonan/create';
     case 'detail': return id ? `/satkem/permohonan/detail/${id}` : '/satkem/permohonan';
@@ -117,8 +117,8 @@ const viewToPath = (view: View, id?: string): string => {
 
 
 const pathToView = (pathname: string): { view: View; id?: string } => {
-  if (pathname === '/' || pathname === '/beranda') return { view: 'beranda' };
-  if (pathname === '/eadvokasi') return { view: 'eAdvokasiBeranda' };
+  if (pathname === '/' || pathname === '/eadvokasi') return { view: 'eAdvokasiBeranda' };
+  if (pathname === '/satkem' || pathname === '/beranda') return { view: 'beranda' };
   if (pathname === '/satkem/permohonan') return { view: 'list' };
   if (pathname === '/satkem/permohonan/create') return { view: 'create' };
   if (pathname.startsWith('/satkem/permohonan/detail/')) return { view: 'detail', id: pathname.replace('/satkem/permohonan/detail/', '') };
@@ -170,7 +170,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname === '/eadvokasi/user') return { view: 'eAdvokasiUser' };
   if (pathname === '/eadvokasi/referensi') return { view: 'eAdvokasiReferensi' };
   if (pathname === '/eadvokasi/tim') return { view: 'eAdvokasiTim' };
-  return { view: 'beranda' };
+  return { view: 'eAdvokasiBeranda' };
 };
 
 const AppContent: React.FC = () => {
@@ -325,7 +325,7 @@ const AppContent: React.FC = () => {
   // Redirect to eAdvokasiBeranda if user role changes and they lose access to current active view
   useEffect(() => {
     if (pathname.startsWith('/eadvokasi') && !checkViewAccess(globalRole, currentView)) {
-      navigate('/eadvokasi');
+      navigate('/');
       showNotification('Akses terbatas untuk peran Anda saat ini.', 'info');
     }
   }, [globalRole, currentView, pathname, navigate, showNotification]);
