@@ -404,11 +404,73 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           notificationMsg = 'Data pendampingan berhasil diperbarui.';
       } else {
           const isRecording = record.id && state.permohonanList.some(p => p.id === record.id);
-          const newRecord = { ...record, id: record.id || `pd-${generateRandomId()}`, deletedAt: undefined };
+          const permohonan = isRecording ? state.permohonanList.find(p => p.id === record.id) : null;
+          
+          let recordFiles = [...(record.files || [])];
+          if (permohonan) {
+            const permDocs: any[] = [];
+            if (permohonan.files && permohonan.files.length > 0) {
+              permohonan.files.forEach((f: any, idx: number) => {
+                permDocs.push({
+                  id: f.id || `perm-${permohonan.id}-f-${idx}`,
+                  name: f.name,
+                  size: f.size || 102400,
+                  type: f.type || 'application/pdf',
+                  nomor: f.nomor || permohonan.Nomor || permohonan.id,
+                  tanggal: f.tanggal || permohonan.tanggal,
+                  jenis: f.jenis || 'Surat Permohonan',
+                  deskripsi: f.deskripsi || (f as any).description || permohonan.perihal,
+                  source: f.source || permohonan.sumber || 'Permohonan'
+                });
+              });
+            } else {
+              permDocs.push({
+                id: `perm-${permohonan.id}-main`,
+                name: `Surat Permohonan - ${permohonan.Nomor || permohonan.id}.pdf`,
+                size: 145000,
+                type: 'application/pdf',
+                nomor: permohonan.Nomor || permohonan.id,
+                tanggal: permohonan.tanggal,
+                jenis: 'Surat Permohonan',
+                deskripsi: permohonan.perihal,
+                source: permohonan.sumber || 'Permohonan'
+              });
+            }
+            if (permohonan.history) {
+              permohonan.history.forEach((h: any) => {
+                (h.files || []).forEach((hf: any, fIdx: number) => {
+                  permDocs.push({
+                    id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+                    name: hf.name,
+                    size: hf.size || 85000,
+                    type: hf.type || 'application/pdf',
+                    nomor: permohonan.Nomor || permohonan.id,
+                    tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : permohonan.tanggal,
+                    jenis: 'Lampiran Balasan Permohonan',
+                    deskripsi: h.message || `Lampiran diskusi oleh ${h.author}`,
+                    source: 'Permohonan (Riwayat)'
+                  });
+                });
+              });
+            }
+            const existingNames = new Set(recordFiles.map(f => f.name));
+            permDocs.forEach(d => {
+              if (!existingNames.has(d.name)) {
+                recordFiles.push(d);
+              }
+            });
+          }
+
+          const newRecord = { 
+            ...record, 
+            id: record.id || `pd-${generateRandomId()}`, 
+            files: recordFiles,
+            deletedAt: undefined 
+          };
           nextRecords = [newRecord, ...state.pendampinganRecords];
           
           if (isRecording) {
-              notificationMsg = 'Permohonan berhasil direkam sebagai Pendampingan Aktif.';
+              notificationMsg = 'Permohonan berhasil direkam sebagai Pendampingan Aktif. Dokumen permohonan telah terhubung.';
           } else {
               notificationMsg = 'Pendampingan baru berhasil ditambahkan.';
           }
@@ -547,14 +609,76 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           notificationMsg = 'Data perkara berhasil diperbarui.';
       } else {
           const isRecording = record.id && state.permohonanList.some(p => p.id === record.id);
-          const newRecord = { ...record, id: isRecording ? record.id : `pk-${generateRandomId()}`, deletedAt: undefined };
+          const permohonan = isRecording ? state.permohonanList.find(p => p.id === record.id) : null;
+
+          let recordFiles = [...(record.files || [])];
+          if (permohonan) {
+            const permDocs: any[] = [];
+            if (permohonan.files && permohonan.files.length > 0) {
+              permohonan.files.forEach((f: any, idx: number) => {
+                permDocs.push({
+                  id: f.id || `perm-${permohonan.id}-f-${idx}`,
+                  name: f.name,
+                  size: f.size || 102400,
+                  type: f.type || 'application/pdf',
+                  nomor: f.nomor || permohonan.Nomor || permohonan.id,
+                  tanggal: f.tanggal || permohonan.tanggal,
+                  jenis: f.jenis || 'Surat Permohonan',
+                  deskripsi: f.deskripsi || (f as any).description || permohonan.perihal,
+                  source: f.source || permohonan.sumber || 'Permohonan'
+                });
+              });
+            } else {
+              permDocs.push({
+                id: `perm-${permohonan.id}-main`,
+                name: `Surat Permohonan - ${permohonan.Nomor || permohonan.id}.pdf`,
+                size: 145000,
+                type: 'application/pdf',
+                nomor: permohonan.Nomor || permohonan.id,
+                tanggal: permohonan.tanggal,
+                jenis: 'Surat Permohonan',
+                deskripsi: permohonan.perihal,
+                source: permohonan.sumber || 'Permohonan'
+              });
+            }
+            if (permohonan.history) {
+              permohonan.history.forEach((h: any) => {
+                (h.files || []).forEach((hf: any, fIdx: number) => {
+                  permDocs.push({
+                    id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+                    name: hf.name,
+                    size: hf.size || 85000,
+                    type: hf.type || 'application/pdf',
+                    nomor: permohonan.Nomor || permohonan.id,
+                    tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : permohonan.tanggal,
+                    jenis: 'Lampiran Balasan Permohonan',
+                    deskripsi: h.message || `Lampiran diskusi oleh ${h.author}`,
+                    source: 'Permohonan (Riwayat)'
+                  });
+                });
+              });
+            }
+            const existingNames = new Set(recordFiles.map(f => f.name));
+            permDocs.forEach(d => {
+              if (!existingNames.has(d.name)) {
+                recordFiles.push(d);
+              }
+            });
+          }
+
+          const newRecord = { 
+            ...record, 
+            id: isRecording ? record.id : `pk-${generateRandomId()}`, 
+            files: recordFiles,
+            deletedAt: undefined 
+          };
           
           const auditEntry = {
               id: Date.now(),
               timestamp: new Date(),
               user: 'Administrator',
               action: isRecording ? 'merekam' : 'membuat',
-              details: isRecording ? `Perkara direkam dari permohonan #${record.Nomor || record.id}` : 'Perkara baru dibuat manual'
+              details: isRecording ? `Perkara direkam dari permohonan #${record.Nomor || record.id}. Dokumen permohonan terhubung.` : 'Perkara baru dibuat manual'
           };
           const recordWithAudit = { ...newRecord, auditTrail: [auditEntry] };
           
@@ -563,15 +687,17 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           if (isRecording) {
               nextPermohonanList = state.permohonanList.map(p => p.id === record.id ? { 
                   ...p, 
+                  status: StatusPermohonan.DIPROSES,
+                  assignedTo: record.id,
                   history: [...(p.history || []), {
                       id: Date.now(),
                       author: 'Administrator',
-                      message: `Permohonan telah direkam sebagai Perkara Litigasi dengan No. Perkara: ${record.abstraksiPerkara?.noPerkara || record.Nomor || record.id}`,
+                      message: `Permohonan telah direkam sebagai Perkara Litigasi dengan No. Perkara: ${record.abstraksiPerkara?.noPerkara || record.Nomor || record.id}. Seluruh berkas/dokumen telah terhubung ke Dokumen Permohonan.`,
                       files: [],
                       timestamp: new Date()
                   }]
               } : p);
-              notificationMsg = 'Permohonan berhasil direkam sebagai Perkara Aktif.';
+              notificationMsg = 'Permohonan berhasil direkam sebagai Perkara Aktif. Dokumen permohonan telah terhubung.';
           } else {
               notificationMsg = 'Perkara baru berhasil ditambahkan.';
           }
@@ -667,10 +793,107 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   },
 
   handleSavePutusan: (record) => {
-    set((state) => ({
-      putusanRecords: state.putusanRecords.map(r => r.id === record.id ? record : r),
-      notification: { message: 'Data putusan berhasil diperbarui.', type: 'success' }
-    }));
+    set((state) => {
+      const index = record.id && !record.id.startsWith('new-') ? state.putusanRecords.findIndex(r => r.id === record.id) : -1;
+      let nextRecords = [...state.putusanRecords];
+      let nextPermohonanList = [...state.permohonanList];
+      let notificationMsg = '';
+
+      if (index > -1) {
+        nextRecords = state.putusanRecords.map(r => r.id === record.id ? record : r);
+        notificationMsg = 'Data putusan berhasil diperbarui.';
+      } else {
+        const isRecording = record.id && state.permohonanList.some(p => p.id === record.id);
+        const permohonan = isRecording ? state.permohonanList.find(p => p.id === record.id) : null;
+
+        let recordFiles = [...(record.files || [])];
+        if (permohonan) {
+          const permDocs: any[] = [];
+          if (permohonan.files && permohonan.files.length > 0) {
+            permohonan.files.forEach((f: any, idx: number) => {
+              permDocs.push({
+                id: f.id || `perm-${permohonan.id}-f-${idx}`,
+                name: f.name,
+                size: f.size || 102400,
+                type: f.type || 'application/pdf',
+                nomor: f.nomor || permohonan.Nomor || permohonan.id,
+                tanggal: f.tanggal || permohonan.tanggal,
+                jenis: f.jenis || 'Surat Permohonan',
+                deskripsi: f.deskripsi || (f as any).description || permohonan.perihal,
+                source: f.source || permohonan.sumber || 'Permohonan'
+              });
+            });
+          } else {
+            permDocs.push({
+              id: `perm-${permohonan.id}-main`,
+              name: `Surat Permohonan - ${permohonan.Nomor || permohonan.id}.pdf`,
+              size: 145000,
+              type: 'application/pdf',
+              nomor: permohonan.Nomor || permohonan.id,
+              tanggal: permohonan.tanggal,
+              jenis: 'Surat Permohonan',
+              deskripsi: permohonan.perihal,
+              source: permohonan.sumber || 'Permohonan'
+            });
+          }
+          if (permohonan.history) {
+            permohonan.history.forEach((h: any) => {
+              (h.files || []).forEach((hf: any, fIdx: number) => {
+                permDocs.push({
+                  id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+                  name: hf.name,
+                  size: hf.size || 85000,
+                  type: hf.type || 'application/pdf',
+                  nomor: permohonan.Nomor || permohonan.id,
+                  tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : permohonan.tanggal,
+                  jenis: 'Lampiran Balasan Permohonan',
+                  deskripsi: h.message || `Lampiran diskusi oleh ${h.author}`,
+                  source: 'Permohonan (Riwayat)'
+                });
+              });
+            });
+          }
+          const existingNames = new Set(recordFiles.map(f => f.name));
+          permDocs.forEach(d => {
+            if (!existingNames.has(d.name)) {
+              recordFiles.push(d);
+            }
+          });
+        }
+
+        const newRecord = {
+          ...record,
+          id: isRecording ? record.id : `pt-${generateRandomId()}`,
+          files: recordFiles,
+          deletedAt: undefined
+        };
+        nextRecords = [newRecord, ...state.putusanRecords];
+
+        if (isRecording) {
+          nextPermohonanList = state.permohonanList.map(p => p.id === record.id ? {
+            ...p,
+            status: StatusPermohonan.DIPROSES,
+            assignedTo: record.id,
+            history: [...(p.history || []), {
+              id: Date.now(),
+              author: 'Administrator',
+              message: `Permohonan telah direkam sebagai Penanganan Putusan. Seluruh berkas/lampiran telah terhubung ke Dokumen Permohonan.`,
+              files: [],
+              timestamp: new Date()
+            }]
+          } : p);
+          notificationMsg = 'Permohonan berhasil direkam sebagai Penanganan Putusan. Dokumen permohonan telah terhubung.';
+        } else {
+          notificationMsg = 'Data putusan baru berhasil ditambahkan.';
+        }
+      }
+
+      return {
+        putusanRecords: nextRecords,
+        permohonanList: nextPermohonanList,
+        notification: { message: notificationMsg, type: 'success' }
+      };
+    });
   },
 
   handleDeletePutusan: (id) => {
@@ -699,16 +922,68 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
     const permohonan = get().permohonanList.find(p => p.id === permohonanId);
     if (!permohonan) return;
 
+    // Collect all documents & attachments from this permohonan
+    const permohonanFiles: any[] = [];
+    if (permohonan.files && permohonan.files.length > 0) {
+      permohonan.files.forEach((f: any, idx: number) => {
+        permohonanFiles.push({
+          id: f.id || `perm-${permohonan.id}-f-${idx}`,
+          name: f.name,
+          size: f.size || 102400,
+          type: f.type || 'application/pdf',
+          nomor: f.nomor || permohonan.Nomor || permohonan.id,
+          tanggal: f.tanggal || permohonan.tanggal,
+          jenis: f.jenis || 'Surat Permohonan / Lampiran',
+          deskripsi: f.deskripsi || (f as any).description || `Lampiran dari Permohonan #${permohonan.Nomor || permohonan.id}: ${permohonan.perihal}`,
+          source: f.source || permohonan.sumber || 'Permohonan'
+        });
+      });
+    } else {
+      permohonanFiles.push({
+        id: `perm-${permohonan.id}-main`,
+        name: `Surat Permohonan - ${permohonan.Nomor || permohonan.id}.pdf`,
+        size: 145000,
+        type: 'application/pdf',
+        nomor: permohonan.Nomor || permohonan.id,
+        tanggal: permohonan.tanggal,
+        jenis: 'Surat Permohonan',
+        deskripsi: permohonan.perihal,
+        source: permohonan.sumber || 'Permohonan'
+      });
+    }
+
+    if (permohonan.history && permohonan.history.length > 0) {
+      permohonan.history.forEach((h: any) => {
+        if (h.files && h.files.length > 0) {
+          h.files.forEach((hf: any, fIdx: number) => {
+            permohonanFiles.push({
+              id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+              name: hf.name,
+              size: hf.size || 85000,
+              type: hf.type || 'application/pdf',
+              nomor: hf.nomor || permohonan.Nomor || permohonan.id,
+              tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : permohonan.tanggal,
+              jenis: 'Lampiran Balasan Permohonan',
+              deskripsi: h.message || `Lampiran riwayat oleh ${h.author}`,
+              source: 'Permohonan (Riwayat)'
+            });
+          });
+        }
+      });
+    }
+
     const updateFiles = (existingFiles: any[] = []) => {
-        return [...existingFiles, ...(permohonan.files || [])];
+      const existingNames = new Set(existingFiles.map(f => f.name));
+      const newFiles = permohonanFiles.filter(f => !existingNames.has(f.name));
+      return [...existingFiles, ...newFiles];
     };
 
     const auditTrailEntry = {
         id: Date.now(),
         timestamp: new Date(),
-        user: 'Admin User',
-        action: 'menambahkan',
-        details: `Dokumen dari Permohonan #${permohonan.Nomor || permohonan.id}`
+        user: 'Administrator',
+        action: 'menghubungkan',
+        details: `Dokumen & lampiran dari Permohonan #${permohonan.Nomor || permohonan.id} (${permohonanFiles.length} berkas) berhasil dihubungkan ke Dokumen Permohonan.`
     };
 
     set((state) => {
@@ -751,7 +1026,18 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           });
       }
 
-      const updatedPermohonanList = state.permohonanList.map(p => p.id === permohonanId ? { ...p, status: StatusPermohonan.DIPROSES, assignedTo: targetId } : p);
+      const updatedPermohonanList = state.permohonanList.map(p => p.id === permohonanId ? { 
+        ...p, 
+        status: StatusPermohonan.DIPROSES, 
+        assignedTo: targetId,
+        history: [...(p.history || []), {
+          id: Date.now(),
+          author: 'Administrator' as const,
+          message: `Permohonan dan ${permohonanFiles.length} dokumen/lampiran berhasil dihubungkan ke Dokumen Permohonan data ${targetType === 'pendampingan' ? 'Pendampingan' : targetType === 'perkara' ? 'Penanganan Perkara' : 'Penanganan Putusan'} #${targetId}.`,
+          files: [],
+          timestamp: new Date()
+        }]
+      } : p);
       const updatedSelected = updatedPermohonanList.find(p => p.id === permohonanId) || null;
 
       return {
@@ -761,7 +1047,10 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
         permohonanList: updatedPermohonanList,
         selectedPermohonan: state.selectedPermohonan?.id === permohonanId ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === permohonanId ? updatedSelected : state.currentPermohonanToProses,
-        notification: { message: `Permohonan berhasil di-assign ke ${targetType} existing dan dipindahkan ke Pengelolaan Permohonan.`, type: 'success' }
+        notification: { 
+          message: `Permohonan berhasil dihubungkan ke data ${targetType} existing. ${permohonanFiles.length} dokumen/lampiran telah masuk ke Dokumen Permohonan.`, 
+          type: 'success' 
+        }
       };
     });
   },

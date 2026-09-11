@@ -50,7 +50,7 @@ const viewLabels: Record<string, { label: string; parent?: View }> = {
     'eAdvokasiPencarianPerkara': { label: 'Cari Perkara', parent: 'eAdvokasiPencarian' as View },
     'eAdvokasiPencarianPendampingan': { label: 'Cari Pendampingan', parent: 'eAdvokasiPencarian' as View },
     'eAdvokasiPencarianPutusan': { label: 'Cari Penanganan Putusan', parent: 'eAdvokasiPencarian' as View },
-    'eAdvokasiPencarianDokumen': { label: 'Cari Dokumen (Semantic)', parent: 'eAdvokasiPencarian' as View },
+    'eAdvokasiPencarianDokumen': { label: 'Dokumen', parent: 'eAdvokasiPencarian' as View },
     'eAdvokasiPencarianBankDalil': { label: 'Bank Dalil', parent: 'eAdvokasiPencarian' as View },
     'eAdvokasiMonitoringPersidangan': { label: 'Persidangan', parent: 'eAdvokasiMonitoring' },
     'eAdvokasiMonitoringPutusan': { label: 'Putusan', parent: 'eAdvokasiMonitoring' },

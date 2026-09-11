@@ -145,8 +145,60 @@ const FormPendampinganModal: React.FC<FormPendampinganModalProps> = ({ isOpen, o
             
             const prefilledRincian = `1. Focus:\n2. Locus:\n3. Tempus:\n4. Dolus:\n5. Modus:\n6. Aktor:`;
 
+            let attachedFiles = (initialData as any)?.files || [];
+            if (!isPendampinganRecord) {
+              const perm = initialData as any;
+              const permDocs: any[] = [];
+              if (perm.files && perm.files.length > 0) {
+                perm.files.forEach((f: any, idx: number) => {
+                  permDocs.push({
+                    id: f.id || `perm-${perm.id}-f-${idx}`,
+                    name: f.name,
+                    size: f.size || 102400,
+                    type: f.type || 'application/pdf',
+                    nomor: f.nomor || perm.Nomor || perm.id,
+                    tanggal: f.tanggal || perm.tanggal,
+                    jenis: f.jenis || 'Surat Permohonan',
+                    deskripsi: f.deskripsi || f.description || perm.perihal,
+                    source: f.source || perm.sumber || 'Permohonan'
+                  });
+                });
+              } else {
+                permDocs.push({
+                  id: `perm-${perm.id}-main`,
+                  name: `Surat Permohonan - ${perm.Nomor || perm.id}.pdf`,
+                  size: 145000,
+                  type: 'application/pdf',
+                  nomor: perm.Nomor || perm.id,
+                  tanggal: perm.tanggal,
+                  jenis: 'Surat Permohonan',
+                  deskripsi: perm.perihal,
+                  source: perm.sumber || 'Permohonan'
+                });
+              }
+              if (perm.history) {
+                perm.history.forEach((h: any) => {
+                  (h.files || []).forEach((hf: any, fIdx: number) => {
+                    permDocs.push({
+                      id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+                      name: hf.name,
+                      size: hf.size || 85000,
+                      type: hf.type || 'application/pdf',
+                      nomor: perm.Nomor || perm.id,
+                      tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : perm.tanggal,
+                      jenis: 'Lampiran Balasan Permohonan',
+                      deskripsi: h.message || `Lampiran diskusi oleh ${h.author}`,
+                      source: 'Permohonan (Riwayat)'
+                    });
+                  });
+                });
+              }
+              attachedFiles = permDocs;
+            }
+
             const data: Partial<PendampinganRecord> = {
                 ...initialData,
+                files: attachedFiles,
                 statusPendampingan: isPendampinganRecord ? initialData.statusPendampingan : StatusPendampingan.AKTIF,
                 abstraksi: isPendampinganRecord ? initialData.abstraksi : {
                     tahunMasuk: new Date(initialData.tanggal).getFullYear(),

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PerkaraRecord, View, DokumenLitigasi, FileData, TindakLanjut, Putusan } from '../types';
 import { ArrowLeftIcon, DownloadIcon, EyeIcon, SearchIcon, CloudArrowDownIcon, PencilSquareIcon, DocumentTextIcon, UploadIcon, XIcon, CheckIcon } from './icons';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
@@ -16,6 +16,10 @@ const DokumenPutusan: React.FC<DokumenPutusanProps> = ({ record, onNavigate }) =
   // Local states for keeping track of documents
   const [permohonanDocs, setPermohonanDocs] = useState<any[]>(record.files || []);
   const [tindakLanjutDocs, setTindakLanjutDocs] = useState<any[]>(record.tindakLanjut || []);
+
+  useEffect(() => {
+    setPermohonanDocs(record.files || []);
+  }, [record.id, record.files]);
   
   const [laporanDocs, setLaporanDocs] = useState<any[]>(() => {
     return (record.putusan || []).map(p => ({

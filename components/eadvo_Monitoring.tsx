@@ -171,7 +171,6 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Pendampingan', view: 'eAdvokasiPencarianPendampingan' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Penanganan Putusan', view: 'eAdvokasiPencarianPutusan' as View },
             { icon: <SearchIcon className="h-4 w-4" />, name: 'Cari Dokumen', view: 'eAdvokasiPencarianDokumen' as View },
-            { icon: <SearchIcon className="h-4 w-4" />, name: 'Bank Dalil', view: 'eAdvokasiPencarianBankDalil' as View },
         ]}
     ] : [
         { group: 'MONITORING', items: [
@@ -949,7 +948,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             case 'eAdvokasiPencarianPendampingan': return renderSearchPage('Pencarian Pendampingan', 'Cari berdasarkan Nomor Tiket, Subjek, atau Pemohon...');
             case 'eAdvokasiPencarianPutusan': return renderSearchPage('Pencarian Penanganan Putusan', 'Cari berdasarkan Nomor Putusan, Amar, atau Klasifikasi...');
             case 'eAdvokasiPencarianDokumen': return <CariDokumen currentView={currentView} onNavigate={onNavigate} />;
-            case 'eAdvokasiPencarianBankDalil': return renderSearchPage('Bank Dalil', 'Cari dalil, yurisprudensi, atau referensi hukum...');
+            case 'eAdvokasiPencarianBankDalil': return <CariDokumen currentView={currentView} onNavigate={onNavigate} initialFilter="dalil" />;
             case 'eAdvokasiMonitoringPersidangan': return renderMonitoringTable('Monitoring Persidangan', ['Jadwal Sidang', 'No. Perkara', 'Pengadilan', 'Agenda', 'Status']);
             case 'eAdvokasiMonitoringPutusan': return renderMonitoringTable('Monitoring Putusan', ['Tgl. Putusan', 'No. Putusan', 'Amar Putusan', 'Status BHT', 'Tindak Lanjut']);
             case 'eAdvokasiMonitoringPendampingan': return renderMonitoringTable('Monitoring Pendampingan', ['Tahun', 'Pihak Terkait', 'Pokok Permasalahan', 'Progress', 'Posisi']);

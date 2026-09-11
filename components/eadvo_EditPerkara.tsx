@@ -267,8 +267,60 @@ const EditPerkara: React.FC<EditPerkaraProps> = ({ initialData, onSave, onBack, 
             rincianPokokPerkara: (initialData as Permohonan).uraian || PREFILL_RINCIAN,
         } : {};
         
+        let attachedFiles = (initialData as any)?.files || [];
+        if (isNewRecordFromPermohonan) {
+            const perm = initialData as Permohonan;
+            const permDocs: any[] = [];
+            if (perm.files && perm.files.length > 0) {
+                perm.files.forEach((f: any, idx: number) => {
+                    permDocs.push({
+                        id: f.id || `perm-${perm.id}-f-${idx}`,
+                        name: f.name,
+                        size: f.size || 102400,
+                        type: f.type || 'application/pdf',
+                        nomor: f.nomor || perm.Nomor || perm.id,
+                        tanggal: f.tanggal || perm.tanggal,
+                        jenis: f.jenis || 'Surat Permohonan',
+                        deskripsi: f.deskripsi || (f as any).description || perm.perihal,
+                        source: f.source || perm.sumber || 'Permohonan'
+                    });
+                });
+            } else {
+                permDocs.push({
+                    id: `perm-${perm.id}-main`,
+                    name: `Surat Permohonan - ${perm.Nomor || perm.id}.pdf`,
+                    size: 145000,
+                    type: 'application/pdf',
+                    nomor: perm.Nomor || perm.id,
+                    tanggal: perm.tanggal,
+                    jenis: 'Surat Permohonan',
+                    deskripsi: perm.perihal,
+                    source: perm.sumber || 'Permohonan'
+                });
+            }
+            if (perm.history) {
+                perm.history.forEach(h => {
+                    (h.files || []).forEach((hf: any, fIdx: number) => {
+                        permDocs.push({
+                            id: hf.id || `perm-hist-${h.id}-${fIdx}`,
+                            name: hf.name,
+                            size: hf.size || 85000,
+                            type: hf.type || 'application/pdf',
+                            nomor: perm.Nomor || perm.id,
+                            tanggal: h.timestamp ? new Date(h.timestamp).toLocaleDateString('id-ID') : perm.tanggal,
+                            jenis: 'Lampiran Balasan Permohonan',
+                            deskripsi: h.message || `Lampiran diskusi oleh ${h.author}`,
+                            source: 'Permohonan (Riwayat)'
+                        });
+                    });
+                });
+            }
+            attachedFiles = permDocs;
+        }
+
         setFormData({
             ...initialData,
+            files: attachedFiles,
             statusPerkara: (initialData as PerkaraRecord)?.statusPerkara || StatusPerkara.AKTIF,
             abstraksiPerkara: {
                 ...defaultAbstraksi,

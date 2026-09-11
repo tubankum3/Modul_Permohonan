@@ -9,52 +9,83 @@ import { NadineLayout } from './components/nadine_Layout';
 import Notification from './components/Notification';
 import { ArrowLeftIcon } from './components/icons';
 import Breadcrumb from './components/Breadcrumb';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { 
   Permohonan, View, JenisPermohonan, StatusPermohonan, 
   PendampinganRecord, PerkaraRecord, StatusPerkara, StatusPutusan, Riwayat, TeamMember 
 } from './types';
 
-// Lazy loading large components to satisfy the domain code-splitting request
-const BerandaPage = React.lazy(() => import('./components/BerandaPage'));
-const FaqPage = React.lazy(() => import('./components/FaqPage'));
-const PilihTemplateNaskah = React.lazy(() => import('./components/nadine_PilihTemplateNaskah'));
-const FormNaskahDinas = React.lazy(() => import('./components/nadine_FormNaskahDinas'));
+// Resilient lazy loader that auto-retries failed dynamic imports
+function lazyWithRetry<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+) {
+  return React.lazy(async () => {
+    try {
+      return await factory();
+    } catch (error: any) {
+      console.warn('Gagal memuat modul dinamis, mencoba kembali...', error);
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      try {
+        return await factory();
+      } catch (retryError: any) {
+        const message = String(retryError?.message || '');
+        if (
+          message.includes('Failed to fetch dynamically imported module') ||
+          message.includes('error loading dynamically imported module')
+        ) {
+          const reloaded = sessionStorage.getItem('chunk_reload_attempted');
+          if (!reloaded) {
+            sessionStorage.setItem('chunk_reload_attempted', 'true');
+            window.location.reload();
+          }
+        }
+        throw retryError;
+      }
+    }
+  });
+}
+
+// Lazy loading large components with retry resilience
+const BerandaPage = lazyWithRetry(() => import('./components/BerandaPage'));
+const FaqPage = lazyWithRetry(() => import('./components/FaqPage'));
+const PilihTemplateNaskah = lazyWithRetry(() => import('./components/nadine_PilihTemplateNaskah'));
+const FormNaskahDinas = lazyWithRetry(() => import('./components/nadine_FormNaskahDinas'));
 
 // Satuan Kerja (Permohonan)
-const DaftarPermohonan = React.lazy(() => import('./components/satkem_DaftarPermohonan'));
-const DetailPermohonan = React.lazy(() => import('./components/satkem_DetailPermohonan'));
-const BuatPermohonan = React.lazy(() => import('./components/satkem_BuatPermohonan'));
-const PengelolaanPermohonan = React.lazy(() => import('./components/eadvo_PengelolaanPermohonan'));
-const ProsesPermohonan = React.lazy(() => import('./components/satkem_ProsesPermohonan'));
+const DaftarPermohonan = lazyWithRetry(() => import('./components/satkem_DaftarPermohonan'));
+const DetailPermohonan = lazyWithRetry(() => import('./components/satkem_DetailPermohonan'));
+const BuatPermohonan = lazyWithRetry(() => import('./components/satkem_BuatPermohonan'));
+const PengelolaanPermohonan = lazyWithRetry(() => import('./components/eadvo_PengelolaanPermohonan'));
+const ProsesPermohonan = lazyWithRetry(() => import('./components/satkem_ProsesPermohonan'));
 
 // E-Advokasi
-const EAdvokasiInbox = React.lazy(() => import('./components/eadvo_Inbox'));
-const PengelolaanInformasi = React.lazy(() => import('./components/eadvo_PengelolaanInformasi'));
-const PengelolaanFaq = React.lazy(() => import('./components/eadvo_PengelolaanFaq'));
-const Pendampingan = React.lazy(() => import('./components/eadvo_Pendampingan'));
-const DetailPendampingan = React.lazy(() => import('./components/eadvo_DetailPendampingan'));
-const AssignTeam = React.lazy(() => import('./components/AssignTeam'));
-const PosisiPendampingan = React.lazy(() => import('./components/eadvo_PosisiPendampingan'));
-const PenangananPerkara = React.lazy(() => import('./components/eadvo_PenangananPerkara'));
-const DetailPerkara = React.lazy(() => import('./components/eadvo_DetailPerkara'));
-const EditPerkara = React.lazy(() => import('./components/eadvo_EditPerkara'));
-const UpdatePosisiPerkara = React.lazy(() => import('./components/eadvo_UpdatePosisiPerkara'));
-const EAdvokasiKalender = React.lazy(() => import('./components/eadvo_Kalender'));
-const DaftarAgendaBerikutnya = React.lazy(() => import('./components/eadvo_DaftarAgendaBerikutnya'));
-const PenangananPutusan = React.lazy(() => import('./components/eadvo_PenangananPutusan'));
-const DetailPutusan = React.lazy(() => import('./components/eadvo_DetailPutusan'));
-const UpdateTindakLanjut = React.lazy(() => import('./components/eadvo_UpdateTindakLanjut'));
-const EditPutusan = React.lazy(() => import('./components/eadvo_EditPutusan'));
-const DokumenPerkara = React.lazy(() => import('./components/eadvo_DokumenPerkara'));
-const DokumenPutusan = React.lazy(() => import('./components/eadvo_DokumenPutusan'));
-const DokumenPendampingan = React.lazy(() => import('./components/eadvo_DokumenPendampingan'));
-const Arsip = React.lazy(() => import('./components/eadvo_Arsip'));
-const RecycleBin = React.lazy(() => import('./components/eadvo_RecycleBin'));
-const Monitoring = React.lazy(() => import('./components/eadvo_Monitoring'));
-const Laporan = React.lazy(() => import('./components/eadvo_Laporan'));
-const Referensi = React.lazy(() => import('./components/eadvo_Referensi'));
-const ManajemenUser = React.lazy(() => import('./components/eadvo_ManajemenUser'));
-const PengelolaanTim = React.lazy(() => import('./components/eadvo_PengelolaanTim'));
+const EAdvokasiInbox = lazyWithRetry(() => import('./components/eadvo_Inbox'));
+const PengelolaanInformasi = lazyWithRetry(() => import('./components/eadvo_PengelolaanInformasi'));
+const PengelolaanFaq = lazyWithRetry(() => import('./components/eadvo_PengelolaanFaq'));
+const Pendampingan = lazyWithRetry(() => import('./components/eadvo_Pendampingan'));
+const DetailPendampingan = lazyWithRetry(() => import('./components/eadvo_DetailPendampingan'));
+const AssignTeam = lazyWithRetry(() => import('./components/AssignTeam'));
+const PosisiPendampingan = lazyWithRetry(() => import('./components/eadvo_PosisiPendampingan'));
+const PenangananPerkara = lazyWithRetry(() => import('./components/eadvo_PenangananPerkara'));
+const DetailPerkara = lazyWithRetry(() => import('./components/eadvo_DetailPerkara'));
+const EditPerkara = lazyWithRetry(() => import('./components/eadvo_EditPerkara'));
+const UpdatePosisiPerkara = lazyWithRetry(() => import('./components/eadvo_UpdatePosisiPerkara'));
+const EAdvokasiKalender = lazyWithRetry(() => import('./components/eadvo_Kalender'));
+const DaftarAgendaBerikutnya = lazyWithRetry(() => import('./components/eadvo_DaftarAgendaBerikutnya'));
+const PenangananPutusan = lazyWithRetry(() => import('./components/eadvo_PenangananPutusan'));
+const DetailPutusan = lazyWithRetry(() => import('./components/eadvo_DetailPutusan'));
+const UpdateTindakLanjut = lazyWithRetry(() => import('./components/eadvo_UpdateTindakLanjut'));
+const EditPutusan = lazyWithRetry(() => import('./components/eadvo_EditPutusan'));
+const DokumenPerkara = lazyWithRetry(() => import('./components/eadvo_DokumenPerkara'));
+const DokumenPutusan = lazyWithRetry(() => import('./components/eadvo_DokumenPutusan'));
+const DokumenPendampingan = lazyWithRetry(() => import('./components/eadvo_DokumenPendampingan'));
+const Arsip = lazyWithRetry(() => import('./components/eadvo_Arsip'));
+const RecycleBin = lazyWithRetry(() => import('./components/eadvo_RecycleBin'));
+const Monitoring = lazyWithRetry(() => import('./components/eadvo_Monitoring'));
+const Laporan = lazyWithRetry(() => import('./components/eadvo_Laporan'));
+const Referensi = lazyWithRetry(() => import('./components/eadvo_Referensi'));
+const ManajemenUser = lazyWithRetry(() => import('./components/eadvo_ManajemenUser'));
+const PengelolaanTim = lazyWithRetry(() => import('./components/eadvo_PengelolaanTim'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -555,13 +586,15 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/*" element={<AppContent />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/*" element={<AppContent />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
