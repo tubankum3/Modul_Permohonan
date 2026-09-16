@@ -181,7 +181,7 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
     };
 
     return (
-       <div className="p-8 bg-gray-50 h-full flex flex-col space-y-4">
+       <div className="p-4 sm:p-6 md:p-8 bg-gray-50 h-full flex flex-col space-y-4 overflow-y-auto md:overflow-hidden">
             <ConfirmationModal
                 isOpen={setStatusModalState.isOpen}
                 onClose={handleCancelSetStatus}
@@ -193,17 +193,19 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
 
             <Breadcrumb currentView="eAdvokasiPengelolaan" onNavigate={onNavigate} />
 
-            <h1 className="text-3xl font-bold text-gray-800">Pengelolaan Permohonan</h1>
-            <p className="text-gray-600 mt-1">Kelola permohonan yang sedang diproses atau telah selesai.</p>
-            <div className="border-b-4 border-blue-600 w-16 my-2"></div>
+            <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Pengelolaan Permohonan</h1>
+                <p className="text-gray-600 text-sm sm:text-base mt-1">Kelola permohonan yang sedang diproses atau telah selesai.</p>
+                <div className="border-b-4 border-blue-600 w-16 my-2"></div>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-1">
                 <StatCard title="Aktif" count={diprosesCount} filter="Diproses" color={{ bg: 'bg-orange-50', border: 'border-orange-400', text: 'text-orange-800' }} />
                 <StatCard title="Selesai" count={selesaiCount} filter="Selesai" color={{ bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-800' }} />
                 <StatCard title="Total" count={totalCount} filter="Total" color={{ bg: 'bg-blue-50', border: 'border-blue-400', text: 'text-blue-800' }} />
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col min-h-0">
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 flex-1 flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-4">
                     <div className="relative w-full max-w-md">
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -217,14 +219,15 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-hidden flex flex-col">
-                    <div className="overflow-x-auto flex-1">
-                        <table className="min-w-full divide-y divide-gray-200">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto flex-1">
+                        <table className="min-w-[760px] w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
@@ -340,6 +343,77 @@ const PengelolaanPermohonan: React.FC<PengelolaanPermohonanProps> = ({
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile Card List View */}
+                    <div className="md:hidden flex-1 overflow-y-auto divide-y divide-gray-100 pr-0.5">
+                        {paginatedPermohonanList.map((p) => (
+                            <div key={p.id} className="p-3 bg-white border border-gray-100 rounded-lg mb-2 shadow-2xs hover:border-blue-200 transition-colors">
+                                <div className="flex items-start justify-between gap-2 mb-1.5">
+                                    <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
+                                        {p.Nomor || p.id}
+                                    </span>
+                                    <span className={`px-2 py-0.5 inline-flex text-[11px] font-semibold rounded-full ${getStatusBadgeClass(p.status)}`}>
+                                        {p.status}
+                                    </span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2" title={p.perihal}>
+                                    {p.perihal}
+                                </p>
+                                <div className="text-xs text-gray-500 mb-2">
+                                    <span>{p.tanggal} • <span className="text-gray-700 font-medium">{p.jenis}</span></span>
+                                </div>
+                                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                    <span className="text-[11px] text-gray-400 font-medium">Aksi Cepat:</span>
+                                    <div className="flex items-center space-x-1.5">
+                                        <button 
+                                            onClick={() => handleViewDetails(p)} 
+                                            className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition" 
+                                            title="View Detail"
+                                        >
+                                            <EyeIcon className="h-4 w-4" />
+                                        </button>
+                                        {p.status === StatusPermohonan.DIPROSES ? (
+                                            <>
+                                                <button 
+                                                    onClick={() => handleAssignTeam(p)} 
+                                                    className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition" 
+                                                    title="Penugasan Tim"
+                                                >
+                                                    <UserIcon className="h-4 w-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        onSelectPermohonan(p);
+                                                        onNavigate('pilihTemplate');
+                                                    }} 
+                                                    className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition" 
+                                                    title="SKU/Dokumen"
+                                                >
+                                                    <DocumentTextIcon className="h-4 w-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => requestSetStatus(p.id)} 
+                                                    className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition" 
+                                                    title="Set Selesai"
+                                                >
+                                                    <CheckCircleIcon className="h-4 w-4" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button 
+                                                onClick={() => onUpdateStatus(p.id, StatusPermohonan.DIPROSES)} 
+                                                className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition" 
+                                                title="Restore ke Aktif"
+                                            >
+                                                <RotateCcwIcon className="h-4 w-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
                     {filteredPermohonanList.length === 0 && (
                         <div className="text-center py-10 text-gray-500">
                             <p>Tidak ada permohonan yang sesuai dengan filter.</p>

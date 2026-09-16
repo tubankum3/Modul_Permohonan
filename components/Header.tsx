@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { BellIcon, ViewGridIcon } from './icons';
+import { BellIcon, ViewGridIcon, MenuIcon } from './icons';
 import { View } from '../types';
 import { useAdvokasiStore } from '../useAdvokasiStore';
 
@@ -17,6 +17,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const teamRole = useAdvokasiStore((state) => state.teamRole);
   const setTeamRole = useAdvokasiStore((state) => state.setTeamRole);
   const userName = useAdvokasiStore((state) => state.userName);
+  const toggleMobileSidebar = useAdvokasiStore((state) => state.toggleMobileSidebar);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,44 +32,56 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   }, []);
 
   return (
-    <header className="bg-[#0055A5] text-white flex items-center justify-between p-3 shadow-md z-20">
-      <div className="flex items-center">
+    <header className="bg-[#0055A5] text-white flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 shadow-md z-30 shrink-0 select-none">
+      <div className="flex items-center space-x-1 sm:space-x-2">
+        {/* Mobile Hamburger Menu Toggle */}
+        <button 
+          type="button" 
+          onClick={toggleMobileSidebar}
+          className="md:hidden p-1.5 rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/40 active:scale-95 transition-all text-white"
+          aria-label="Toggle Sidebar Navigasi"
+          title="Buka / Tutup Menu Navigasi"
+        >
+          <MenuIcon className="h-6 w-6" />
+        </button>
+
         <div className="relative" ref={menuRef}>
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 mr-2 rounded-full hover:bg-white/20" aria-label="Application Menu">
-                <ViewGridIcon className="h-6 w-6" />
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 transition-colors" aria-label="Application Menu" title="Pilihan Modul">
+                <ViewGridIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
             {isMenuOpen && (
-                <div className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-lg py-1 text-gray-800 ring-1 ring-black ring-opacity-5">
+                <div className="absolute left-0 mt-2 w-72 bg-white rounded-md shadow-xl py-1 text-gray-800 ring-1 ring-black ring-opacity-5 z-50">
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); onNavigate('beranda'); setIsMenuOpen(false); }}
-                        className="block px-4 py-3 text-sm font-medium hover:bg-gray-100"
+                        className="block px-4 py-3 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 transition"
                     >
                         Modul Permohonan Bantuan Hukum
                     </a>
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); onNavigate('pilihTemplate'); setIsMenuOpen(false); }}
-                        className="block px-4 py-3 text-sm font-medium hover:bg-gray-100"
+                        className="block px-4 py-3 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 transition"
                     >
                         Modul Nadine
                     </a>
                     <a
                         href="#"
                         onClick={(e) => { e.preventDefault(); onNavigate('eAdvokasiInbox'); setIsMenuOpen(false); }}
-                        className="block px-4 py-3 text-sm font-medium hover:bg-gray-100"
+                        className="block px-4 py-3 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 transition"
                     >
                         Modul E-Advokasi
                     </a>
                 </div>
             )}
         </div>
-        <h1 className="text-xl font-bold">satu kemenkeu</h1>
+        <h1 className="text-base sm:text-xl font-bold tracking-tight whitespace-nowrap">satu kemenkeu</h1>
       </div>
-      <div className="flex items-center space-x-4">
+
+      <div className="flex items-center space-x-2 sm:space-x-3">
         {/* Role Switcher Widget */}
-        <div className="flex items-center space-x-2 bg-white/15 px-3 py-1.5 rounded-full border border-white/25 shadow-inner">
-          <span className="text-xs text-blue-100 font-medium whitespace-nowrap">Role:</span>
+        <div className="flex items-center bg-white/15 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-white/25 shadow-inner">
+          <span className="hidden sm:inline text-xs text-blue-100 font-medium mr-1.5 whitespace-nowrap">Role:</span>
           <select 
             value={globalRole} 
             onChange={(e) => {
@@ -76,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               setGlobalRole(val);
               useAdvokasiStore.getState().showNotification(`Peran berganti: ${val}`, 'info');
             }}
-            className="bg-transparent text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-6"
+            className="bg-transparent text-xs sm:text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-4"
           >
             <option value="Super Admin">Super Admin</option>
             <option value="Manajer">Manajer</option>
@@ -94,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
                   setTeamRole(val);
                   useAdvokasiStore.getState().showNotification(`Peran Tim (Pegawai) berganti: ${val}`, 'info');
                 }}
-                className="bg-transparent text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-6"
+                className="bg-transparent text-xs sm:text-sm text-white font-semibold focus:outline-none cursor-pointer hover:text-blue-100 transition [&>option]:text-gray-900 border-none outline-none py-0 pr-4"
               >
                 <option value="PIC">PIC</option>
                 <option value="Editor">Editor</option>
@@ -104,12 +117,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
           )}
         </div>
 
-        <button className="p-2 rounded-full hover:bg-white/20">
-          <BellIcon className="h-6 w-6" />
+        <button className="p-1.5 sm:p-2 rounded-full hover:bg-white/20 transition text-white" title="Notifikasi">
+          <BellIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
         <div className="flex items-center space-x-2">
-           <img src="https://i.pravatar.cc/40?img=1" alt="User" className="h-8 w-8 rounded-full" />
-           <div className="text-left leading-tight hidden md:block">
+           <img src="https://i.pravatar.cc/40?img=1" alt="User" className="h-7 w-7 sm:h-8 sm:w-8 rounded-full ring-1 ring-white/40" />
+           <div className="text-left leading-tight hidden lg:block">
               <p className="text-sm font-semibold">{userName}</p>
               <p className="text-[10px] text-blue-100 font-medium">{globalRole === 'Pegawai' ? `${globalRole} (${teamRole})` : globalRole}</p>
            </div>

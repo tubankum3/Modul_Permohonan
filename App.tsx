@@ -404,11 +404,25 @@ const AppContent: React.FC = () => {
       case 'create':
       case 'edit':
         return (
-          <div className="flex h-full w-full">
-            <DaftarPermohonan permohonanList={permohonanList} selectedId={selectedPermohonan?.id} onSelect={handleSelectPermohonan} onCreateNew={() => handleNavigate('create')} onEdit={(p) => { setSelectedPermohonan(p); handleNavigate('edit', p); }} onDelete={handleDelete} onSend={handleSend} currentView={currentView} viewMode="user"/>
-            {currentView === 'detail' && selectedPermohonan && <DetailPermohonan permohonan={selectedPermohonan} onAddReply={handleAddReply} onUpdateReply={handleUpdateReply} onDeleteReply={handleDeleteReply} currentUserRole="Pegawai" />}
-            {currentView === 'create' && <BuatPermohonan onSaveDraft={handleSaveDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />}
-            {currentView === 'edit' && selectedPermohonan && <BuatPermohonan initialData={selectedPermohonan} onUpdateDraft={handleUpdateDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />}
+          <div className="flex h-full w-full overflow-hidden">
+            <div className={`h-full ${['detail', 'create', 'edit'].includes(currentView) ? 'hidden md:flex shrink-0' : 'flex w-full md:w-auto shrink-0'}`}>
+              <DaftarPermohonan permohonanList={permohonanList} selectedId={selectedPermohonan?.id} onSelect={handleSelectPermohonan} onCreateNew={() => handleNavigate('create')} onEdit={(p) => { setSelectedPermohonan(p); handleNavigate('edit', p); }} onDelete={handleDelete} onSend={handleSend} currentView={currentView} viewMode="user"/>
+            </div>
+            {currentView === 'detail' && selectedPermohonan && (
+              <div className="flex-1 w-full min-w-0 h-full overflow-y-auto">
+                <DetailPermohonan permohonan={selectedPermohonan} onBack={() => handleNavigate('list')} onAddReply={handleAddReply} onUpdateReply={handleUpdateReply} onDeleteReply={handleDeleteReply} currentUserRole="Pegawai" />
+              </div>
+            )}
+            {currentView === 'create' && (
+              <div className="flex-1 w-full min-w-0 h-full overflow-y-auto">
+                <BuatPermohonan onSaveDraft={handleSaveDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />
+              </div>
+            )}
+            {currentView === 'edit' && selectedPermohonan && (
+              <div className="flex-1 w-full min-w-0 h-full overflow-y-auto">
+                <BuatPermohonan initialData={selectedPermohonan} onUpdateDraft={handleUpdateDraft} onCancel={() => handleNavigate('list')} onNavigateToNadine={() => handleNavigate('pilihTemplate')} />
+              </div>
+            )}
           </div>
         );
       case 'pilihTemplate': 

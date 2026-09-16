@@ -20,10 +20,10 @@ const TabButton: React.FC<{ name: DetailTab, label: string, activeTab: DetailTab
 );
 
 const DetailRow: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
-    <tr className="border-b border-gray-100">
-        <td className="py-2.5 pr-4 align-top text-sm font-medium text-gray-500 w-1/4">{label}</td>
-        <td className="py-2.5 text-sm text-gray-800">{value || '-'}</td>
-    </tr>
+    <div className="flex flex-col md:flex-row border-b border-gray-100 last:border-0 py-2.5 md:py-3">
+        <span className="text-sm font-medium text-gray-500 w-full md:w-1/4 flex-shrink-0 mb-1 md:mb-0 pr-4">{label}</span>
+        <span className="text-sm text-gray-800">{value || '-'}</span>
+    </div>
 );
 
 
@@ -64,8 +64,7 @@ const InformasiUmumTab: React.FC<{ record: PendampinganRecord }> = ({ record }) 
             <div className="border border-gray-300 rounded-md">
                 <h3 className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md">Informasi Umum</h3>
                 <div className="p-4">
-                    <table className="w-full">
-                        <tbody>
+                    
                             <DetailRow label="Tahun Masuk" value={abstraksi.tahunMasuk} />
                             <DetailRow label="Nomor Tiket / Surat Permohonan" value={abstraksi.nomorTiket} />
                             <DetailRow label="Unit Pemohon" value={abstraksi.unitPemohon} />
@@ -84,8 +83,7 @@ const InformasiUmumTab: React.FC<{ record: PendampinganRecord }> = ({ record }) 
                                     ))}
                                 </div>
                             ) : '-'} />
-                        </tbody>
-                    </table>
+                        
                 </div>
             </div>
 

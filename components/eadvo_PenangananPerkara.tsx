@@ -160,55 +160,55 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
             confirmText="Selesai"
          />
       )}
-      <div className="p-8 bg-gray-50 h-full flex flex-col space-y-4 overflow-y-auto">
+      <div className="p-4 sm:p-6 md:p-8 bg-gray-50 h-full flex flex-col space-y-4 overflow-y-auto">
         <Breadcrumb currentView="eAdvokasiPenangananPerkara" onNavigate={onNavigate} />
         
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Penanganan Perkara</h1>
-            <p className="text-gray-600 mt-1">Kelola permohonan bantuan hukum litigasi.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Penanganan Perkara</h1>
+            <p className="text-gray-600 text-sm sm:text-base mt-1">Kelola permohonan bantuan hukum litigasi.</p>
             <div className="flex items-center mt-2 space-x-4">
                 <div className="border-b-4 border-blue-600 w-16"></div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {canCreate ? (
-            <button onClick={() => onNavigate('eAdvokasiPerkaraEdit')} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+            <button onClick={() => onNavigate('eAdvokasiPerkaraEdit')} className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2 text-sm shadow-sm shrink-0">
               <PlusIcon className="h-5 w-5" />
               <span>Tambah Perkara</span>
             </button>
           ) : (
-            <div className="text-xs bg-gray-100 border border-gray-200 text-gray-500 px-3 py-2 rounded-lg font-medium">
+            <div className="text-xs bg-gray-100 border border-gray-200 text-gray-500 px-3 py-2 rounded-lg font-medium text-center">
               Tambah Perkara Baru Terbatas (Hanya PIC)
             </div>
           )}
-          <div className="flex items-center space-x-2">
-              <div className="relative">
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
                   <SearchIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input 
                       type="text" 
                       placeholder="Cari daftar perkara..." 
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
               </div>
-              <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-100 font-semibold">
+              <button className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-100 font-semibold text-sm shrink-0">
                   Filter
               </button>
           </div>
         </div>
 
         {/* Perkara Baru */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">Perkara Baru</h2>
-          <p className="text-sm text-gray-500 mb-4">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Perkara Baru</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mb-4">
             Daftar permohonan penanganan perkara yang telah disetujui dari inbox and siap untuk direkam menjadi perkara aktif.
           </p>
-          <div className="overflow-y-auto max-h-64">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto max-h-64">
+            <table className="min-w-[650px] w-full divide-y divide-gray-200">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Tiket/ND</th>
@@ -260,8 +260,9 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
               </nav>
           </div>
           <div className="flex-1 overflow-hidden flex flex-col mt-4">
-              <div className="overflow-x-auto flex-1">
-                  <table className="min-w-full divide-y divide-gray-200">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto flex-1">
+                  <table className="min-w-[880px] w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50 sticky top-0 z-10">
                           <tr>
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
@@ -383,6 +384,52 @@ const PenangananPerkara: React.FC<PenangananPerkaraProps> = ({ perkaraBaruList, 
                       )}
                   </tbody>
               </table>
+          </div>
+
+          {/* Mobile Card List View */}
+          <div className="md:hidden flex-1 overflow-y-auto divide-y divide-gray-100 pr-0.5 space-y-2">
+              {paginatedDaftarPerkara.map((p) => (
+                  <div key={p.id} className="p-3 bg-white border border-gray-100 rounded-lg shadow-2xs">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
+                              {p.abstraksiPerkara?.noPerkara || p.Nomor || p.id}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                              Tahun {p.abstraksiPerkara?.tahunMasuk || '-'}
+                          </span>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
+                          {p.perihal || p.abstraksiPerkara?.jenisPokokPerkara || 'Penanganan Perkara'}
+                      </p>
+                      <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+                          <div><span className="text-gray-400">Jenis:</span> {p.abstraksiPerkara?.jenisPerkara || '-'} ({p.abstraksiPerkara?.jenisPokokPerkara || '-'})</div>
+                          <div><span className="text-gray-400">Posisi:</span> <span className="font-medium text-gray-700">{getStatusPosisi(p)}</span></div>
+                          <div><span className="text-gray-400">PIC:</span> <span className="text-gray-700 font-medium">{getPicName(p)}</span></div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                          <span className="text-[11px] text-gray-400 font-medium">Aksi:</span>
+                          <div className="flex items-center space-x-1">
+                              <button onClick={() => handleAction('view', p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition" title="Detail"><EyeIcon className="h-4 w-4"/></button>
+                              {canEdit && activeTab === 'Aktif' && (
+                                  <button onClick={() => handleAction('edit', p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition" title="Edit"><PencilIcon className="h-4 w-4"/></button>
+                              )}
+                              {canEdit && activeTab === 'Aktif' && (
+                                  <button onClick={() => handleAction('update', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition" title="Posisi"><ArrowUpIcon className="h-4 w-4"/></button>
+                              )}
+                              <button onClick={() => handleAction('dokumen', p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition" title="Dokumen"><DocumentTextIcon className="h-4 w-4"/></button>
+                              {canComplete && activeTab === 'Selesai' && (
+                                  <button onClick={() => handleAction('restore', p)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition" title="Restore"><RotateCcwIcon className="h-4 w-4"/></button>
+                              )}
+                              {canComplete && activeTab === 'Selesai' && (
+                                  <button onClick={() => handleAction('forward', p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition" title="Forward ke Putusan"><ForwardIcon className="h-4 w-4"/></button>
+                              )}
+                          </div>
+                      </div>
+                  </div>
+              ))}
+              {filteredDaftarPerkara.length === 0 && (
+                  <div className="text-center py-8 text-gray-500 text-sm">Tidak ada data untuk ditampilkan.</div>
+              )}
           </div>
           <Pagination 
               totalItems={filteredDaftarPerkara.length}

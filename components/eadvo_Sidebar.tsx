@@ -3,7 +3,8 @@ import React from 'react';
 import { 
     MailIcon, BriefcaseIcon, HomeIcon, UserGroupIcon, ShieldCheckIcon, 
     DocumentTextIcon, CalendarIcon, DesktopComputerIcon, ArchiveIcon, TrashIcon, 
-    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon, TrendingUpIcon
+    TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon, TrendingUpIcon,
+    XIcon
 } from './icons';
 import { View } from '../types';
 import { useAdvokasiStore } from '../useAdvokasiStore';
@@ -11,6 +12,7 @@ import { useAdvokasiStore } from '../useAdvokasiStore';
 interface EAdvokasiSidebarProps {
     onNavigate: (view: View) => void;
     currentView: View;
+    onCloseMobile?: () => void;
 }
 
 // Export access check helper so it can be used for route guards
@@ -165,7 +167,7 @@ const menuGroups: MenuGroup[] = [
     }
 ];
 
-const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, currentView }) => {
+const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, currentView, onCloseMobile }) => {
     const globalRole = useAdvokasiStore((state) => state.globalRole);
   
     const isActive = (view: View) => {
@@ -195,9 +197,19 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
     })).filter(group => group.items.length > 0);
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col p-4 space-y-4">
-      <div className="mb-4">
+    <aside className="w-64 max-w-[80vw] h-full bg-white border-r border-gray-200 flex flex-col p-4 space-y-4 select-none">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="text-xl font-bold text-gray-800">E-Advokasi</h2>
+        {onCloseMobile && (
+          <button 
+            type="button" 
+            onClick={onCloseMobile}
+            className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition"
+            aria-label="Tutup Menu"
+          >
+            <XIcon className="h-5 w-5" />
+          </button>
+        )}
       </div>
       <nav className="flex-1 overflow-y-auto">
         {filteredGroups.map((group, groupIndex) => (
@@ -207,7 +219,10 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
               {group.items.map((item, index) => (
                   <li key={index}>
                     <button
-                      onClick={() => onNavigate(item.view)}
+                      onClick={() => {
+                        onNavigate(item.view);
+                        if (onCloseMobile) onCloseMobile();
+                      }}
                       className={`w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left ${
                         isActive(item.view) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'
                       }`}

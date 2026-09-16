@@ -72,7 +72,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   onSetPic,
   onNavigate
 }) => {
-  const [activeTab, setActiveTab] = useState<'rincian' | 'assign' | 'assignExisting' | 'rekamBaru'>('rincian');
+  const [activeTab, setActiveTab] = useState<'rincian' | 'assign' | 'assignExisting'>('rincian');
   const [selectedTargetType, setSelectedTargetType] = useState<'pendampingan' | 'perkara' | 'putusan'>('pendampingan');
   const [selectedTargetId, setSelectedTargetId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -354,17 +354,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
           >
             Assign to Existing
           </button>
-          <button
-            onClick={() => setActiveTab('rekamBaru')}
-            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-1.5 ${
-              activeTab === 'rekamBaru'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <DocumentAddIcon className="h-4 w-4" />
-            <span>Rekam Data Baru</span>
-          </button>
+          
         </nav>
       </div>
 
@@ -531,106 +521,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                 </div>
             </div>
         )}
-        {activeTab === 'rekamBaru' && (
-            <div className="p-6 bg-white m-6 rounded-lg shadow-sm border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-1">Rekam Data Baru dari Permohonan</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                    Pilih modul tujuan di bawah ini. Semua informasi permohonan beserta seluruh berkas dokumen & lampiran ({permohonanFiles.length} berkas) akan otomatis masuk ke Dokumen Permohonan data baru tersebut.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Kartu 1: Pendampingan Baru */}
-                    <div className="border border-blue-200 bg-blue-50/40 rounded-xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="p-3 bg-blue-100 rounded-lg text-blue-700">
-                                    <ShieldCheckIcon className="h-6 w-6" />
-                                </div>
-                                <span className="text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">
-                                    Pendampingan
-                                </span>
-                            </div>
-                            <h4 className="text-base font-bold text-gray-900 mb-2">Rekam Pendampingan Baru</h4>
-                            <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                                Catat permohonan ini sebagai berkas Pendampingan Hukum baru. Seluruh berkas surat dan lampiran diskusi akan terhubung ke <strong>Dokumen Permohonan</strong> pada data Pendampingan.
-                            </p>
-                            <div className="text-xs text-gray-500 bg-white/80 p-2.5 rounded-lg border border-blue-100 mb-4">
-                                <p className="font-semibold text-gray-700 mb-1">Dokumen yang terhubung ({permohonanFiles.length}):</p>
-                                <p className="truncate text-gray-600">{permohonanFiles.map(f => f.name).join(', ')}</p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => onNavigate('eAdvokasiPendampingan', permohonan)}
-                            className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                        >
-                            <DocumentAddIcon className="h-4 w-4 mr-2" />
-                            Rekam Pendampingan
-                        </button>
-                    </div>
-
-                    {/* Kartu 2: Penanganan Perkara Baru */}
-                    <div className="border border-indigo-200 bg-indigo-50/40 rounded-xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="p-3 bg-indigo-100 rounded-lg text-indigo-700">
-                                    <BriefcaseIcon className="h-6 w-6" />
-                                </div>
-                                <span className="text-xs font-bold px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-full">
-                                    Penanganan Perkara
-                                </span>
-                            </div>
-                            <h4 className="text-base font-bold text-gray-900 mb-2">Rekam Perkara Baru</h4>
-                            <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                                Catat permohonan ini sebagai perkara Litigasi baru. Seluruh berkas surat dan lampiran diskusi otomatis masuk ke folder <strong>Dokumen Permohonan</strong> perkara.
-                            </p>
-                            <div className="text-xs text-gray-500 bg-white/80 p-2.5 rounded-lg border border-indigo-100 mb-4">
-                                <p className="font-semibold text-gray-700 mb-1">Dokumen yang terhubung ({permohonanFiles.length}):</p>
-                                <p className="truncate text-gray-600">{permohonanFiles.map(f => f.name).join(', ')}</p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => onNavigate('eAdvokasiPerkaraEdit', permohonan)}
-                            className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                        >
-                            <DocumentAddIcon className="h-4 w-4 mr-2" />
-                            Rekam Penanganan Perkara
-                        </button>
-                    </div>
-
-                    {/* Kartu 3: Penanganan Putusan Baru */}
-                    <div className="border border-emerald-200 bg-emerald-50/40 rounded-xl p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="p-3 bg-emerald-100 rounded-lg text-emerald-700">
-                                    <FileTextIcon className="h-6 w-6" />
-                                </div>
-                                <span className="text-xs font-bold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">
-                                    Penanganan Putusan
-                                </span>
-                            </div>
-                            <h4 className="text-base font-bold text-gray-900 mb-2">Rekam Putusan Baru</h4>
-                            <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                                Catat permohonan ini sebagai Penanganan Putusan baru. Seluruh dokumen dan lampiran permohonan akan terintegrasi langsung ke <strong>Dokumen Permohonan</strong> putusan.
-                            </p>
-                            <div className="text-xs text-gray-500 bg-white/80 p-2.5 rounded-lg border border-emerald-100 mb-4">
-                                <p className="font-semibold text-gray-700 mb-1">Dokumen yang terhubung ({permohonanFiles.length}):</p>
-                                <p className="truncate text-gray-600">{permohonanFiles.map(f => f.name).join(', ')}</p>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => onNavigate('eAdvokasiPutusanEdit', permohonan)}
-                            className="w-full inline-flex items-center justify-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                        >
-                            <DocumentAddIcon className="h-4 w-4 mr-2" />
-                            Rekam Penanganan Putusan
-                        </button>
-                    </div>
-                </div>
-            </div>
-        )}
+        
       </div>
 
       {/* Pratinjau Detail Record Dialog / Modal Overlay */}

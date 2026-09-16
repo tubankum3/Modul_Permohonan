@@ -4,7 +4,11 @@ import { PlusIcon, PencilIcon, TrashIcon, ArrowLeftIcon, XIcon } from './icons';
 import ConfirmationModal from './ConfirmationModal';
 import Breadcrumb from './Breadcrumb';
 
+
 const JENIS_OBJEK_TUNTUTAN_OPTIONS = ['Tanah', 'Bangunan', 'Uang/Dana', 'Aset Tetap/BMN', 'Aset Lainnya', 'Sita Jaminan', 'Lain-lain'];
+const KELOMPOK_PIHAK_OPTIONS = ['Penggugat/Pemohon', 'Tergugat/Termohon', 'Turut Tergugat', 'Intervensi', 'Lain-lain'];
+const JENIS_IDENTITAS_OPTIONS = ['KTP', 'NPWP', 'SIM', 'Paspor', 'Lainnya'];
+
 const JENIS_TUNTUTAN_OPTIONS = ['Materiil', 'Immateriil', 'Dwangsom'];
 const SATUAN_MATA_UANG_OPTIONS = ['IDR - Rupiah', 'USD - US Dollar', 'EUR - Euro', 'JPY - Yen', 'Lainnya'];
 
@@ -125,7 +129,7 @@ const CrudModal: React.FC<{
     onSave: (data: any) => void, 
     title: string, 
     initialData: any, 
-    fields: { name: string, label: string, type: string, options?: string[] }[],
+    fields: { name: string, label: string, type: string, options?: any[] }[],
     extraSection?: React.ReactNode
 }> = ({ isOpen, onClose, onSave, title, initialData, fields, extraSection }) => {
     const [formData, setFormData] = useState(initialData);
@@ -147,7 +151,7 @@ const CrudModal: React.FC<{
         onSave(formData);
     };
 
-    const renderField = (field: { name: string, label: string, type: string, options?: string[] }) => {
+    const renderField = (field: { name: string, label: string, type: string, options?: any[] }) => {
         return (
             <div key={field.name}>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
@@ -329,7 +333,7 @@ interface EditPutusanProps {
 
 const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, onNavigate }) => {
     const [formData, setFormData] = useState<Partial<PerkaraRecord>>({});
-    const [activeTab, setActiveTab] = useState<'tuntutan' | 'analisis'>('tuntutan');
+    const [activeTab, setActiveTab] = useState<'pihak' | 'tuntutan' | 'analisis'>('pihak');
     const [modal, setModal] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
     const [deleteConfirm, setDeleteConfirm] = useState<{ type: string, isOpen: boolean, data: any }>({ type: '', isOpen: false, data: null });
 
@@ -454,6 +458,18 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
         if (type === 'tuntutan-akhir') {
             list = formData.tuntutanAkhir || [];
             setList = (newList) => setFormData(prev => ({ ...prev, tuntutanAkhir: newList }));
+        } else if (type === 'pihak-P') {
+            list = formData.pihakP || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakP: newList }));
+        } else if (type === 'pihak-T') {
+            list = formData.pihakT || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakT: newList }));
+        } else if (type === 'pihak-P') {
+            list = formData.pihakP || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakP: newList }));
+        } else if (type === 'pihak-T') {
+            list = formData.pihakT || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakT: newList }));
         }
         
         if (data.id) { // Edit
@@ -473,13 +489,80 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
         if (type === 'tuntutan-akhir') {
             list = formData.tuntutanAkhir || [];
             setList = (newList) => setFormData(prev => ({ ...prev, tuntutanAkhir: newList }));
+        } else if (type === 'pihak-P') {
+            list = formData.pihakP || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakP: newList }));
+        } else if (type === 'pihak-T') {
+            list = formData.pihakT || [];
+            setList = (newList) => setFormData(prev => ({ ...prev, pihakT: newList }));
         }
 
         setList(list.filter(item => item.id !== data.id));
         setDeleteConfirm({ type: '', isOpen: false, data: null });
     }
 
-    const TabButton = ({ tab, label }: { tab: 'tuntutan' | 'analisis', label: string }) => (
+    
+    const PihakSection: React.FC<{ type: 'P' | 'T' }> = ({ type }) => {
+        const title = `Para Pihak ${type === 'P' ? 'Penggugat' : 'Tergugat'}`;
+        const data = type === 'P' ? formData.pihakP : formData.pihakT;
+        return (
+            <div className="mt-4">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-850">{title}</h3>
+                    <button type="button" onClick={() => setModal({ type: `pihak-${type}`, isOpen: true, data: { noUrut: `${type}${ (data?.length || 0) + 1}`, pihak: '', identitas: '' }})} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm flex items-center shadow-sm transition-all"><PlusIcon className="h-4 w-4 mr-1"/>Pihak</button>
+                </div>
+                <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>{['Principal', 'Urutan', 'Kelompok', 'Jenis ID', 'Nama Identitas', 'Aksi'].map(h => <th key={h} className="py-2.5 px-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</th>)}</tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                            {(data || []).map((p: any) => (
+                                <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <td className="py-2.5 px-4 text-center">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={p.unitBerperkara === 'Ya'} 
+                                            onChange={(e) => {
+                                                const isChecked = e.target.checked;
+                                                const pihakType = type === 'P' ? 'pihakP' : 'pihakT';
+                                                
+                                                setFormData(prev => {
+                                                    const currentList = prev[pihakType] || [];
+                                                    const updatedCurrentList = currentList.map(item => 
+                                                        item.id === p.id ? { ...item, unitBerperkara: isChecked ? 'Ya' : 'Tidak' } : item
+                                                    );
+                                                    return { ...prev, [pihakType]: updatedCurrentList };
+                                                });
+                                            }}
+                                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                    </td>
+                                    <td className="py-2.5 px-4 text-gray-600 font-semibold">{p.urutan}</td>
+                                    <td className="py-2.5 px-4 text-gray-800">{p.kelompokPihak}</td>
+                                    <td className="py-2.5 px-4 text-gray-700">{p.jenisIdentitas}</td>
+                                    <td className="py-2.5 px-4 text-gray-700 font-medium">{p.identitas}</td>
+                                    <td className="py-2.5 px-4 space-x-2">
+                                        <button type="button" onClick={() => setModal({type: `pihak-${type}`, isOpen: true, data: p})} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-md transition-colors"><PencilIcon className="h-4 w-4"/></button>
+                                        <button type="button" onClick={() => setDeleteConfirm({type: `pihak-${type}`, isOpen: true, data: p})} className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"><TrashIcon className="h-4 w-4"/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {(!data || data.length === 0) && (
+                                <tr>
+                                    <td colSpan={6} className="py-8 text-center text-gray-400 italic">
+                                        Belum ada data pihak. Silakan tambah data.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
+    const TabButton = ({ tab, label }: { tab: 'pihak' | 'tuntutan' | 'analisis', label: string }) => (
         <button 
             type="button" 
             onClick={() => setActiveTab(tab)} 
@@ -502,15 +585,24 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
             )}
             {modal.isOpen && (
                 <CrudModal isOpen={modal.isOpen} onClose={() => setModal({ type: '', isOpen: false, data: null })} onSave={handleCrudSave}
-                    title={`${modal.data.id ? 'Edit' : 'Tambah'} Tuntutan Akhir`}
+                    title={`${modal.data.id ? 'Edit' : 'Tambah'} ${modal.type.startsWith('pihak') ? 'Pihak' : 'Tuntutan Akhir'}`}
                     initialData={modal.data}
-                    fields={[ 
-                        { name: 'jenisObjekTuntutan', label: 'Jenis Objek Tuntutan', type: 'select', options: JENIS_OBJEK_TUNTUTAN_OPTIONS }, 
-                        { name: 'jenis', label: 'Jenis Tuntutan', type: 'select', options: JENIS_TUNTUTAN_OPTIONS }, 
-                        { name: 'satuan', label: 'Satuan/Mata Uang', type: 'select', options: SATUAN_MATA_UANG_OPTIONS }, 
-                        { name: 'jumlahNominal', label: 'Jumlah/Nominal', type: 'number' }, 
-                        { name: 'keterangan', label: 'Keterangan', type: 'richtext' } 
-                    ]}
+                    fields={
+                        modal.type.startsWith('pihak') ? [
+                            { name: 'kelompokPihak', label: 'Kelompok Para Pihak', type: 'select', options: KELOMPOK_PIHAK_OPTIONS },
+                            { name: 'urutan', label: 'Urutan', type: 'select', options: [1,2,3,4,5,6,7,8,9,10] },
+                            { name: 'jenisIdentitas', label: 'Jenis Identitas', type: 'select', options: JENIS_IDENTITAS_OPTIONS },
+                            { name: 'identitas', label: 'Nama Identitas', type: 'text' },
+                            { name: 'keterangan', label: 'Keterangan Kuasa Hukum', type: 'richtext' }
+                        ]
+                        : [
+                            { name: 'jenisObjekTuntutan', label: 'Jenis Objek Tuntutan', type: 'select', options: JENIS_OBJEK_TUNTUTAN_OPTIONS },
+                            { name: 'jenis', label: 'Jenis Tuntutan', type: 'select', options: JENIS_TUNTUTAN_OPTIONS },
+                            { name: 'satuan', label: 'Satuan/Mata Uang', type: 'select', options: SATUAN_MATA_UANG_OPTIONS },
+                            { name: 'jumlahNominal', label: 'Jumlah/Nominal', type: 'number' },
+                            { name: 'keterangan', label: 'Keterangan', type: 'richtext' }
+                        ]
+                    }
                 />
             )}
             {deleteConfirm.isOpen && <ConfirmationModal isOpen={deleteConfirm.isOpen} onClose={() => setDeleteConfirm({ type: '', isOpen: false, data: null })} onConfirm={handleDelete} title="Konfirmasi Hapus" message="Apakah Anda yakin ingin menghapus item ini?" confirmText="Hapus" />}
@@ -537,12 +629,20 @@ const EditPutusan: React.FC<EditPutusanProps> = ({ initialData, onSave, onBack, 
             <main className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
                 <div className="max-w-5xl mx-auto">
                     <div className="bg-blue-600 rounded-t-lg px-4 pt-2 flex gap-1">
+                        <TabButton tab="pihak" label="Para Pihak" />
                         <TabButton tab="tuntutan" label="Tuntutan Akhir" />
                         <TabButton tab="analisis" label="Analisis Putusan" />
                     </div>
                     
                     <div className="bg-white p-6 rounded-b-lg border-x border-b border-gray-200 shadow-sm animate-in fade-in duration-200">
-                        {activeTab === 'tuntutan' ? (
+                        
+                        {activeTab === 'pihak' ? (
+                            <div className="space-y-8 animate-in fade-in duration-300">
+                                <PihakSection type="P" />
+                                <PihakSection type="T" />
+                            </div>
+                        ) : activeTab === 'tuntutan' ? (
+
                             <div>
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-lg font-semibold text-gray-850">Daftar Tuntutan Akhir</h3>

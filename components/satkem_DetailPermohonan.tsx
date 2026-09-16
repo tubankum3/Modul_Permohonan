@@ -295,7 +295,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
 
 
   return (
-    <div className="p-6 bg-gray-50 h-full flex flex-col print:bg-white print:p-0">
+    <div className="p-6 bg-gray-50 print:bg-white print:p-0">
        <ConfirmationModal
         isOpen={deleteModalState.isOpen}
         onClose={handleCancelDeleteReply}
@@ -338,7 +338,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
           </div>
       </div>
       
-       <div className="flex-1 overflow-y-auto mb-6 space-y-6 pr-2 print:overflow-visible">
+       <div className="mb-6 space-y-6 pr-2">
             {permohonan.history.map((item) => (
                 <HistoryItem
                     key={item.id}
@@ -355,7 +355,7 @@ const DetailPermohonan: React.FC<DetailPermohonanProps> = ({ permohonan, onBack,
             ))}
         </div>
 
-      <div className="mt-auto pt-4 border-t border-gray-200 print:hidden">
+      <div className="pt-4 border-t border-gray-200 print:hidden">
         <div className="bg-white border border-gray-300 rounded-lg shadow-sm">
           <textarea
             className="w-full p-3 resize-none focus:outline-none rounded-t-lg text-sm"

@@ -26,8 +26,8 @@ const TabButton: React.FC<{ name: DetailTab, label: string, activeTab: DetailTab
 );
 
 const DetailSection: React.FC<{ title: string, children: React.ReactNode, action?: React.ReactNode }> = ({ title, children, action }) => (
-    <div className="border border-gray-300 rounded-md mb-6">
-        <div className="px-4 py-2 bg-gray-100 font-semibold text-gray-700 border-b border-gray-300 rounded-t-md flex justify-between items-center">
+    <div className="border border-gray-200 rounded-md mb-6">
+        <div className="px-4 py-3 bg-slate-50 font-semibold text-slate-700 border-b border-gray-200 rounded-t-md flex justify-between items-center text-base">
             <h3>{title}</h3>
             {action && <div className="flex items-center space-x-2">{action}</div>}
         </div>
@@ -36,8 +36,8 @@ const DetailSection: React.FC<{ title: string, children: React.ReactNode, action
 );
 
 const DetailRow: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
-    <div className="flex border-b border-gray-100 last:border-0 py-2.5">
-        <span className="text-sm font-medium text-gray-500 w-64 flex-shrink-0">{label}</span>
+    <div className="flex flex-col md:flex-row border-b border-gray-100 last:border-0 py-2.5 md:py-3">
+        <span className="text-sm font-medium text-gray-500 w-full md:w-64 flex-shrink-0 mb-1 md:mb-0 pr-4">{label}</span>
         <span className="text-sm text-gray-800 font-medium">{value || '-'}</span>
     </div>
 );

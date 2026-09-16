@@ -109,6 +109,9 @@ interface AdvokasiState {
   setGlobalRole: (role: 'Super Admin' | 'Manajer' | 'Operator' | 'Pegawai') => void;
   setTeamRole: (role: 'PIC' | 'Editor' | 'Viewer') => void;
   setUserName: (name: string) => void;
+  isMobileSidebarOpen: boolean;
+  setMobileSidebarOpen: (isOpen: boolean) => void;
+  toggleMobileSidebar: () => void;
 }
 
 export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
@@ -128,6 +131,10 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   teamRole: 'PIC',
   userName: 'Sukiyem',
   userAccounts: initialUserAccounts,
+  isMobileSidebarOpen: false,
+
+  setMobileSidebarOpen: (isOpen) => set({ isMobileSidebarOpen: isOpen }),
+  toggleMobileSidebar: () => set((state) => ({ isMobileSidebarOpen: !state.isMobileSidebarOpen })),
 
   setPermohonanList: (list) => set((state) => ({ 
     permohonanList: typeof list === 'function' ? list(state.permohonanList) : list 

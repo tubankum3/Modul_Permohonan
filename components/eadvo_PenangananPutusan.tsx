@@ -88,132 +88,181 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
   }, [filteredData, currentPage, itemsPerPage]);
 
   const renderTable = (data: PerkaraRecord[], isSelesai: boolean) => (
-    <div className="overflow-x-auto flex-1">
-      <table className="min-w-full bg-white divide-y divide-gray-200">
-        <thead className="bg-gray-50 sticky top-0 z-10">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Perkara</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Masuk</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Perkara</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status BHT</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {data.map((p, index) => (
-            <tr key={p.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.abstraksiPerkara?.noPerkara || p.Nomor}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.abstraksiPerkara?.tahunMasuk}</td>
-              <td className="px-6 py-4 text-sm text-gray-500">{p.abstraksiPerkara?.jenisPerkara}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.statusBHT?.status}</td>
-              <td className="px-4 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-2">
-                          <UserIcon className="h-4 w-4" />
-                      </div>
-                      <div className="flex flex-col">
-                          <span className="text-sm text-gray-700 font-medium">{getPicName(p)}</span>
-                          <span className="text-[10px] text-gray-400 font-bold leading-tight">Last update:</span>
-                          <span className="text-[10px] text-gray-400 font-medium truncate leading-tight">{new Date().toLocaleString('id-ID', { hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, '/')}</span>
-                      </div>
-                  </div>
-              </td>
-              <td className="px-4 py-4 whitespace-nowrap w-40">
-                <div className="flex items-center justify-center">
-                    {!isSelesai ? (
-                        <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
-                            <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                            
-                            {/* Edit Data */}
-                            {canEdit ? (
-                                <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Edit Terbatas"><PencilIcon className="h-4 w-4" /></button>
-                            )}
-
-                            {/* Update Tindak Lanjut */}
-                            {canEdit ? (
-                                <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Update Terbatas"><ArrowUpIcon className="h-4 w-4" /></button>
-                            )}
-
-                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
-                            
-                            {/* Penugasan Tim */}
-                            {canEdit ? (
-                                <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Tim Terbatas"><UserIcon className="h-4 w-4" /></button>
-                            )}
-
-                            {/* Set Selesai */}
-                            {canComplete ? (
-                                <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat menyelesaikan kasus"><CheckIcon className="h-4 w-4" /></button>
-                            )}
-
-                            <button 
-                                onClick={() => {
-                                    onView(p);
-                                    setTimeout(() => window.print(), 500);
-                                }}
-                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
-                                title="Print/Download Resume"
-                            >
-                                <PrintIcon className="h-4 w-4" />
-                            </button>
-
-                            {/* Hapus Data */}
-                            {canDelete ? (
-                                <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hapus Data Terbatas"><TrashIcon className="h-4 w-4" /></button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
-                            <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
-                            <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
-                            <button 
-                                onClick={() => {
-                                    onView(p);
-                                    setTimeout(() => window.print(), 500);
-                                }}
-                                className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
-                                title="Print/Download Resume"
-                            >
-                                <PrintIcon className="h-4 w-4" />
-                            </button>
-
-                            {/* Restore ke Aktif */}
-                            {canComplete ? (
-                                <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
-                            ) : (
-                                <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat restore"><RotateCcwIcon className="h-4 w-4" /></button>
-                            )}
-                        </div>
-                    )}
-                </div>
-              </td>
-            </tr>
-          ))}
-          {data.length === 0 && (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto flex-1">
+        <table className="min-w-[880px] w-full bg-white divide-y divide-gray-200">
+          <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
-              <td colSpan={7} className="text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan.</td>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Perkara</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tahun Masuk</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Perkara</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status BHT</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
+              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {data.map((p, index) => (
+              <tr key={p.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.abstraksiPerkara?.noPerkara || p.Nomor}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.abstraksiPerkara?.tahunMasuk}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">{p.abstraksiPerkara?.jenisPerkara}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.statusBHT?.status}</td>
+                <td className="px-4 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                        <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mr-2">
+                            <UserIcon className="h-4 w-4" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-sm text-gray-700 font-medium">{getPicName(p)}</span>
+                            <span className="text-[10px] text-gray-400 font-bold leading-tight">Last update:</span>
+                            <span className="text-[10px] text-gray-400 font-medium truncate leading-tight">{new Date().toLocaleString('id-ID', { hour12: false, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, '/')}</span>
+                        </div>
+                    </div>
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap w-40">
+                  <div className="flex items-center justify-center">
+                      {!isSelesai ? (
+                          <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
+                              <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                              
+                              {/* Edit Data */}
+                              {canEdit ? (
+                                  <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors" title="Edit Data"><PencilIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Edit Terbatas"><PencilIcon className="h-4 w-4" /></button>
+                              )}
+
+                              {/* Update Tindak Lanjut */}
+                              {canEdit ? (
+                                  <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors" title="Update Tindak Lanjut"><ArrowUpIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Update Terbatas"><ArrowUpIcon className="h-4 w-4" /></button>
+                              )}
+
+                              <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
+                              
+                              {/* Penugasan Tim */}
+                              {canEdit ? (
+                                  <button onClick={() => onManageTim(p)} className="p-1.5 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors" title="Penugasan Tim"><UserIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Akses Tim Terbatas"><UserIcon className="h-4 w-4" /></button>
+                              )}
+
+                              {/* Set Selesai */}
+                              {canComplete ? (
+                                  <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Set Selesai"><CheckIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat menyelesaikan kasus"><CheckIcon className="h-4 w-4" /></button>
+                              )}
+
+                              <button 
+                                  onClick={() => {
+                                      onView(p);
+                                      setTimeout(() => window.print(), 500);
+                                  }}
+                                  className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                  title="Print/Download Resume"
+                              >
+                                  <PrintIcon className="h-4 w-4" />
+                              </button>
+
+                              {/* Hapus Data */}
+                              {canDelete ? (
+                                  <button onClick={() => onDelete(p.id)} className="p-1.5 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Hapus Data"><TrashIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hapus Data Terbatas"><TrashIcon className="h-4 w-4" /></button>
+                              )}
+                          </div>
+                      ) : (
+                          <div className="grid grid-cols-4 grid-rows-2 gap-1 w-fit">
+                              <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="View Detail"><EyeIcon className="h-4 w-4" /></button>
+                              <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors" title="Dokumen Dukung"><DocumentTextIcon className="h-4 w-4" /></button>
+                              <button 
+                                  onClick={() => {
+                                      onView(p);
+                                      setTimeout(() => window.print(), 500);
+                                  }}
+                                  className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" 
+                                  title="Print/Download Resume"
+                              >
+                                  <PrintIcon className="h-4 w-4" />
+                              </button>
+
+                              {/* Restore ke Aktif */}
+                              {canComplete ? (
+                                  <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition-colors" title="Restore ke Aktif"><RotateCcwIcon className="h-4 w-4" /></button>
+                              ) : (
+                                  <button disabled className="p-1.5 rounded bg-gray-100 text-gray-300 cursor-not-allowed" title="Hanya PIC yang dapat restore"><RotateCcwIcon className="h-4 w-4" /></button>
+                              )}
+                          </div>
+                      )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {data.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center py-8 text-gray-500">Tidak ada data untuk ditampilkan.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card List */}
+      <div className="md:hidden flex-1 overflow-y-auto divide-y divide-gray-100 pr-0.5 space-y-2">
+        {data.map((p) => (
+          <div key={p.id} className="p-3 bg-white border border-gray-100 rounded-lg shadow-2xs">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <span className="text-xs font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">
+                {p.abstraksiPerkara?.noPerkara || p.Nomor || p.id}
+              </span>
+              <span className="text-xs text-gray-500">
+                Tahun {p.abstraksiPerkara?.tahunMasuk || '-'}
+              </span>
+            </div>
+            <p className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">
+              {p.perihal || p.abstraksiPerkara?.jenisPerkara || 'Putusan Perkara'}
+            </p>
+            <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+              <div><span className="text-gray-400">Jenis:</span> {p.abstraksiPerkara?.jenisPerkara || '-'}</div>
+              <div><span className="text-gray-400">Status BHT:</span> <span className="font-medium text-gray-700">{p.statusBHT?.status || '-'}</span></div>
+              <div><span className="text-gray-400">PIC:</span> <span className="text-gray-700 font-medium">{getPicName(p)}</span></div>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <span className="text-[11px] text-gray-400 font-medium">Aksi:</span>
+              <div className="flex items-center space-x-1">
+                <button onClick={() => onView(p)} className="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition" title="Detail"><EyeIcon className="h-4 w-4"/></button>
+                {canEdit && !isSelesai && (
+                  <button onClick={() => onEdit(p)} className="p-1.5 rounded bg-amber-50 text-amber-600 hover:bg-amber-100 transition" title="Edit"><PencilIcon className="h-4 w-4"/></button>
+                )}
+                {canEdit && !isSelesai && (
+                  <button onClick={() => onUpdateTindakLanjut(p)} className="p-1.5 rounded bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition" title="Tindak Lanjut"><ArrowUpIcon className="h-4 w-4"/></button>
+                )}
+                <button onClick={() => onManageDokumen(p)} className="p-1.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition" title="Dokumen"><DocumentTextIcon className="h-4 w-4"/></button>
+                {canComplete && !isSelesai && (
+                  <button onClick={() => requestSetSelesai(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition" title="Selesai"><CheckIcon className="h-4 w-4"/></button>
+                )}
+                {canComplete && isSelesai && (
+                  <button onClick={() => onRestore(p.id)} className="p-1.5 rounded bg-green-50 text-green-600 hover:bg-green-100 transition" title="Restore"><RotateCcwIcon className="h-4 w-4"/></button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+        {data.length === 0 && (
+          <div className="text-center py-8 text-gray-500 text-sm">Tidak ada data untuk ditampilkan.</div>
+        )}
+      </div>
     </div>
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen flex flex-col space-y-4">
+    <div className="p-4 sm:p-6 md:p-8 bg-gray-50 min-h-screen flex flex-col space-y-4">
       {setStatusModalState.isOpen && (
         <ConfirmationModal 
             isOpen={setStatusModalState.isOpen}
@@ -228,15 +277,15 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
       <Breadcrumb currentView="eAdvokasiPenangananPutusan" onNavigate={onNavigate} />
 
       <div className="flex flex-col">
-        <h1 className="text-3xl font-bold text-gray-800">Penanganan Putusan</h1>
-        <p className="text-gray-600 mt-1">Kelola tindak lanjut atas putusan perkara hukum.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Penanganan Putusan</h1>
+        <p className="text-gray-600 text-sm sm:text-base mt-1">Kelola tindak lanjut atas putusan perkara hukum.</p>
         <div className="border-b-4 border-blue-600 w-16 mt-4"></div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex-1 flex flex-col min-h-0">
-        <div className="flex justify-between items-center mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 flex-1 flex flex-col min-h-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
           <h2 className="text-xl font-bold text-gray-800">Putusan</h2>
-          <div className="relative">
+          <div className="relative w-full sm:w-80">
             <SearchIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input 
               type="text" 
@@ -246,7 +295,7 @@ const PenangananPutusan: React.FC<PenangananPutusanProps> = ({
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-80 text-sm"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-full text-sm"
             />
           </div>
         </div>
