@@ -4,7 +4,7 @@ import {
     MailIcon, BriefcaseIcon, HomeIcon, UserGroupIcon, ShieldCheckIcon, 
     DocumentTextIcon, CalendarIcon, DesktopComputerIcon, ArchiveIcon, TrashIcon, 
     TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon, TrendingUpIcon,
-    XIcon
+    XIcon, ScaleIcon
 } from './icons';
 import { View } from '../types';
 import { useAdvokasiStore } from '../useAdvokasiStore';
@@ -52,6 +52,13 @@ export const checkViewAccess = (role: string, view: string): boolean => {
         case 'eAdvokasiPutusanTim':
         case 'eAdvokasiPutusanDokumen':
             // Penanganan Putusan -> Super Admin, Manajer, Pegawai (Not Operator)
+            return role !== 'Operator';
+
+        case 'eAdvokasiTelaahanKasusHukum':
+        case 'eAdvokasiTelaahanDetail':
+        case 'eAdvokasiTelaahanDokumen':
+        case 'eAdvokasiTelaahanTim':
+            // Telaahan Kasus Hukum -> Super Admin, Manajer, Pegawai (Not Operator)
             return role !== 'Operator';
 
         case 'eAdvokasiKalender':
@@ -142,6 +149,7 @@ const menuGroups: MenuGroup[] = [
             { icon: <UserGroupIcon className="h-5 w-5" />, name: 'Pendampingan', view: 'eAdvokasiPendampingan' as View },
             { icon: <ShieldCheckIcon className="h-5 w-5" />, name: 'Penanganan Perkara', view: 'eAdvokasiPenangananPerkara' as View },
             { icon: <DocumentTextIcon className="h-5 w-5" />, name: 'Penanganan Putusan', view: 'eAdvokasiPenangananPutusan' as View },
+            { icon: <ScaleIcon className="h-5 w-5" />, name: 'Telaahan Kasus Hukum', view: 'eAdvokasiTelaahanKasusHukum' as View },
         ]
     },
     {
@@ -180,6 +188,9 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
         }
         if (view === 'eAdvokasiPenangananPutusan') {
             return currentView.startsWith('eAdvokasiPutusan') || currentView === 'eAdvokasiPenangananPutusan';
+        }
+        if (view === 'eAdvokasiTelaahanKasusHukum') {
+            return currentView.startsWith('eAdvokasiTelaahan');
         }
         if (view === 'eAdvokasiPencarianPerkara') {
             return currentView.startsWith('eAdvokasiPencarian');

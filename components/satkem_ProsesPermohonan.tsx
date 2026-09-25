@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Permohonan, Riwayat, PendampinganRecord, PerkaraRecord, PosisiSidangEntry } from '../types';
+import { Permohonan, Riwayat, PendampinganRecord, PerkaraRecord, PosisiSidangEntry, TelaahanRecord, JenisPermohonan, StatusNaskahTelaahan } from '../types';
 import DetailPermohonan from './satkem_DetailPermohonan';
 import AssignTeam from './AssignTeam';
-import { ArrowLeftIcon, SearchIcon, FileTextIcon, CheckIcon, EyeIcon, ShieldCheckIcon, BriefcaseIcon, DocumentAddIcon } from './icons';
+import { ArrowLeftIcon, SearchIcon, FileTextIcon, CheckIcon, EyeIcon, ShieldCheckIcon, BriefcaseIcon, DocumentAddIcon, ScaleIcon } from './icons';
 import Breadcrumb from './Breadcrumb';
 import DetailPendampingan from './eadvo_DetailPendampingan';
 import DetailPerkara from './eadvo_DetailPerkara';
@@ -13,9 +13,10 @@ interface ProsesPermohonanProps {
   pendampinganRecords: PendampinganRecord[];
   perkaraRecords: PerkaraRecord[];
   putusanRecords: PerkaraRecord[];
+  telaahanRecords?: TelaahanRecord[];
   onBack: () => void;
   onAccept: (id: string) => void;
-  onAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan') => void;
+  onAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan' | 'telaahan') => void;
   onAddReply: (permohonanId: string, reply: Riwayat) => void;
   onUpdateReply: (permohonanId: string, historyId: number, newMessage: string) => void;
   onDeleteReply: (permohonanId: string, historyId: number) => void;
@@ -24,7 +25,7 @@ interface ProsesPermohonanProps {
   onNavigate: (view: any, data?: any) => void;
 }
 
-const getPicName = (record: PendampinganRecord | PerkaraRecord): string => {
+const getPicName = (record: PendampinganRecord | PerkaraRecord | TelaahanRecord): string => {
     if (!record.picId || !record.team || record.team.length === 0) {
         return 'N/A';
     }
@@ -62,6 +63,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   pendampinganRecords,
   perkaraRecords,
   putusanRecords,
+  telaahanRecords = [],
   onBack,
   onAccept,
   onAssignToExisting,
@@ -73,10 +75,12 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
   onNavigate
 }) => {
   const [activeTab, setActiveTab] = useState<'rincian' | 'assign' | 'assignExisting'>('rincian');
-  const [selectedTargetType, setSelectedTargetType] = useState<'pendampingan' | 'perkara' | 'putusan'>('pendampingan');
+  const [selectedTargetType, setSelectedTargetType] = useState<'pendampingan' | 'perkara' | 'putusan' | 'telaahan'>(
+    permohonan.jenis === JenisPermohonan.TELAAHAN_KASUS_HUKUM ? 'telaahan' : 'pendampingan'
+  );
   const [selectedTargetId, setSelectedTargetId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewingRecord, setViewingRecord] = useState<{ record: any; type: 'pendampingan' | 'perkara' | 'putusan' } | null>(null);
+  const [viewingRecord, setViewingRecord] = useState<{ record: any; type: 'pendampingan' | 'perkara' | 'putusan' | 'telaahan' } | null>(null);
 
   const assignedRecordInfo = useMemo(() => {
     if (!permohonan.assignedTo) return null;
@@ -86,8 +90,10 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
     if (pk) return { type: 'perkara' as const, typeLabel: 'Penanganan Perkara', record: pk, viewDoc: 'eAdvokasiPerkaraDokumen' };
     const pt = putusanRecords.find(r => r.id === permohonan.assignedTo);
     if (pt) return { type: 'putusan' as const, typeLabel: 'Penanganan Putusan', record: pt, viewDoc: 'eAdvokasiPutusanDokumen' };
+    const tl = (telaahanRecords || []).find(r => r.id === permohonan.assignedTo);
+    if (tl) return { type: 'telaahan' as const, typeLabel: 'Telaahan Kasus Hukum', record: tl, viewDoc: 'eAdvokasiTelaahanDetail' };
     return null;
-  }, [permohonan.assignedTo, pendampinganRecords, perkaraRecords, putusanRecords]);
+  }, [permohonan.assignedTo, pendampinganRecords, perkaraRecords, putusanRecords, telaahanRecords]);
 
   const permohonanFiles = useMemo(() => {
     const docs: any[] = [];
@@ -147,20 +153,27 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
     } else {
       onAccept(permohonan.id);
     }
+    if (permohonan.jenis === JenisPermohonan.TELAAHAN_KASUS_HUKUM) {
+      onNavigate('eAdvokasiTelaahanKasusHukum');
+    }
   };
 
   const handleAssign = () => {
     if (selectedTargetId) {
         onAssignToExisting(permohonan.id, selectedTargetId, selectedTargetType);
+        if (selectedTargetType === 'telaahan') {
+          onNavigate('eAdvokasiTelaahanKasusHukum');
+        }
     }
   };
 
   const getTargetList = () => {
-      let list: (PendampinganRecord | PerkaraRecord)[] = [];
+      let list: (PendampinganRecord | PerkaraRecord | TelaahanRecord)[] = [];
       switch (selectedTargetType) {
           case 'pendampingan': list = pendampinganRecords; break;
           case 'perkara': list = perkaraRecords; break;
           case 'putusan': list = putusanRecords; break;
+          case 'telaahan': list = telaahanRecords || []; break;
           default: list = [];
       }
 
@@ -169,7 +182,8 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
       return list.filter(item => 
           (item.Nomor && item.Nomor.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (item.perihal && item.perihal.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (item.id && String(item.id).toLowerCase().includes(searchTerm.toLowerCase()))
+          (item.id && String(item.id).toLowerCase().includes(searchTerm.toLowerCase())) ||
+          ((item as TelaahanRecord).nomorTelaahan && (item as TelaahanRecord).nomorTelaahan.toLowerCase().includes(searchTerm.toLowerCase()))
       );
   };
 
@@ -214,12 +228,25 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                       <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                   </tr>
               );
+          case 'telaahan':
+              return (
+                  <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Telaahan</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit / Pemohon</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perihal</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Naskah</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PIC</th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                  </tr>
+              );
           default:
               return null;
       }
   };
 
-  const renderTableRow = (record: PendampinganRecord | PerkaraRecord, index: number) => {
+  const renderTableRow = (record: PendampinganRecord | PerkaraRecord | TelaahanRecord, index: number) => {
       const isSelected = selectedTargetId === record.id;
       const rowClass = `hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`;
       const actionButton = (
@@ -273,7 +300,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">{actionButton}</td>
               </tr>
           );
-      } else { // putusan
+      } else if (selectedTargetType === 'putusan') {
           const r = record as PerkaraRecord;
           return (
               <tr key={r.id} className={rowClass}>
@@ -282,6 +309,26 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.abstraksiPerkara?.tahunMasuk}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">{r.abstraksiPerkara?.jenisPerkara}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.statusBHT?.status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">{actionButton}</td>
+              </tr>
+          );
+      } else { // telaahan
+          const r = record as TelaahanRecord;
+          return (
+              <tr key={r.id} className={rowClass}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{r.nomorTelaahan || r.Nomor || r.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{r.tanggal || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.unit || r.pemohon}>{r.unit || r.pemohon || '-'}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title={r.perihal}>{r.perihal}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                      r.naskahTelaahan?.statusNaskah === StatusNaskahTelaahan.DIKIRIM ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {r.naskahTelaahan?.statusNaskah || 'Belum Dibuat'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPicName(r)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">{actionButton}</td>
               </tr>
           );
@@ -436,7 +483,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                 
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Jenis Data Target</label>
-                    <div className="flex space-x-4">
+                    <div className="flex flex-wrap gap-4">
                         <label className="inline-flex items-center cursor-pointer">
                             <input type="radio" className="form-radio text-blue-600" name="targetType" value="pendampingan" checked={selectedTargetType === 'pendampingan'} onChange={() => { setSelectedTargetType('pendampingan'); setSelectedTargetId(''); setSearchTerm(''); }} />
                             <span className="ml-2 font-medium text-gray-800">Pendampingan</span>
@@ -448,6 +495,10 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                         <label className="inline-flex items-center cursor-pointer">
                             <input type="radio" className="form-radio text-blue-600" name="targetType" value="putusan" checked={selectedTargetType === 'putusan'} onChange={() => { setSelectedTargetType('putusan'); setSelectedTargetId(''); setSearchTerm(''); }} />
                             <span className="ml-2 font-medium text-gray-800">Penanganan Putusan</span>
+                        </label>
+                        <label className="inline-flex items-center cursor-pointer">
+                            <input type="radio" className="form-radio text-blue-600" name="targetType" value="telaahan" checked={selectedTargetType === 'telaahan'} onChange={() => { setSelectedTargetType('telaahan'); setSelectedTargetId(''); setSearchTerm(''); }} />
+                            <span className="ml-2 font-medium text-gray-800">Telaahan Kasus Hukum</span>
                         </label>
                     </div>
                 </div>
@@ -531,9 +582,9 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                   <header className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center sticky top-0 z-10 flex-shrink-0">
                       <div>
                           <h4 className="text-lg font-bold text-gray-850">
-                              Pratinjau Detail {viewingRecord.type === 'pendampingan' ? 'Pendampingan' : viewingRecord.type === 'perkara' ? 'Penanganan Perkara' : 'Penanganan Putusan'}
+                              Pratinjau Detail {viewingRecord.type === 'pendampingan' ? 'Pendampingan' : viewingRecord.type === 'perkara' ? 'Penanganan Perkara' : viewingRecord.type === 'putusan' ? 'Penanganan Putusan' : 'Telaahan Kasus Hukum'}
                           </h4>
-                          <p className="text-xs text-gray-500">Nomor: {viewingRecord.record?.Nomor || viewingRecord.record?.id || 'N/A'}</p>
+                          <p className="text-xs text-gray-500">Nomor: {viewingRecord.record?.nomorTelaahan || viewingRecord.record?.Nomor || viewingRecord.record?.id || 'N/A'}</p>
                       </div>
                       <button 
                           onClick={() => setViewingRecord(null)}
@@ -542,7 +593,7 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                           Tutup Pratinjau
                       </button>
                   </header>
-                  <div className="flex-1 overflow-y-auto p-2 bg-gray-50">
+                  <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
                       {viewingRecord.type === 'pendampingan' && (
                           <DetailPendampingan record={viewingRecord.record} onBack={() => setViewingRecord(null)} />
                       )}
@@ -558,6 +609,23 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                       )}
                       {viewingRecord.type === 'putusan' && (
                           <DetailPutusan record={viewingRecord.record} onBack={() => setViewingRecord(null)} />
+                      )}
+                      {viewingRecord.type === 'telaahan' && (
+                          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
+                              <div>
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                      {viewingRecord.record.statusTelaahan || 'AKTIF'}
+                                  </span>
+                                  <h3 className="text-xl font-bold text-gray-900 mt-2">{viewingRecord.record.perihal}</h3>
+                                  <p className="text-sm text-gray-500 mt-1">No: {viewingRecord.record.nomorTelaahan} • Tanggal: {viewingRecord.record.tanggal || '-'}</p>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm">
+                                  <div><span className="font-semibold text-gray-600">Unit / Pemohon:</span> <span className="text-gray-900">{viewingRecord.record.unit || viewingRecord.record.pemohon || '-'}</span></div>
+                                  <div><span className="font-semibold text-gray-600">Status Naskah:</span> <span className="text-gray-900">{viewingRecord.record.naskahTelaahan?.statusNaskah || 'Belum Dibuat'}</span></div>
+                                  <div><span className="font-semibold text-gray-600">PIC:</span> <span className="text-gray-900">{getPicName(viewingRecord.record)}</span></div>
+                                  <div><span className="font-semibold text-gray-600">Urgensi:</span> <span className="text-gray-900">{viewingRecord.record.urgensi || 'Biasa'}</span></div>
+                              </div>
+                          </div>
                       )}
                   </div>
               </div>

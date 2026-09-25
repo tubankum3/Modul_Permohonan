@@ -86,6 +86,7 @@ const Laporan = lazyWithRetry(() => import('./components/eadvo_Laporan'));
 const Referensi = lazyWithRetry(() => import('./components/eadvo_Referensi'));
 const ManajemenUser = lazyWithRetry(() => import('./components/eadvo_ManajemenUser'));
 const PengelolaanTim = lazyWithRetry(() => import('./components/eadvo_PengelolaanTim'));
+const TelaahanKasusHukum = lazyWithRetry(() => import('./components/eadvo_TelaahanKasusHukum'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -122,6 +123,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPutusanUpdateTindakLanjut': return id ? `/eadvokasi/putusan/tindak-lanjut/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiPutusanTim': return id ? `/eadvokasi/putusan/tim/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiPutusanDokumen': return id ? `/eadvokasi/putusan/dokumen/${id}` : '/eadvokasi/putusan';
+    case 'eAdvokasiTelaahanKasusHukum': return '/eadvokasi/telaahan';
     case 'eAdvokasiDashboard': return '/eadvokasi/monitoring/dashboard';
     case 'eAdvokasiPencarian': return '/eadvokasi/monitoring/cari-perkara';
     case 'eAdvokasiPencarianPerkara': return '/eadvokasi/monitoring/cari-perkara';
@@ -182,6 +184,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname.startsWith('/eadvokasi/putusan/tindak-lanjut/')) return { view: 'eAdvokasiPutusanUpdateTindakLanjut', id: pathname.replace('/eadvokasi/putusan/tindak-lanjut/', '') };
   if (pathname.startsWith('/eadvokasi/putusan/tim/')) return { view: 'eAdvokasiPutusanTim', id: pathname.replace('/eadvokasi/putusan/tim/', '') };
   if (pathname.startsWith('/eadvokasi/putusan/dokumen/')) return { view: 'eAdvokasiPutusanDokumen', id: pathname.replace('/eadvokasi/putusan/dokumen/', '') };
+  if (pathname === '/eadvokasi/telaahan') return { view: 'eAdvokasiTelaahanKasusHukum' };
   if (pathname === '/eadvokasi/monitoring/dashboard') return { view: 'eAdvokasiDashboard' };
   if (pathname === '/eadvokasi/monitoring/cari-perkara') return { view: 'eAdvokasiPencarianPerkara' };
   if (pathname === '/eadvokasi/monitoring/cari-pendampingan') return { view: 'eAdvokasiPencarianPendampingan' };
@@ -222,6 +225,7 @@ const AppContent: React.FC = () => {
     selectedPerkara,
     putusanRecords,
     selectedPutusan,
+    telaahanRecords,
     setNotification,
     setPutusanRecords,
     setSelectedPermohonan,
@@ -428,7 +432,18 @@ const AppContent: React.FC = () => {
       case 'pilihTemplate': 
         return <PilihTemplateNaskah onBack={() => handleNavigate('beranda')} onNext={() => handleNavigate('formNaskah')} />;
       case 'formNaskah': 
-        return <FormNaskahDinas onBack={() => handleNavigate('pilihTemplate')} onNext={() => showNotification("Fitur ini belum diimplementasikan", "info")} />;
+        return (
+          <FormNaskahDinas 
+            onBack={() => {
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                handleNavigate('eAdvokasiTelaahanKasusHukum');
+              }
+            }} 
+            onNext={() => showNotification("Naskah dinas berhasil disimpan di aplikasi Nadine", "success")} 
+          />
+        );
       case 'faq': 
         return <FaqPage faqData={faqData} />;
       case 'eAdvokasiInbox': 
@@ -442,6 +457,7 @@ const AppContent: React.FC = () => {
               pendampinganRecords={pendampinganRecords}
               perkaraRecords={perkaraRecords}
               putusanRecords={putusanRecords}
+              telaahanRecords={telaahanRecords}
               onBack={() => handleNavigate('eAdvokasiInbox')} 
               onAccept={handleAcceptPermohonan} 
               onAssignToExisting={handleAssignToExisting}
@@ -482,7 +498,15 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiPerkaraTim': 
         return selectedPerkara && 'statusPerkara' in selectedPerkara ? (<div className="h-full flex flex-col bg-gray-50"><div className="px-6 pt-4 bg-white flex-shrink-0"><Breadcrumb currentView="eAdvokasiPerkaraTim" onNavigate={handleNavigate} /></div><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi</h2><p className="text-sm text-gray-500 mt-1">{(selectedPerkara as PerkaraRecord).abstraksiPerkara?.noPerkara || (selectedPerkara as PerkaraRecord).Nomor} - {(selectedPerkara as PerkaraRecord).perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={(selectedPerkara as PerkaraRecord).team || []} picId={(selectedPerkara as PerkaraRecord).picId || null} onUpdateTeam={(team) => handleUpdatePerkaraTeam((selectedPerkara as PerkaraRecord).id, team)} onSetPic={(picId) => handleSetPerkaraPic((selectedPerkara as PerkaraRecord).id, picId)}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPerkara')} className="text-blue-600 underline">Daftar Perkara</button>.</div>;
       case 'eAdvokasiKalender': 
-        return <EAdvokasiKalender daftarPerkara={perkaraRecords} onNavigate={handleNavigate} />;
+        return (
+          <EAdvokasiKalender 
+            daftarPerkara={perkaraRecords} 
+            daftarPendampingan={pendampinganRecords}
+            daftarPutusan={putusanRecords}
+            daftarTelaahan={telaahanRecords}
+            onNavigate={handleNavigate} 
+          />
+        );
       case 'eAdvokasiAgendaBerikutnya': 
         return <DaftarAgendaBerikutnya daftarPerkara={perkaraRecords} onBack={() => handleNavigate('eAdvokasiKalender')} onNavigate={handleNavigate} />;
       case 'eAdvokasiPenangananPutusan': 
@@ -497,6 +521,8 @@ const AppContent: React.FC = () => {
         return selectedPutusan ? (<div className="h-full flex flex-col bg-gray-50"><div className="px-6 pt-4 bg-white flex-shrink-0"><Breadcrumb currentView="eAdvokasiPutusanTim" onNavigate={handleNavigate} /></div><header className="flex-shrink-0 bg-white p-4 border-b border-gray-200 flex items-start"><button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 mt-1"><ArrowLeftIcon className="h-5 w-5" /></button><div className="ml-3"><h2 className="text-lg font-bold text-gray-800">Pengelolaan Tim Advokasi Putusan</h2><p className="text-sm text-gray-500 mt-1">{selectedPutusan.abstraksiPerkara?.noPerkara || selectedPutusan.Nomor} - {selectedPutusan.perihal}</p></div></header><div className="flex-1 overflow-y-auto"><AssignTeam team={selectedPutusan.team || []} picId={selectedPutusan.picId || null} onUpdateTeam={(team) => { const updatedRecord = { ...selectedPutusan, team }; handleSavePutusan(updatedRecord); }} onSetPic={(picId) => { const updatedRecord = { ...selectedPutusan, picId: picId || undefined }; handleSavePutusan(updatedRecord); }}/></div></div>) : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiPutusanDokumen': 
         return selectedPutusan ? <DokumenPutusan record={selectedPutusan} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
+      case 'eAdvokasiTelaahanKasusHukum':
+        return <TelaahanKasusHukum onNavigate={handleNavigate} />;
       case 'eAdvokasiMonitoring':
       case 'eAdvokasiDashboard':
       case 'eAdvokasiPencarian':

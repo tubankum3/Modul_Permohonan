@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SuratMasukNadine, JenisPermohonan } from '../types';
-import { SearchIcon, XIcon, ShieldCheckIcon, UserGroupIcon, CalendarIcon } from './icons';
+import { SearchIcon, XIcon, ShieldCheckIcon, UserGroupIcon, CalendarIcon, ScaleIcon } from './icons';
 
 interface TarikDataNadineModalProps {
   isOpen: boolean;
@@ -9,6 +9,8 @@ interface TarikDataNadineModalProps {
 }
 
 const mockNadineData: SuratMasukNadine[] = [
+  { naskahId: '60988421', nomorSurat: 'ND-112/SJ.4/2026', perihal: 'Permohonan Telaahan Kasus Hukum atas Dugaan Pelanggaran Kontrak Pengadaan Perangkat IT', unitPengirim: 'Pusat Sistem Informasi dan Teknologi Keuangan', tanggal: '10/02/2026' },
+  { naskahId: '60989901', nomorSurat: 'ND-88/PB.03/2026', perihal: 'Permohonan Telaahan Hukum Permasalahan Hak Guna Bangunan dan Sengketa Tanah KPPN', unitPengirim: 'Direktorat Sistem Perbendaharaan', tanggal: '12/02/2026' },
   { naskahId: '60977314', nomorSurat: 'ND-7/KN.4/2026', perihal: 'Permohonan penerbitan surat kuasa perkara 129/pdt.g/2026/pn.dps', unitPengirim: 'KPKNL Denpasar', tanggal: '28/01/2026' },
   { naskahId: '61152685', nomorSurat: 'ND-5/PJ.4/2026', perihal: 'Panggilan a.n. Joko untuk menghadap Polda Jatim', unitPengirim: 'Direktorat P2', tanggal: '05/02/2026' },
   { naskahId: '60960599', nomorSurat: 'ND-3/BC.4/2026', perihal: 'Permohonan bantuan hukum atas perkara perdata nomor 444/pdt.g/2026/pn.cbi', unitPengirim: 'KPBC Tanjung Priok', tanggal: '28/01/2026' },
@@ -276,20 +278,27 @@ const TarikDataNadineModal: React.FC<TarikDataNadineModalProps> = ({ isOpen, onC
                             
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Pilih Jenis Permohonan</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div onClick={() => setSelectedJenis(JenisPermohonan.PENANGANAN_PERKARA)} className={`p-6 border rounded-lg cursor-pointer transition-all duration-200 ${selectedJenis === JenisPermohonan.PENANGANAN_PERKARA ? 'border-orange-500 border-2 bg-orange-50 shadow-lg' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div onClick={() => setSelectedJenis(JenisPermohonan.PENANGANAN_PERKARA)} className={`p-5 border rounded-lg cursor-pointer transition-all duration-200 ${selectedJenis === JenisPermohonan.PENANGANAN_PERKARA ? 'border-orange-500 border-2 bg-orange-50 shadow-md' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
                                         <div className="flex items-center mb-2">
-                                            <ShieldCheckIcon className="h-6 w-6 text-orange-600 mr-3"/>
-                                            <h4 className="font-bold text-lg text-orange-800">Penanganan Perkara</h4>
+                                            <ShieldCheckIcon className="h-6 w-6 text-orange-600 mr-2 shrink-0"/>
+                                            <h4 className="font-bold text-base text-orange-800">Penanganan Perkara</h4>
                                         </div>
-                                        <p className="text-sm text-gray-600 mt-1">Bantuan hukum untuk penyelesaian perkara di badan peradilan (litigasi).</p>
+                                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">Bantuan hukum untuk penyelesaian perkara di badan peradilan (litigasi).</p>
                                     </div>
-                                    <div onClick={() => setSelectedJenis(JenisPermohonan.PENDAMPINGAN)} className={`p-6 border rounded-lg cursor-pointer transition-all duration-200 ${selectedJenis === JenisPermohonan.PENDAMPINGAN ? 'border-green-500 border-2 bg-green-50 shadow-lg' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
+                                    <div onClick={() => setSelectedJenis(JenisPermohonan.PENDAMPINGAN)} className={`p-5 border rounded-lg cursor-pointer transition-all duration-200 ${selectedJenis === JenisPermohonan.PENDAMPINGAN ? 'border-green-500 border-2 bg-green-50 shadow-md' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
                                         <div className="flex items-center mb-2">
-                                            <UserGroupIcon className="h-6 w-6 text-green-600 mr-3"/>
-                                            <h4 className="font-bold text-lg text-green-800">Pendampingan</h4>
+                                            <UserGroupIcon className="h-6 w-6 text-green-600 mr-2 shrink-0"/>
+                                            <h4 className="font-bold text-base text-green-800">Pendampingan</h4>
                                         </div>
-                                        <p className="text-sm text-gray-600 mt-1">Bantuan hukum di luar pengadilan, seperti konsultasi, mediasi, atau sebagai saksi/ahli (non-litigasi).</p>
+                                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">Bantuan hukum di luar pengadilan, seperti konsultasi, mediasi, atau saksi/ahli.</p>
+                                    </div>
+                                    <div onClick={() => setSelectedJenis(JenisPermohonan.TELAAHAN_KASUS_HUKUM)} className={`p-5 border rounded-lg cursor-pointer transition-all duration-200 ${selectedJenis === JenisPermohonan.TELAAHAN_KASUS_HUKUM ? 'border-purple-500 border-2 bg-purple-50 shadow-md' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
+                                        <div className="flex items-center mb-2">
+                                            <ScaleIcon className="h-6 w-6 text-purple-600 mr-2 shrink-0"/>
+                                            <h4 className="font-bold text-base text-purple-800">Telaahan Kasus Hukum</h4>
+                                        </div>
+                                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">Pengkajian dan analisis yuridis kasus guna penyusunan naskah telaahan serta rekomendasi tindak lanjut.</p>
                                     </div>
                                 </div>
                             </div>

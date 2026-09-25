@@ -10,6 +10,7 @@ export enum StatusPermohonan {
 export enum JenisPermohonan {
   PENANGANAN_PERKARA = 'Penanganan Perkara',
   PENDAMPINGAN = 'Pendampingan',
+  TELAAHAN_KASUS_HUKUM = 'Telaahan Kasus Hukum',
 }
 
 export interface FileData {
@@ -300,6 +301,70 @@ export interface PerkaraRecord extends Permohonan {
   auditTrail?: AuditTrailEntry[];
 }
 
+export enum StatusTelaahan {
+  AKTIF = 'Aktif',
+  SELESAI = 'Selesai',
+}
+
+export enum StatusNaskahTelaahan {
+  BELUM_DIBUAT = 'Belum Dibuat',
+  DRAFT = 'Draft di Nadine',
+  DITTE = 'Sudah di-TTE',
+  DIKIRIM = 'Telah di-TTE & Dikirim',
+}
+
+export interface DokumenTelaahanItem {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  nomor?: string;
+  tanggal?: string;
+  kategori: 'Permohonan' | 'Data Dukung' | 'Naskah Telaahan' | 'Risalah Rapat' | 'Peraturan Terkait' | string;
+  deskripsi?: string;
+  source?: string;
+  url?: string;
+}
+
+export interface NaskahTelaahanInfo {
+  naskahId?: string;
+  nomorNaskah?: string;
+  formatTemplate?: string;
+  tanggalNaskah?: string;
+  perihal?: string;
+  tujuan?: string;
+  penandaTangan?: string;
+  tipeTandaTangan?: string;
+  sifatNaskah?: string;
+  statusNaskah: StatusNaskahTelaahan;
+  tglTte?: string;
+  tglKirim?: string;
+  resumeRingkas?: string;
+  analisisHukum?: string;
+  dasarHukum?: string;
+  kesimpulanRekomendasi?: string;
+  rekomendasi?: string;
+}
+
+export interface TelaahanRecord extends Permohonan {
+  statusTelaahan: StatusTelaahan;
+  nomorTelaahan?: string;
+  tahunMasuk?: number;
+  abstraksiTelaahan?: {
+    pokokPermasalahan?: string;
+    faktaHukum?: string;
+    dasarHukum?: string[];
+    analisisKajian?: string;
+    rekomendasi?: string;
+    unitPemohon?: string;
+    tingkatUrgensi?: 'Biasa' | 'Segera' | 'Sangat Segera';
+    kategoriHukum?: string;
+    subKategori?: string;
+  };
+  dokumenTelaahan?: DokumenTelaahanItem[];
+  naskahTelaahan?: NaskahTelaahanInfo;
+}
+
 export interface SuratMasukNadine {
   naskahId: string;
   nomorSurat: string;
@@ -355,11 +420,12 @@ export type View =
   'beranda' | 'list' | 'detail' | 'create' | 'edit' | 
   'pilihTemplate' | 'formNaskah' | 'faq' | 
   'eAdvokasiInbox' | 'eAdvokasiPengelolaan' | 'eAdvokasiProses' |
-  'eAdvokasiBeranda' | 'eAdvokasiPendampingan' | 'eAdvokasiPenangananPerkara' | 'eAdvokasiPenangananPutusan' |
+  'eAdvokasiBeranda' | 'eAdvokasiPendampingan' | 'eAdvokasiPenangananPerkara' | 'eAdvokasiPenangananPutusan' | 'eAdvokasiTelaahanKasusHukum' |
   'eAdvokasiKalender' | 'eAdvokasiMonitoring' | 'eAdvokasiLaporan' |
   'eAdvokasiUser' | 'eAdvokasiArsip' | 'eAdvokasiRecycleBin' | 'eAdvokasiReferensi' | 'eAdvokasiTim' | 'eAdvokasiInfo' | 'eAdvokasiFaq' |
   'eAdvokasiPendampinganDetail' | 'eAdvokasiPendampinganTim' | 'eAdvokasiPendampinganPosisi' | 'eAdvokasiPendampinganDokumen' |
   'eAdvokasiPerkaraDetail' | 'eAdvokasiPerkaraEdit' | 'eAdvokasiPerkaraUpdatePosisi' | 'eAdvokasiPerkaraTim' | 'eAdvokasiAgendaBerikutnya' | 'eAdvokasiPerkaraDokumen' |
   'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim' | 'eAdvokasiPutusanDokumen' |
+  'eAdvokasiTelaahanDetail' | 'eAdvokasiTelaahanDokumen' | 'eAdvokasiTelaahanTim' |
   'eAdvokasiDashboard' | 'eAdvokasiPencarian' | 'eAdvokasiPencarianPerkara' | 'eAdvokasiPencarianPendampingan' | 'eAdvokasiPencarianPutusan' | 'eAdvokasiPencarianDokumen' | 'eAdvokasiPencarianBankDalil' | 'eAdvokasiMonitoringPersidangan' | 'eAdvokasiMonitoringPutusan' | 
   'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail' | 'eAdvokasiStatistikPerkara';

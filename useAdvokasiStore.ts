@@ -5,13 +5,15 @@ import {
   initialFaqData, 
   initialPendampinganRecords, 
   initialPerkaraRecords,
-  initialUserAccounts
+  initialUserAccounts,
+  initialTelaahanRecords
 } from './initialData';
 import { 
   Permohonan, StatusPermohonan, Riwayat, NotificationType, Notification as NotificationProps, 
   JenisPermohonan, View, SuratMasukNadine, BerandaContent, FaqCategory, 
   PendampinganRecord, StatusPendampingan, PosisiUpdate, TeamMember, 
-  PerkaraRecord, StatusPerkara, StatusPutusan, UserAccount
+  PerkaraRecord, StatusPerkara, StatusPutusan, UserAccount,
+  TelaahanRecord, StatusTelaahan, StatusNaskahTelaahan, DokumenTelaahanItem, NaskahTelaahanInfo
 } from './types';
 
 const generateRandomId = () => {
@@ -47,6 +49,9 @@ interface AdvokasiState {
   selectedPerkara: PerkaraRecord | Partial<PerkaraRecord> | null;
   putusanRecords: PerkaraRecord[];
   selectedPutusan: PerkaraRecord | null;
+  telaahanRecords: TelaahanRecord[];
+  selectedTelaahan: TelaahanRecord | null;
+  activeTelaahanForNadine: TelaahanRecord | null;
 
   // Actions
   setPermohonanList: (list: Permohonan[] | ((prev: Permohonan[]) => Permohonan[])) => void;
@@ -62,6 +67,9 @@ interface AdvokasiState {
   setSelectedPerkara: (r: PerkaraRecord | Partial<PerkaraRecord> | null | ((prev: PerkaraRecord | Partial<PerkaraRecord> | null) => PerkaraRecord | Partial<PerkaraRecord> | null)) => void;
   setPutusanRecords: (records: PerkaraRecord[] | ((prev: PerkaraRecord[]) => PerkaraRecord[])) => void;
   setSelectedPutusan: (r: PerkaraRecord | null | ((prev: PerkaraRecord | null) => PerkaraRecord | null)) => void;
+  setTelaahanRecords: (records: TelaahanRecord[] | ((prev: TelaahanRecord[]) => TelaahanRecord[])) => void;
+  setSelectedTelaahan: (r: TelaahanRecord | null | ((prev: TelaahanRecord | null) => TelaahanRecord | null)) => void;
+  setActiveTelaahanForNadine: (r: TelaahanRecord | null) => void;
 
   // Domain Handlers
   handleSelectPermohonan: (permohonan: Permohonan) => void;
@@ -95,10 +103,18 @@ interface AdvokasiState {
   handleDeletePutusan: (id: string) => void;
   handleSetPutusanSelesai: (id: string) => void;
   handleRestorePutusan: (id: string) => void;
-  handleAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan') => void;
+  handleSaveTelaahan: (record: TelaahanRecord) => void;
+  handleDeleteTelaahan: (id: string) => void;
+  handleSetTelaahanStatus: (id: string, status: StatusTelaahan) => void;
+  handleUpdateTelaahanTeam: (recordId: string, team: TeamMember[]) => void;
+  handleSetTelaahanPic: (recordId: string, picId: string | null) => void;
+  handleAddTelaahanDokumen: (recordId: string, dokumen: DokumenTelaahanItem) => void;
+  handleDeleteTelaahanDokumen: (recordId: string, dokumenId: string) => void;
+  handleSelesaikanNaskahTelaahanNadine: (recordId: string, naskahData: { nomorNaskah: string, perihal: string, penandaTangan: string, tglTte: string, resumeRingkas?: string, analisisHukum?: string, rekomendasi?: string }) => void;
+  handleAssignToExisting: (permohonanId: string, targetId: string, targetType: 'pendampingan' | 'perkara' | 'putusan' | 'telaahan') => void;
   handleSetPermohonanPic: (recordId: string, picId: string | null) => void;
   handleUpdatePermohonanTeam: (recordId: string, team: TeamMember[]) => void;
-  handleBulkReplaceTeamMember: (oldUserId: string, newUserId: string, newUserName: string, recordIds: { pendampingan: string[], perkara: string[], putusan: string[] }) => void;
+  handleBulkReplaceTeamMember: (oldUserId: string, newUserId: string, newUserName: string, recordIds: { pendampingan: string[], perkara: string[], putusan: string[], telaahan?: string[] }) => void;
   userAccounts: UserAccount[];
   handleSaveUserAccount: (user: UserAccount) => void;
   handleUpdateUserStatus: (id: string, status: 'Aktif' | 'Tidak Aktif') => void;
@@ -127,6 +143,9 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   selectedPerkara: null,
   putusanRecords: [],
   selectedPutusan: null,
+  telaahanRecords: initialTelaahanRecords,
+  selectedTelaahan: null,
+  activeTelaahanForNadine: null,
   globalRole: 'Super Admin',
   teamRole: 'PIC',
   userName: 'Sukiyem',
@@ -165,6 +184,13 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   setSelectedPutusan: (r) => set((state) => ({
     selectedPutusan: typeof r === 'function' ? r(state.selectedPutusan) : r
   })),
+  setTelaahanRecords: (records) => set((state) => ({
+    telaahanRecords: typeof records === 'function' ? records(state.telaahanRecords) : records
+  })),
+  setSelectedTelaahan: (r) => set((state) => ({
+    selectedTelaahan: typeof r === 'function' ? r(state.selectedTelaahan) : r
+  })),
+  setActiveTelaahanForNadine: (r) => set({ activeTelaahanForNadine: r }),
 
   setGlobalRole: (role) => set({ globalRole: role }),
   setTeamRole: (role) => set({ teamRole: role }),
@@ -340,13 +366,81 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
 
   handleAcceptPermohonan: (id) => {
     set((state) => {
+      const permohonan = state.permohonanList.find(p => p.id === id);
       const nextRecords = state.permohonanList.map(p => p.id === id ? { ...p, status: StatusPermohonan.DIPROSES } : p);
       const updatedSelected = nextRecords.find(p => p.id === id) || null;
+
+      let nextTelaahanRecords = [...state.telaahanRecords];
+      if (permohonan && permohonan.jenis === JenisPermohonan.TELAAHAN_KASUS_HUKUM) {
+        const existingIdx = nextTelaahanRecords.findIndex(t => t.id === permohonan.id || (permohonan.Nomor && t.Nomor === permohonan.Nomor));
+        if (existingIdx > -1) {
+          nextTelaahanRecords = nextTelaahanRecords.map((t, idx) => 
+            idx === existingIdx ? { ...t, statusTelaahan: StatusTelaahan.AKTIF, status: StatusPermohonan.DIPROSES, team: permohonan.team || t.team, picId: permohonan.picId || t.picId } : t
+          );
+        } else {
+          const docs: DokumenTelaahanItem[] = [];
+          if (permohonan.files && permohonan.files.length > 0) {
+            permohonan.files.forEach((f: any, idx: number) => {
+              docs.push({
+                id: f.id || `dt-${permohonan.id}-${idx}`,
+                name: f.name,
+                size: f.size || 150000,
+                type: f.type || 'application/pdf',
+                kategori: 'Permohonan',
+                tanggal: permohonan.tanggal,
+                deskripsi: permohonan.perihal
+              });
+            });
+          } else {
+            docs.push({
+              id: `dt-${permohonan.id}-main`,
+              name: `Surat_Permohonan_${permohonan.Nomor ? permohonan.Nomor.replace(/[\/\\]/g, '_') : permohonan.id}.pdf`,
+              size: 210000,
+              type: 'application/pdf',
+              kategori: 'Permohonan',
+              tanggal: permohonan.tanggal,
+              deskripsi: permohonan.perihal
+            });
+          }
+
+          const newTelaahan: TelaahanRecord = {
+            ...permohonan,
+            id: permohonan.id,
+            nomorTelaahan: `TLH-${Math.floor(10 + Math.random() * 90)}/SJ.4/${new Date().getFullYear()}`,
+            status: StatusPermohonan.DIPROSES,
+            statusTelaahan: StatusTelaahan.AKTIF,
+            dokumenTelaahan: docs,
+            naskahTelaahan: {
+              statusNaskah: StatusNaskahTelaahan.BELUM_DIBUAT,
+              perihal: `Telaahan Hukum atas ${permohonan.perihal}`
+            },
+            abstraksiTelaahan: {
+              pokokPermasalahan: permohonan.uraian || permohonan.perihal,
+              faktaHukum: `Surat permohonan telaahan diterima dari ${permohonan.pemohon || permohonan.unit} tanggal ${permohonan.tanggal}.`,
+              dasarHukum: ['PMK No. 118/PMK.01/2021 tentang Organisasi dan Tata Kerja Kementerian Keuangan'],
+              analisisKajian: 'Sedang dalam proses telaahan hukum oleh tim Biro Advokasi.',
+              rekomendasi: 'Penyusunan naskah telaahan hukum komprehensif.',
+              tingkatUrgensi: 'Biasa',
+              kategoriHukum: 'Umum'
+            },
+            team: permohonan.team || [],
+            picId: permohonan.picId || null
+          };
+          nextTelaahanRecords = [newTelaahan, ...nextTelaahanRecords];
+        }
+      }
+
       return {
         permohonanList: nextRecords,
+        telaahanRecords: nextTelaahanRecords,
         selectedPermohonan: state.selectedPermohonan?.id === id ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === id ? updatedSelected : state.currentPermohonanToProses,
-        notification: { message: 'Permohonan telah diterima dan dipindahkan ke Pengelolaan Permohonan.', type: 'success' }
+        notification: { 
+          message: permohonan?.jenis === JenisPermohonan.TELAAHAN_KASUS_HUKUM 
+            ? 'Permohonan telah diterima dan masuk ke modul Telaahan Kasus Hukum (tab Aktif).' 
+            : 'Permohonan telah diterima dan dipindahkan ke Pengelolaan Permohonan.', 
+          type: 'success' 
+        }
       };
     });
   },
@@ -925,6 +1019,201 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
     }));
   },
 
+  handleSaveTelaahan: (record) => {
+    set((state) => {
+      const index = record.id ? state.telaahanRecords.findIndex(r => r.id === record.id) : -1;
+      let nextRecords = [...state.telaahanRecords];
+      let notificationMsg = '';
+      if (index > -1) {
+        nextRecords = state.telaahanRecords.map(r => r.id === record.id ? record : r);
+        notificationMsg = 'Data telaahan kasus hukum berhasil diperbarui.';
+      } else {
+        const newRecord: TelaahanRecord = {
+          ...record,
+          id: record.id || `TLH-${Date.now()}`,
+          nomorTelaahan: record.nomorTelaahan || `TLH-${Math.floor(10 + Math.random() * 90)}/SJ.4/${new Date().getFullYear()}`,
+          statusTelaahan: record.statusTelaahan || StatusTelaahan.AKTIF,
+          status: StatusPermohonan.DIPROSES,
+          dokumenTelaahan: record.dokumenTelaahan || [],
+          naskahTelaahan: record.naskahTelaahan || { statusNaskah: StatusNaskahTelaahan.BELUM_DIBUAT }
+        };
+        nextRecords = [newRecord, ...state.telaahanRecords];
+        notificationMsg = 'Data telaahan kasus hukum baru berhasil ditambahkan.';
+      }
+      return {
+        telaahanRecords: nextRecords,
+        selectedTelaahan: state.selectedTelaahan?.id === record.id ? record : state.selectedTelaahan,
+        notification: { message: notificationMsg, type: 'success' }
+      };
+    });
+  },
+
+  handleDeleteTelaahan: (id) => {
+    set((state) => ({
+      telaahanRecords: state.telaahanRecords.filter(r => r.id !== id),
+      selectedTelaahan: state.selectedTelaahan?.id === id ? null : state.selectedTelaahan,
+      notification: { message: 'Data telaahan kasus hukum berhasil dihapus.', type: 'info' }
+    }));
+  },
+
+  handleSetTelaahanStatus: (id, status) => {
+    set((state) => {
+      const nextRecords = state.telaahanRecords.map(r => r.id === id ? { 
+        ...r, 
+        statusTelaahan: status, 
+        status: status === StatusTelaahan.SELESAI ? StatusPermohonan.SELESAI : StatusPermohonan.DIPROSES 
+      } : r);
+      const nextPermohonan = state.permohonanList.map(p => p.id === id ? {
+        ...p,
+        status: status === StatusTelaahan.SELESAI ? StatusPermohonan.SELESAI : StatusPermohonan.DIPROSES
+      } : p);
+      const updatedSelected = nextRecords.find(r => r.id === id) || null;
+      return {
+        telaahanRecords: nextRecords,
+        permohonanList: nextPermohonan,
+        selectedTelaahan: state.selectedTelaahan?.id === id ? updatedSelected : state.selectedTelaahan,
+        notification: { message: `Status telaahan berhasil diubah menjadi "${status}".`, type: 'success' }
+      };
+    });
+  },
+
+  handleUpdateTelaahanTeam: (recordId, team) => {
+    set((state) => {
+      const nextRecords = state.telaahanRecords.map(r => r.id === recordId ? { ...r, team } : r);
+      const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
+      return {
+        telaahanRecords: nextRecords,
+        selectedTelaahan: state.selectedTelaahan?.id === recordId ? updatedSelected : state.selectedTelaahan,
+        notification: { message: 'Tim telaahan kasus hukum berhasil diperbarui.', type: 'success' }
+      };
+    });
+  },
+
+  handleSetTelaahanPic: (recordId, picId) => {
+    set((state) => {
+      const nextRecords = state.telaahanRecords.map(r => r.id === recordId ? { ...r, picId: picId || undefined } : r);
+      const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
+      return {
+        telaahanRecords: nextRecords,
+        selectedTelaahan: state.selectedTelaahan?.id === recordId ? updatedSelected : state.selectedTelaahan,
+        notification: { message: 'PIC telaahan kasus hukum berhasil diperbarui.', type: 'success' }
+      };
+    });
+  },
+
+  handleAddTelaahanDokumen: (recordId, dokumen) => {
+    set((state) => {
+      const nextRecords = state.telaahanRecords.map(r => {
+        if (r.id === recordId) {
+          const currentDocs = r.dokumenTelaahan || [];
+          return {
+            ...r,
+            dokumenTelaahan: [dokumen, ...currentDocs]
+          };
+        }
+        return r;
+      });
+      const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
+      return {
+        telaahanRecords: nextRecords,
+        selectedTelaahan: state.selectedTelaahan?.id === recordId ? updatedSelected : state.selectedTelaahan,
+        notification: { message: `Dokumen "${dokumen.name}" berhasil ditambahkan.`, type: 'success' }
+      };
+    });
+  },
+
+  handleDeleteTelaahanDokumen: (recordId, dokumenId) => {
+    set((state) => {
+      const nextRecords = state.telaahanRecords.map(r => {
+        if (r.id === recordId) {
+          return {
+            ...r,
+            dokumenTelaahan: (r.dokumenTelaahan || []).filter(d => d.id !== dokumenId)
+          };
+        }
+        return r;
+      });
+      const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
+      return {
+        telaahanRecords: nextRecords,
+        selectedTelaahan: state.selectedTelaahan?.id === recordId ? updatedSelected : state.selectedTelaahan,
+        notification: { message: 'Dokumen telaahan berhasil dihapus.', type: 'info' }
+      };
+    });
+  },
+
+  handleSelesaikanNaskahTelaahanNadine: (recordId, naskahData) => {
+    const nowStr = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+    const cleanNo = naskahData.nomorNaskah.replace(/[\/\\]/g, '_');
+    const signedDoc: DokumenTelaahanItem = {
+      id: `dt-tte-${Date.now()}`,
+      name: `${cleanNo}_Naskah_Telaahan_Hukum_TTE.pdf`,
+      size: 1150000,
+      type: 'application/pdf',
+      kategori: 'Naskah Telaahan',
+      tanggal: new Date().toLocaleDateString('id-ID'),
+      nomor: naskahData.nomorNaskah,
+      deskripsi: `Naskah Telaahan Hukum yang telah di-TTE oleh ${naskahData.penandaTangan} dan dikirim via Nadine.`
+    };
+
+    set((state) => {
+      const nextTelaahan = state.telaahanRecords.map(r => {
+        if (r.id === recordId) {
+          const updatedNaskah: NaskahTelaahanInfo = {
+            naskahId: `NADINE-TLH-${Math.floor(1000 + Math.random() * 9000)}`,
+            nomorNaskah: naskahData.nomorNaskah,
+            statusNaskah: StatusNaskahTelaahan.DIKIRIM,
+            penandaTangan: naskahData.penandaTangan,
+            tglTte: naskahData.tglTte,
+            tglKirim: nowStr,
+            perihal: naskahData.perihal,
+            resumeRingkas: naskahData.resumeRingkas,
+            analisisHukum: naskahData.analisisHukum,
+            rekomendasi: naskahData.rekomendasi
+          };
+          return {
+            ...r,
+            statusTelaahan: StatusTelaahan.SELESAI,
+            status: StatusPermohonan.SELESAI,
+            naskahTelaahan: updatedNaskah,
+            dokumenTelaahan: [signedDoc, ...(r.dokumenTelaahan || [])]
+          };
+        }
+        return r;
+      });
+
+      const nextPermohonan = state.permohonanList.map(p => {
+        if (p.id === recordId) {
+          return {
+            ...p,
+            status: StatusPermohonan.SELESAI,
+            history: [...(p.history || []), {
+              id: Date.now(),
+              author: 'Administrator' as const,
+              message: `Naskah Telaahan Hukum No. ${naskahData.nomorNaskah} telah selesai di-TTE secara elektronik dan dikirim melalui aplikasi Nadine. Telaahan hukum resmi dinyatakan Selesai.`,
+              files: [{ name: signedDoc.name, size: signedDoc.size, type: signedDoc.type }],
+              timestamp: new Date()
+            }]
+          };
+        }
+        return p;
+      });
+
+      const updatedSelected = nextTelaahan.find(r => r.id === recordId) || null;
+
+      return {
+        telaahanRecords: nextTelaahan,
+        permohonanList: nextPermohonan,
+        selectedTelaahan: state.selectedTelaahan?.id === recordId ? updatedSelected : state.selectedTelaahan,
+        activeTelaahanForNadine: null,
+        notification: {
+          message: `Naskah telaahan No. ${naskahData.nomorNaskah} telah di-TTE dan dikirim via Nadine. Telaahan aktif berpindah ke tab "Selesai".`,
+          type: 'success'
+        }
+      };
+    });
+  },
+
   handleAssignToExisting: (permohonanId, targetId, targetType) => {
     const permohonan = get().permohonanList.find(p => p.id === permohonanId);
     if (!permohonan) return;
@@ -997,6 +1286,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
       let nextPendampingan = [...state.pendampinganRecords];
       let nextPerkara = [...state.perkaraRecords];
       let nextPutusan = [...state.putusanRecords];
+      let nextTelaahan = [...state.telaahanRecords];
 
       if (targetType === 'pendampingan') {
           nextPendampingan = state.pendampinganRecords.map(r => {
@@ -1031,7 +1321,33 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
               }
               return r;
           });
+      } else if (targetType === 'telaahan') {
+          nextTelaahan = state.telaahanRecords.map(r => {
+              if (r.id === targetId) {
+                  const existingDocs = r.dokumenTelaahan || [];
+                  const existingNames = new Set(existingDocs.map(d => d.name));
+                  const newDocs: DokumenTelaahanItem[] = permohonanFiles
+                    .filter(f => !existingNames.has(f.name))
+                    .map(f => ({
+                      id: f.id,
+                      name: f.name,
+                      size: f.size,
+                      type: f.type,
+                      kategori: 'Data Dukung' as const,
+                      tanggal: f.tanggal,
+                      nomor: f.nomor,
+                      deskripsi: f.deskripsi
+                    }));
+                  return {
+                      ...r,
+                      dokumenTelaahan: [...existingDocs, ...newDocs]
+                  };
+              }
+              return r;
+          });
       }
+
+      const typeLabel = targetType === 'pendampingan' ? 'Pendampingan' : targetType === 'perkara' ? 'Penanganan Perkara' : targetType === 'putusan' ? 'Penanganan Putusan' : 'Telaahan Kasus Hukum';
 
       const updatedPermohonanList = state.permohonanList.map(p => p.id === permohonanId ? { 
         ...p, 
@@ -1040,7 +1356,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
         history: [...(p.history || []), {
           id: Date.now(),
           author: 'Administrator' as const,
-          message: `Permohonan dan ${permohonanFiles.length} dokumen/lampiran berhasil dihubungkan ke Dokumen Permohonan data ${targetType === 'pendampingan' ? 'Pendampingan' : targetType === 'perkara' ? 'Penanganan Perkara' : 'Penanganan Putusan'} #${targetId}.`,
+          message: `Permohonan dan ${permohonanFiles.length} dokumen/lampiran berhasil dihubungkan ke data ${typeLabel} #${targetId}.`,
           files: [],
           timestamp: new Date()
         }]
@@ -1051,11 +1367,12 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
         pendampinganRecords: nextPendampingan,
         perkaraRecords: nextPerkara,
         putusanRecords: nextPutusan,
+        telaahanRecords: nextTelaahan,
         permohonanList: updatedPermohonanList,
         selectedPermohonan: state.selectedPermohonan?.id === permohonanId ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === permohonanId ? updatedSelected : state.currentPermohonanToProses,
         notification: { 
-          message: `Permohonan berhasil dihubungkan ke data ${targetType} existing. ${permohonanFiles.length} dokumen/lampiran telah masuk ke Dokumen Permohonan.`, 
+          message: `Permohonan berhasil dihubungkan ke data ${typeLabel} existing. ${permohonanFiles.length} dokumen/lampiran telah masuk.`, 
           type: 'success' 
         }
       };
@@ -1083,10 +1400,15 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           return r;
       });
 
+      const nextTelaahan = state.telaahanRecords.map(t => 
+        t.id === recordId ? { ...t, picId: picId || undefined } : t
+      );
+
       const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
 
       return {
         permohonanList: nextRecords,
+        telaahanRecords: nextTelaahan,
         selectedPermohonan: state.selectedPermohonan?.id === recordId ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === recordId ? updatedSelected : state.currentPermohonanToProses,
         notification: { message: 'PIC permohonan berhasil diperbarui.', type: 'success' }
@@ -1104,10 +1426,15 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
           return r;
       });
 
+      const nextTelaahan = state.telaahanRecords.map(t => 
+        t.id === recordId ? { ...t, team } : t
+      );
+
       const updatedSelected = nextRecords.find(r => r.id === recordId) || null;
 
       return {
         permohonanList: nextRecords,
+        telaahanRecords: nextTelaahan,
         selectedPermohonan: state.selectedPermohonan?.id === recordId ? updatedSelected : state.selectedPermohonan,
         currentPermohonanToProses: state.currentPermohonanToProses?.id === recordId ? updatedSelected : state.currentPermohonanToProses,
         notification: { message: 'Tim advokasi permohonan berhasil diperbarui.', type: 'success' }
@@ -1166,10 +1493,23 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
         return r;
       });
 
+      const telaahanIds = recordIds.telaahan || [];
+      const nextTelaahan = state.telaahanRecords.map(r => {
+        if (telaahanIds.includes(r.id)) {
+          return {
+            ...r,
+            team: replaceMember(r.team),
+            picId: r.picId === oldUserId ? newUserId : r.picId
+          };
+        }
+        return r;
+      });
+
       return {
         pendampinganRecords: nextPendampingan,
         perkaraRecords: nextPerkara,
         putusanRecords: nextPutusan,
+        telaahanRecords: nextTelaahan,
         notification: { message: `Anggota tim berhasil diganti secara massal.`, type: 'success' }
       };
     });

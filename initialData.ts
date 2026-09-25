@@ -8,7 +8,10 @@ import {
   StatusPendampingan, 
   PerkaraRecord, 
   StatusPerkara,
-  UserAccount
+  UserAccount,
+  TelaahanRecord,
+  StatusTelaahan,
+  StatusNaskahTelaahan
 } from './types';
 
 export const initialPermohonan: Permohonan[] = [
@@ -241,7 +244,9 @@ export const initialPendampinganRecords: PendampinganRecord[] = [
             keterangan: 'keterangan'
         },
         posisi: [
-            { id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2021-08-11', agenda: 'Pemeriksaan saksi', tanggalAgenda: '2021-08-11', suratPemanggilan: 'SPGL-12', pemanggil: ['Joko bareskrim mabes polri'], terpanggil: ['Pihak Terkait'], posisiKasus: 'Penyelidikan', lokasi: 'RR Rapat Bareskrim', durasi: 180, rincian: 'di cecar pertanyaan menjebak', timestamp: new Date('2021-08-11') },
+            { id: 1, suratTugas: 'ST-12/SJ.4/2026', tanggalSuratTugas: '2026-09-15', agenda: 'Pemeriksaan Saksi & Klarifikasi Dokumen Anggaran', tanggalAgenda: '2026-09-25', suratPemanggilan: 'SPGL-402/Ditreskrimsus/2026', pemanggil: ['Penyidik Ditreskrimsus Polda Metro Jaya'], terpanggil: ['Pejabat Pengadaan Kemenkeu'], posisiKasus: 'Penyelidikan', lokasi: 'Ruang Riksa Subdit Fismondev Polda Metro Jaya', durasi: 180, rincian: 'Klarifikasi dan verifikasi dokumen penganggaran dan pembayaran termin TA 2025.', timestamp: new Date('2026-09-15') },
+            { id: 2, suratTugas: 'ST-92/SJ.4/2026', tanggalSuratTugas: '2026-09-20', agenda: 'Pemeriksaan Keterangan Tambahan di Kejaksaan Agung RI', tanggalAgenda: '2026-09-30', suratPemanggilan: 'SPGL-88/Pidsus/2026', pemanggil: ['Jampidsus Kejaksaan Agung'], terpanggil: ['Tim Teknis BMN'], posisiKasus: 'Penyidikan', lokasi: 'Gedung Bundar Jampidsus Kejaksaan Agung', durasi: 120, rincian: 'Pemberian keterangan ahli tata kelola keuangan negara.', timestamp: new Date('2026-09-20') },
+            { id: 3, suratTugas: 'ST-98/SJ.4/2026', tanggalSuratTugas: '2026-09-22', agenda: 'Batas Penyampaian Tanggapan Tertulis BPK RI atas LHP Kinerja', tanggalAgenda: '2026-10-02', suratPemanggilan: 'SURAT-BPK-19/2026', pemanggil: ['Auditor Utama Investigasi BPK RI'], terpanggil: ['Tim Biro Advokasi & Satker'], posisiKasus: 'Pemeriksaan BPK', lokasi: 'Auditorium BPK RI Pusat', durasi: 240, rincian: 'Batas akhir tenggang waktu penyampaian matriks tindak lanjut rekomendasi audit investigatif.', timestamp: new Date('2026-09-22') },
         ],
         team: [
             { id: '19XXXXX XXXXXX XXXX0', nama: 'Made', nip: '19XXXXX XXXXXX XXXXX', unit: 'Subbagian Advokasi IIIA, Bagian Advokasi III, Biro Advokasi, Sekretariat Jenderal', role: 'Analis Kebijakan', teamRole: 'Editor' },
@@ -306,17 +311,25 @@ export const initialPerkaraRecords: PerkaraRecord[] = [
                 {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2026-02-11', agendaSidang: 'Mediasi', tanggalSidang: '2026-02-12', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2026-02-18', kehadiranPihak: []},
                 {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2026-02-18', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2026-02-22', kehadiranPihak: []},
                 {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', kehadiranPihak: []},
+                {id: 4, suratTugas: 'ST-55/SJ.4/2026', tanggalSuratTugas: '2026-09-20', agendaSidang: 'Sidang Pembuktian & Pemeriksaan Saksi Ahli Tergugat', tanggalSidang: '2026-09-24', agendaBerikutnya: 'Sidang Kesimpulan Para Pihak', tanggalSidangBerikutnya: '2026-09-29', kehadiranPihak: []},
+                {id: 5, suratTugas: 'ST-62/SJ.4/2026', tanggalSuratTugas: '2026-09-26', agendaSidang: 'Sidang Kesimpulan Para Pihak', tanggalSidang: '2026-09-29', agendaBerikutnya: 'Sidang Pembacaan Putusan Akhir', tanggalSidangBerikutnya: '2026-10-06', kehadiranPihak: []},
             ],
             tkBanding: [], tkKasasi: [], tkPK: []
         },
+        tindakLanjut: [
+            { id: 1, tanggal: '2026-09-24', tindakLanjut: 'Koordinasi Data Dukung Sertifikat Aset bersama DJKN', uraian: 'Pengambilan salinan warkah tanah asli dan surat ukur BPN di Kantor Pertanahan.', jenisTindakLanjut: 'Koordinasi Internal' },
+            { id: 2, tanggal: '2026-09-28', tindakLanjut: 'Deadline Penyusunan Duplik Tergugat Kemenkeu', uraian: 'Penyelesaian draf akhir duplik dan pengesahan oleh Koordinator Advokasi.', jenisTindakLanjut: 'Penyusunan Dokumen Litigasi' },
+            { id: 3, tanggal: '2026-10-05', tindakLanjut: 'Batas Penyerahan Bukti Tambahan Surat ke Panitera', uraian: 'Penyerahan novum dan bukti pelengkap akta otentik menjelang musyawarah majelis hakim.', jenisTindakLanjut: 'Penyerahan Bukti' },
+            { id: 4, tanggal: '2026-10-08', tindakLanjut: 'Rapat Koordinasi Pelaksanaan Eksekusi Putusan BHT', uraian: 'Konsolidasi tindak lanjut amar putusan bersama satker pengelola BMN.', jenisTindakLanjut: 'Pelaksanaan Putusan' },
+        ],
         putusan: [
             { 
                 id: 1, 
                 nomor: '37/Pdt.G/2021/PN', 
-                tanggal: '2021-11-25', 
-                amar: 'Lorem ipsum', 
-                status: 'Menang', 
-                posisi: 'Pertama',
+                tanggal: '2026-09-10', 
+                amar: 'Menyatakan gugatan Penggugat dikabulkan sebagian. Menghukum Turut Tergugat tunduk pada putusan.', 
+                status: 'Kalah', 
+                posisi: 'Banding',
                 susunanMajelis: [
                     { id: 1, jabatan: 'Hakim Ketua', identitas: 'Joko' },
                     { id: 2, jabatan: 'Hakim Anggota', identitas: 'Wi' },
@@ -348,4 +361,141 @@ export const initialUserAccounts: UserAccount[] = [
   { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Kanwil DJP Jakarta Pusat', roles: ['Manajer'], status: 'Aktif' },
   { id: 'usr-3', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Kanwil DJP Jakarta Selatan I', roles: ['Operator'], status: 'Aktif' },
   { id: 'usr-4', nama: 'Citra Lestari', nip: '198807202011012003', unit: 'Kantor Pusat DJBC', roles: ['Pegawai'], status: 'Tidak Aktif' },
+];
+
+export const initialTelaahanRecords: TelaahanRecord[] = [
+  {
+    id: 'TLH-2026-001',
+    Nomor: 'ND-112/SJ.4/2026',
+    nomorTelaahan: 'TLH-01/SJ.4/2026',
+    pemohon: 'Kepala Pusat Sistem Informasi dan Teknologi Keuangan',
+    unit: 'Pusat Sistem Informasi dan Teknologi Keuangan, Setjen',
+    tanggal: '10/02/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Permohonan Telaahan Kasus Hukum atas Dugaan Pelanggaran Kontrak Pengadaan Perangkat IT',
+    uraian: 'Permohonan analisis yuridis terkait wanprestasi penyedia dalam pemenuhan spesifikasi teknis dan keterlambatan serah terima pekerjaan pengadaan perangkat keras pusat data Kemenkeu TA 2025.',
+    files: [{ name: 'Surat_Permohonan_Telaahan_Pusintek.pdf', size: 245000, type: 'application/pdf' }],
+    status: StatusPermohonan.DIPROSES,
+    statusTelaahan: StatusTelaahan.AKTIF,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Penyedia PT Dinamika Solusi Digital belum merampungkan deliverable server utama dan terjadi deviasi spesifikasi RAM serta storage sebesar 25% dari KAK.',
+      faktaHukum: '1. Surat Perjanjian Kontrak No. SP-04/PPK.IT/2025 tgl 14 Maret 2025 dengan nilai Rp 4.850.000.000,-.\n2. BAST parsial tgl 20 November 2025 menunjukkan keterlambatan 45 hari kalender.\n3. Telah diterbitkan SP-1, SP-2, dan SP-3 namun penyedia tidak memenuhi pemulihan performa sistem.',
+      dasarHukum: [
+        'Peraturan Presiden No. 16 Tahun 2018 jo Perpres No. 12 Tahun 2021 tentang Pengadaan Barang/Jasa Pemerintah',
+        'Pasal 1243 dan Pasal 1244 Kitab Undang-Undang Hukum Perdata',
+        'PMK No. 118/PMK.01/2021 tentang Organisasi dan Tata Kerja Kementerian Keuangan'
+      ],
+      analisisKajian: 'Berdasarkan ketentuan Klausul Kontrak dan Pasal 1243 KUHPerdata, penyedia telah nyata-nyata melakukan wanprestasi. Pejabat Pembuat Komitmen (PPK) berwenang mengenakan sanksi denda keterlambatan maksimal 5%, mencairkan jaminan pelaksanaan ke Kas Negara, serta memutus kontrak secara sepihak disertai usulan pencantuman dalam Daftar Hitam (Blacklist).',
+      rekomendasi: '1. PPK menerbitkan Surat Pemutusan Kontrak secara sepihak karena cidera janji.\n2. Segera mengajukan klaim pencairan Jaminan Pelaksanaan kepada pihak penjamin.\n3. Mengusulkan sanksi pencantuman penyedia dalam Daftar Hitam nasional LKPP.',
+      tingkatUrgensi: 'Segera',
+      kategoriHukum: 'Kontrak Pengadaan Barang dan Jasa'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-1', name: 'Surat_Permohonan_Telaahan_Pusintek.pdf', size: 245000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '10/02/2026', deskripsi: 'Nota Dinas Permohonan Resmi dari Kapusintek' },
+      { id: 'dt-2', name: 'Kontrak_Pengadaan_Server_2025.pdf', size: 3400000, type: 'application/pdf', kategori: 'Data Dukung', tanggal: '14/03/2025', deskripsi: 'Salinan Kontrak Asli & Syarat Khusus Kontrak' },
+      { id: 'dt-3', name: 'Berita_Acara_Pemeriksaan_Teknis_BAP.pdf', size: 1200000, type: 'application/pdf', kategori: 'Data Dukung', tanggal: '20/11/2025', deskripsi: 'Hasil Uji Fungsi dan Audit Teknis Tim Ahli IT' }
+    ],
+    naskahTelaahan: {
+      statusNaskah: StatusNaskahTelaahan.BELUM_DIBUAT,
+      perihal: 'Telaahan Hukum atas Dugaan Wanprestasi Pekerjaan Pengadaan Perangkat Server Pusintek TA 2025'
+    },
+    team: [
+      { id: 't1', nama: 'Hendra Cahyono', nip: '198505122008011003', unit: 'Biro Advokasi, Setjen', role: 'Koordinator Advokasi III', teamRole: 'PIC' },
+      { id: 't2', nama: 'Arlina Haryuningsih', nip: '198902142012012002', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum Ahli Muda', teamRole: 'Editor' }
+    ],
+    picId: 't1'
+  },
+  {
+    id: 'TLH-2026-002',
+    Nomor: 'ND-88/PB.03/2026',
+    nomorTelaahan: 'TLH-02/SJ.4/2026',
+    pemohon: 'Direktur Sistem Perbendaharaan',
+    unit: 'Direktorat Sistem Perbendaharaan, Ditjen Perbendaharaan',
+    tanggal: '05/01/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Permohonan Telaahan Hukum Permasalahan Hak Guna Bangunan dan Sengketa Tanah KPPN',
+    uraian: 'Kajian kepemilikan dan status hak atas tanah gedung operasional KPPN terhadap klaim pihak ketiga.',
+    files: [{ name: 'Surat_DJPb_Sengketa_Tanah.pdf', size: 180000, type: 'application/pdf' }],
+    status: StatusPermohonan.SELESAI,
+    statusTelaahan: StatusTelaahan.SELESAI,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Klaim pihak ketiga atas tanah BMN seluas 1.200 m2 bersertifikat Hak Pakai an. Kementerian Keuangan RI.',
+      faktaHukum: 'Sertifikat Hak Pakai No. 14 terbit tahun 1984 dan dikuasai secara fisik dan administratif tanpa henti oleh Kementerian Keuangan.',
+      dasarHukum: [
+        'UU No. 1 Tahun 2004 tentang Perbendaharaan Negara',
+        'PP No. 28 Tahun 2020 tentang Perubahan Atas PP No. 27 Tahun 2014 tentang Pengelolaan BMN',
+        'PMK No. 181/PMK.05/2016 tentang Penatausahaan BMN'
+      ],
+      analisisKajian: 'Kedudukan yuridis Kementerian Keuangan mutlak dilindungi asas legalitas kepemilikan sertifikat Hak Pakai yang sah dan tidak pernah dibatalkan oleh putusan peradilan. Klaim perorangan tidak berdasar bukti otentik.',
+      rekomendasi: 'Mempertahankan aset BMN secara konsisten, memasang plang pengamanan fisik BMN, dan berkoordinasi dengan Kantor Pertanahan setempat untuk pencegahan peralihan hak.',
+      tingkatUrgensi: 'Biasa',
+      kategoriHukum: 'Aset dan Barang Milik Negara (BMN)'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-10', name: 'Surat_DJPb_Sengketa_Tanah.pdf', size: 180000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '05/01/2026' },
+      { id: 'dt-11', name: 'Sertifikat_Hak_Pakai_No14.pdf', size: 4500000, type: 'application/pdf', kategori: 'Data Dukung', tanggal: '12/01/2026' },
+      { id: 'dt-12', name: 'ND-45-SJ.4-2026_Telaahan_Hukum_Final_TTE.pdf', size: 980000, type: 'application/pdf', kategori: 'Naskah Telaahan', tanggal: '28/01/2026', nomor: 'ND-45/SJ.4/2026' }
+    ],
+    naskahTelaahan: {
+      naskahId: 'NADINE-TLH-9921',
+      nomorNaskah: 'ND-45/SJ.4/2026',
+      statusNaskah: StatusNaskahTelaahan.DIKIRIM,
+      penandaTangan: 'Kepala Biro Advokasi (Aloysius Yanis Dhaniarto)',
+      tglTte: '28/01/2026 14:30 WIB',
+      tglKirim: '28/01/2026 15:00 WIB',
+      perihal: 'Telaahan Hukum atas Status Sertifikat Hak Pakai Tanah Gedung KPPN Terhadap Gugatan Pihak Ketiga'
+    },
+    team: [
+      { id: 't1', nama: 'Hendra Cahyono', nip: '198505122008011003', unit: 'Biro Advokasi, Setjen', role: 'Koordinator Advokasi III', teamRole: 'PIC' }
+    ],
+    picId: 't1'
+  },
+  {
+    id: 'TLH-2026-003',
+    Nomor: 'ND-304/DJP/2026',
+    nomorTelaahan: 'TLH-03/SJ.4/2026',
+    pemohon: 'Direktur Kepatuhan Internal dan Transformasi Sumber Daya Aparatur',
+    unit: 'Direktorat Jenderal Pajak',
+    tanggal: '20/09/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Permohonan Telaahan Hukum Dugaan Pelanggaran Kode Etik dan Benturan Kepentingan Oknum Pegawai',
+    uraian: 'Kajian yuridis terhadap penerapan sanksi disiplin tingkat berat PP No. 94 Tahun 2021 atas gratifikasi dan benturan kepentingan penanganan sengketa pajak.',
+    files: [{ name: 'LHA_Investigasi_Internal_DJP.pdf', size: 540000, type: 'application/pdf' }],
+    status: StatusPermohonan.DIPROSES,
+    statusTelaahan: StatusTelaahan.AKTIF,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Pemeriksaan kepatuhan internal menemukan indikasi penerimaan fasilitas tidak sah dari wajib pajak dalam proses pemeriksaan bukti permulaan.',
+      faktaHukum: 'Bukti transfer rekening perantara, salinan percakapan, dan pengakuan tertulis terlapor saat berita acara pemeriksaan investigasi.',
+      dasarHukum: [
+        'PP No. 94 Tahun 2021 tentang Disiplin Pegawai Negeri Sipil',
+        'UU No. 20 Tahun 2001 jo UU No. 31 Tahun 1999 tentang Pemberantasan Tindak Pidana Korupsi',
+        'PMK No. 190/PMK.01/2018 tentang Kode Etik dan Kode Perilaku Pegawai Negeri Sipil di Lingkungan Kementerian Keuangan'
+      ],
+      analisisKajian: 'Unsur pelanggaran disiplin berat terbukti secara sah dan meyakinkan. Disarankan pembentukan Tim Pemeriksa Gabungan dan penjatuhan sanksi pembebasan dari jabatan serta penerusan ke Aparat Penegak Hukum.',
+      rekomendasi: '1. Penjatuhan hukuman disiplin berat tingkat pemberhentian dengan hormat tidak atas permintaan sendiri.\n2. Pemblokiran akun akses sistem informasi perpajakan.',
+      tingkatUrgensi: 'Segera',
+      kategoriHukum: 'Hukum Kepegawaian dan Tindak Pidana Korupsi'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-20', name: 'LHA_Investigasi_Internal_DJP.pdf', size: 540000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '20/09/2026' }
+    ],
+    naskahTelaahan: {
+      statusNaskah: StatusNaskahTelaahan.DRAFT,
+      perihal: 'Telaahan Hukum atas Rekomendasi Sanksi Disiplin Berat Oknum Pegawai DJP',
+      tanggalNaskah: '2026-09-26'
+    },
+    team: [
+      { id: 't1', nama: 'Hendra Cahyono', nip: '198505122008011003', unit: 'Biro Advokasi, Setjen', role: 'Koordinator Advokasi III', teamRole: 'PIC' }
+    ],
+    picId: 't1'
+  }
 ];

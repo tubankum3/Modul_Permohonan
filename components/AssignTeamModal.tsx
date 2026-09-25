@@ -113,7 +113,7 @@ const AssignTeamModal: React.FC<AssignTeamModalProps> = ({ isOpen, onClose, onSa
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4">
             <div className="bg-gray-100 rounded-lg shadow-xl w-full max-w-5xl h-[90vh] flex flex-col">
                 <header className="flex items-center justify-between p-4 border-b border-gray-200 bg-white rounded-t-lg">
                     <h2 className="text-xl font-bold text-gray-800">Pilih Anggota Tim</h2>
