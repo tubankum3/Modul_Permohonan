@@ -135,6 +135,8 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiMonitoringPutusan': return '/eadvokasi/monitoring/putusan';
     case 'eAdvokasiMonitoringPendampingan': return '/eadvokasi/monitoring/pendampingan';
     case 'eAdvokasiMonitoringPerkara': return '/eadvokasi/monitoring/perkara';
+    case 'eAdvokasiMonitoringTelaahan': return '/eadvokasi/monitoring/telaahan';
+    case 'eAdvokasiMonitoringKelengkapanData': return '/eadvokasi/monitoring/kelengkapan-data';
     case 'eAdvokasiMonitoringRisikoHukum': return '/eadvokasi/monitoring/risiko-hukum';
     case 'eAdvokasiAuditTrail': return '/eadvokasi/monitoring/audit-trail';
     case 'eAdvokasiArsip': return '/eadvokasi/arsip';
@@ -195,6 +197,8 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname === '/eadvokasi/monitoring/putusan') return { view: 'eAdvokasiMonitoringPutusan' };
   if (pathname === '/eadvokasi/monitoring/pendampingan') return { view: 'eAdvokasiMonitoringPendampingan' };
   if (pathname === '/eadvokasi/monitoring/perkara') return { view: 'eAdvokasiMonitoringPerkara' };
+  if (pathname === '/eadvokasi/monitoring/telaahan') return { view: 'eAdvokasiMonitoringTelaahan' };
+  if (pathname === '/eadvokasi/monitoring/kelengkapan-data') return { view: 'eAdvokasiMonitoringKelengkapanData' };
   if (pathname === '/eadvokasi/monitoring/risiko-hukum') return { view: 'eAdvokasiMonitoringRisikoHukum' };
   if (pathname === '/eadvokasi/monitoring/audit-trail') return { view: 'eAdvokasiAuditTrail' };
   if (pathname === '/eadvokasi/arsip') return { view: 'eAdvokasiArsip' };
@@ -535,6 +539,8 @@ const AppContent: React.FC = () => {
       case 'eAdvokasiMonitoringPutusan':
       case 'eAdvokasiMonitoringPendampingan':
       case 'eAdvokasiMonitoringPerkara':
+      case 'eAdvokasiMonitoringTelaahan':
+      case 'eAdvokasiMonitoringKelengkapanData':
       case 'eAdvokasiMonitoringRisikoHukum':
       case 'eAdvokasiAuditTrail':
       case 'eAdvokasiStatistikPerkara':

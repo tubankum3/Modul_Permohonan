@@ -74,6 +74,8 @@ export const checkViewAccess = (role: string, view: string): boolean => {
         case 'eAdvokasiMonitoringPutusan':
         case 'eAdvokasiMonitoringPendampingan':
         case 'eAdvokasiMonitoringPerkara':
+        case 'eAdvokasiMonitoringTelaahan':
+        case 'eAdvokasiMonitoringKelengkapanData':
         case 'eAdvokasiMonitoringRisikoHukum':
         case 'eAdvokasiAuditTrail':
             return true;

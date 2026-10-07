@@ -428,4 +428,4 @@ export type View =
   'eAdvokasiPenangananPutusan' | 'eAdvokasiPutusanDetail' | 'eAdvokasiPutusanEdit' | 'eAdvokasiPutusanUpdateTindakLanjut' | 'eAdvokasiPutusanTim' | 'eAdvokasiPutusanDokumen' |
   'eAdvokasiTelaahanDetail' | 'eAdvokasiTelaahanDokumen' | 'eAdvokasiTelaahanTim' |
   'eAdvokasiDashboard' | 'eAdvokasiPencarian' | 'eAdvokasiPencarianPerkara' | 'eAdvokasiPencarianPendampingan' | 'eAdvokasiPencarianPutusan' | 'eAdvokasiPencarianDokumen' | 'eAdvokasiPencarianBankDalil' | 'eAdvokasiMonitoringPersidangan' | 'eAdvokasiMonitoringPutusan' | 
-  'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail' | 'eAdvokasiStatistikPerkara';
+  'eAdvokasiMonitoringPendampingan' | 'eAdvokasiMonitoringPerkara' | 'eAdvokasiMonitoringTelaahan' | 'eAdvokasiMonitoringKelengkapanData' | 'eAdvokasiMonitoringRisikoHukum' | 'eAdvokasiAuditTrail' | 'eAdvokasiStatistikPerkara';
