@@ -14,10 +14,19 @@ export enum JenisPermohonan {
 }
 
 export interface FileData {
+  id?: string | number;
   name: string;
   size: number;
   type: string;
   url?: string;
+  nomor?: string;
+  noNaskah?: string;
+  tanggal?: string;
+  timestamp?: string;
+  jenis?: string;
+  deskripsi?: string;
+  description?: string;
+  tags?: string[];
 }
 
 export interface Riwayat {
@@ -167,6 +176,7 @@ export interface TindakLanjut {
   tindakLanjut: string;
   uraian: string;
   file?: FileData;
+  tags?: string[];
 }
 
 export enum StatusPerkara {
@@ -248,6 +258,7 @@ export interface PosisiSidangEntry {
     tanggalSidangBerikutnya?: string;
     kehadiranPihak?: KehadiranPihak[];
     keterangan?: string;
+    statusSidang?: string;
 }
 
 export interface PosisiSidang {
@@ -271,11 +282,17 @@ export interface Putusan {
 }
 
 export interface DokumenLitigasi {
-    id: number;
+    id: number | string;
     noNaskah: string;
     jenis: string;
     deskripsi: string;
     timestamp: string;
+    nama?: string;
+    name?: string;
+    nomor?: string;
+    tanggal?: string;
+    size?: number;
+    tags?: string[];
 }
 
 export interface PerkaraRecord extends Permohonan {
@@ -323,7 +340,9 @@ export interface DokumenTelaahanItem {
   kategori: 'Permohonan' | 'Data Dukung' | 'Naskah Telaahan' | 'Risalah Rapat' | 'Peraturan Terkait' | string;
   deskripsi?: string;
   source?: string;
+  sumber?: string;
   url?: string;
+  tags?: string[];
 }
 
 export interface NaskahTelaahanInfo {

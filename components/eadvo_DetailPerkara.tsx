@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { PerkaraRecord, Pihak, Tuntutan, Majelis, PosisiSidang, PosisiSidangEntry, Putusan, DokumenLitigasi, TeamMember, AuditTrailEntry, View } from '../types';
 import { EyeIcon, DocumentTextIcon, PrintIcon, ArrowLeftIcon } from './icons';
 import Breadcrumb from './Breadcrumb';
+import DocumentTable from './eadvo_DocumentTable';
 
 interface DetailPerkaraProps {
   record: PerkaraRecord;
@@ -384,143 +385,89 @@ const PutusanTab: React.FC<{ record: PerkaraRecord, onNavigate: (view: View, rec
 const DokumenLitigasiTab: React.FC<{ record: PerkaraRecord }> = ({ record }) => {
     const { files, dokumenLitigasi, posisiSidang, putusan } = record;
 
-    const DokumenPermohonanTable = () => (
-        <DetailSection title="1. Dokumen Permohonan">
-            {files && files.length > 0 ? (
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-3 py-2 text-left font-medium text-gray-600">No</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-600">Nama File</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-600">Ukuran</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-600">Tipe</th>
-                            <th className="px-3 py-2 text-center font-medium text-gray-600">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {files.map((file, index) => (
-                            <tr key={index}>
-                                <td className="px-3 py-2">{index + 1}</td>
-                                <td className="px-3 py-2">
-                                    <div className="flex items-center space-x-2">
-                                        <DocumentTextIcon className="h-4 w-4 text-blue-500" />
-                                        <span>{file.name}</span>
-                                    </div>
-                                </td>
-                                <td className="px-3 py-2">{(file.size / 1024).toFixed(2)} KB</td>
-                                <td className="px-3 py-2 uppercase text-xs">{file.type.split('/')[1] || 'FILE'}</td>
-                                <td className="px-3 py-2 text-center">
-                                    <button className="text-blue-600 hover:text-blue-900"><EyeIcon className="h-5 w-5" /></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            ) : (
-                <p className="text-center text-gray-500 py-4">Tidak ada dokumen permohonan.</p>
-            )}
-        </DetailSection>
+    const permohonanItems = (files || []).map((file, index) => ({
+        id: `perm-${index}`,
+        nama: file.name,
+        nomor: record.Nomor || '-',
+        tanggal: record.tanggal || '-',
+        deskripsi: file.deskripsi || 'Dokumen berkas surat permohonan perkara',
+        size: file.size,
+        jenis: file.type ? (file.type.split('/')[1] || 'PDF') : 'PDF',
+        tags: file.tags || ['Permohonan', 'Internal']
+    }));
+
+    const litigasiItems = (dokumenLitigasi || []).map(d => ({
+        id: d.id,
+        nama: d.nama || d.name || d.noNaskah,
+        nomor: d.noNaskah || d.nomor || '-',
+        tanggal: d.tanggal || (d.timestamp ? d.timestamp.split(' ')[0] : '-'),
+        deskripsi: d.deskripsi,
+        jenis: d.jenis,
+        size: d.size,
+        tags: d.tags || [d.jenis, 'Litigasi']
+    }));
+
+    const laporanItems = [
+        ...(posisiSidang?.tkPertama || []),
+        ...(posisiSidang?.tkBanding || []),
+        ...(posisiSidang?.tkKasasi || []),
+        ...(posisiSidang?.tkPK || [])
+    ].map(s => ({
+        id: `ls-${s.id}`,
+        nama: `Laporan Sidang - ${s.agendaSidang}`,
+        nomor: `SIDANG-${s.id}`,
+        tanggal: s.tanggalSidang,
+        deskripsi: `Laporan risalah jalannya persidangan - ${s.agendaSidang}`,
+        jenis: 'Laporan Sidang',
+        tags: ['Laporan', 'Nadine', 'Sidang']
+    })).concat(
+        (putusan || []).map(p => ({
+            id: `lp-${p.id}`,
+            nama: `Laporan Putusan - ${p.nomor}`,
+            nomor: p.nomor,
+            tanggal: p.tanggal,
+            deskripsi: `Laporan hasil putusan perkara - Status: ${p.status || '-'}`,
+            jenis: 'Laporan Putusan',
+            tags: ['Laporan', 'Putusan', p.status || 'Final']
+        }))
     );
 
-    const DokumenLitigasiTable = () => (
-        <DetailSection title="2. Dokumen Litigasi (SKU, Dokumen Litigasi)">
-            <table className="min-w-full text-sm">
-                <thead className="bg-gray-50"><tr>
-                    {['No', 'No Naskah/Tiket/ID', 'Jenis', 'Deskripsi', 'Tanggal', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-                </tr></thead>
-                <tbody className="divide-y divide-gray-200">
-                    {(dokumenLitigasi || []).map((d, i) => <tr key={d.id}>
-                        <td className="px-3 py-2">{i+1}</td>
-                        <td className="px-3 py-2 font-medium">{d.noNaskah}</td>
-                        <td className="px-3 py-2">
-                            <span className={`px-2 py-0.5 rounded text-xs font-semibold ${d.jenis === 'SKU' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
-                                {d.jenis}
-                            </span>
-                        </td>
-                        <td className="px-3 py-2 truncate max-w-xs">{d.deskripsi}</td>
-                        <td className="px-3 py-2">{d.timestamp.split(' ')[0]}</td>
-                        <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                    </tr>)}
-                    {(!dokumenLitigasi || dokumenLitigasi.length === 0) && (
-                        <tr><td colSpan={6} className="text-center py-4 text-gray-500">Belum ada dokumen litigasi.</td></tr>
-                    )}
-                </tbody>
-            </table>
-        </DetailSection>
-    );
-
-    const DokumenLaporanTable = () => {
-        const laporanDocs = [
-            ...(posisiSidang?.tkPertama || []),
-            ...(posisiSidang?.tkBanding || []),
-            ...(posisiSidang?.tkKasasi || []),
-            ...(posisiSidang?.tkPK || [])
-        ].map(s => ({ id: `ls-${s.id}`, name: `Laporan Sidang - ${s.agendaSidang}`, date: s.tanggalSidang }))
-        .concat((putusan || []).map(p => ({ id: `lp-${p.id}`, name: `Laporan Putusan - ${p.nomor}`, date: p.tanggal })));
-
-        return (
-            <DetailSection title="3. Dokumen Laporan (Generate Laporan)">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            {['No', 'Nama Laporan', 'Tanggal', 'Sumber', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {laporanDocs.map((d, i) => (
-                            <tr key={d.id}>
-                                <td className="px-3 py-2">{i + 1}</td>
-                                <td className="px-3 py-2 font-medium">{d.name}</td>
-                                <td className="px-3 py-2">{d.date}</td>
-                                <td className="px-3 py-2 text-gray-400 italic text-xs">Nadine (Auto-generated)</td>
-                                <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                            </tr>
-                        ))}
-                        {laporanDocs.length === 0 && (
-                             <tr><td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen laporan yang di-generate.</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </DetailSection>
-        );
-    }
-
-    const DokumenPutusanTable = () => {
-        const pDocs = (putusan || []).filter(p => (p as any).dokumen);
-        return (
-            <DetailSection title="4. Dokumen Putusan">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50"><tr>
-                        {['No', 'Nomor Putusan', 'Nama Berkas', 'Tanggal', 'Aksi'].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600">{h}</th>)}
-                    </tr></thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {pDocs.map((p, i) => (
-                            <tr key={p.id}>
-                                <td className="px-3 py-2">{i+1}</td>
-                                <td className="px-3 py-2 font-medium">{p.nomor}</td>
-                                <td className="px-3 py-2 flex items-center space-x-2">
-                                    <DocumentTextIcon className="h-4 w-4 text-red-500" />
-                                    <span>{(p as any).dokumen}</span>
-                                </td>
-                                <td className="px-3 py-2">{p.tanggal}</td>
-                                <td className="px-3 py-2 text-center"><button className="p-1 hover:bg-gray-100 rounded-full"><EyeIcon className="h-5 w-5"/></button></td>
-                            </tr>
-                        ))}
-                        {pDocs.length === 0 && (
-                            <tr><td colSpan={5} className="text-center py-4 text-gray-500">Belum ada dokumen putusan yang diunggah.</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </DetailSection>
-        );
-    }
+    const putusanItems = (putusan || []).filter(p => (p as any).dokumen).map(p => ({
+        id: p.id,
+        nama: (p as any).dokumen,
+        nomor: p.nomor,
+        tanggal: p.tanggal,
+        deskripsi: `Salinan amar putusan pengadilan tingkat ${p.posisi || 'Pertama'} (${p.status || 'Inkracht'})`,
+        jenis: 'Berkas Putusan',
+        tags: ['Putusan', p.status || 'Salinan']
+    }));
 
     return (
-        <div className="space-y-2">
-            <DokumenPermohonanTable />
-            <DokumenLitigasiTable />
-            <DokumenLaporanTable />
-            <DokumenPutusanTable />
+        <div className="space-y-6">
+            <DocumentTable
+                title="1. Dokumen Permohonan"
+                categoryContext="permohonan"
+                items={permohonanItems}
+                emptyMessage="Tidak ada dokumen permohonan."
+            />
+            <DocumentTable
+                title="2. Dokumen Litigasi (SKU, Dokumen Jawab Jinawab, Data Dukung)"
+                categoryContext="litigasi"
+                items={litigasiItems}
+                emptyMessage="Belum ada dokumen litigasi."
+            />
+            <DocumentTable
+                title="3. Dokumen Laporan (Generate Laporan Nadine)"
+                categoryContext="laporan"
+                items={laporanItems}
+                emptyMessage="Belum ada dokumen laporan yang di-generate."
+            />
+            <DocumentTable
+                title="4. Dokumen Putusan"
+                categoryContext="putusan"
+                items={putusanItems}
+                emptyMessage="Belum ada dokumen putusan yang diunggah."
+            />
         </div>
     );
 };

@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { XIcon, UploadIcon, DocumentTextIcon, UserIcon, CloudIcon, CloudDownloadIcon, CheckIcon, EyeIcon, DownloadIcon, CloudArrowDownIcon, ArrowLeftIcon } from './icons';
+import { XIcon, UploadIcon, DocumentTextIcon, UserIcon, CloudIcon, CloudDownloadIcon, CheckIcon, EyeIcon, DownloadIcon, CloudArrowDownIcon, ArrowLeftIcon, TagIcon } from './icons';
 import { PendampinganRecord, PosisiUpdate, SuratMasukNadine, JenisPermohonan, View } from '../types';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 import Breadcrumb from './Breadcrumb';
+import DocumentTable from './eadvo_DocumentTable';
 
 interface DokumenPendampinganProps {
     record: PendampinganRecord;
@@ -22,6 +23,8 @@ interface DokumenItem {
     deskripsi?: string;
     type: 'upload' | 'nadine' | 'generate';
     category: DokumenCategory;
+    size?: number | string;
+    tags?: string[];
 }
 
 const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posisi, onNavigate }) => {
@@ -73,6 +76,7 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
     const [tanggalDokumen, setTanggalDokumen] = useState('');
     const [jenisDokumen, setJenisDokumen] = useState('Surat Permohonan');
     const [deskripsiDokumen, setDeskripsiDokumen] = useState('');
+    const [tagsDokumen, setTagsDokumen] = useState('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const [inputError, setInputError] = useState('');
@@ -82,6 +86,7 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
         setTanggalDokumen('');
         setJenisDokumen('Surat Permohonan');
         setDeskripsiDokumen('');
+        setTagsDokumen('');
         setSelectedFile(null);
         setDragActive(false);
         setInputError('');
@@ -93,6 +98,16 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
         setUploadCategory(category);
         setIsUploadOpen(true);
         setTanggalDokumen(new Date().toISOString().split('T')[0]);
+        if (category === 'permohonan') {
+            setJenisDokumen('Surat Permohonan');
+            setTagsDokumen('Permohonan, Nadine');
+        } else if (category === 'pendampingan') {
+            setJenisDokumen('Surat Tugas / Surat Perintah');
+            setTagsDokumen('Surat Tugas, Pendampingan');
+        } else {
+            setJenisDokumen('Laporan / Memo');
+            setTagsDokumen('Laporan, Resmi');
+        }
     };
 
     const handleDrag = (e: React.DragEvent) => {
@@ -129,6 +144,10 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
             return;
         }
 
+        const parsedTags = tagsDokumen
+            ? tagsDokumen.split(',').map(t => t.trim()).filter(Boolean)
+            : undefined;
+
         const newDoc: DokumenItem = {
             id: Math.random().toString(36).substr(2, 9),
             nama: selectedFile.name,
@@ -137,7 +156,9 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
             jenis: jenisDokumen,
             deskripsi: deskripsiDokumen || undefined,
             type: 'upload',
-            category: uploadCategory || 'pendampingan'
+            category: uploadCategory || 'pendampingan',
+            size: selectedFile.size,
+            tags: parsedTags
         };
 
         setDocuments([...documents, newDoc]);
@@ -168,101 +189,6 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
 
     const handleDelete = (id: string) => {
         setDocuments(documents.filter(d => d.id !== id));
-    };
-
-    const renderTable = (title: string, category: DokumenCategory, showGenerate: boolean = false) => {
-        const categoryDocs = documents.filter(d => d.category === category);
-
-        return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8 last:mb-0">
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                        <h3 className="font-bold text-gray-800">{title}</h3>
-                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{categoryDocs.length} Berkas</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <button 
-                            onClick={() => handleUploadClick(category)}
-                            className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-                        >
-                            <UploadIcon className="h-4 w-4" />
-                            <span>UNGGAH</span>
-                        </button>
-                        <button 
-                            onClick={() => handleGetFromNadine(category)}
-                            className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
-                        >
-                            <CloudArrowDownIcon className="h-4 w-4" />
-                            <span>NADINE</span>
-                        </button>
-                        {showGenerate && (
-                            <button 
-                                onClick={handleGenerateNaskah}
-                                className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors shadow-md"
-                            >
-                                <DocumentTextIcon className="h-4 w-4" />
-                                <span>GENERATE</span>
-                            </button>
-                        )}
-                    </div>
-                </div>
-                
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor / Tanggal</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sumber</th>
-                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {categoryDocs.length > 0 ? categoryDocs.map((doc, index) => (
-                                <tr key={doc.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                        <div className="flex items-start space-x-2">
-                                            <DocumentTextIcon className={`h-5 w-5 mt-0.5 shrink-0 ${
-                                                doc.type === 'upload' ? 'text-orange-500' : 
-                                                doc.type === 'nadine' ? 'text-blue-500' : 'text-green-500'
-                                            }`} />
-                                            <div>
-                                                <span className="block font-bold text-gray-950">{doc.nama}</span>
-                                                {doc.jenis && <span className="inline-block bg-amber-50 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-200 mt-1 mr-2">{doc.jenis}</span>}
-                                                {doc.deskripsi && <p className="text-xs text-gray-500 mt-1 font-normal max-w-sm break-words">{doc.deskripsi}</p>}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {doc.nomor ? <span className="block font-semibold text-gray-700">{doc.nomor}</span> : <span className="text-gray-400 font-light italic">-</span>}
-                                        {doc.tanggal && <span className="text-xs text-gray-400 block mt-0.5">{doc.tanggal}</span>}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                                            doc.type === 'upload' ? 'bg-orange-100 text-orange-700' : 
-                                            doc.type === 'nadine' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-                                        }`}>
-                                            {doc.type}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                                        <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                                        <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-                                        <button onClick={() => handleDelete(doc.id)} className="text-red-500 hover:text-red-700"><XIcon className="h-5 w-5" /></button>
-                                    </td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic text-sm">Belum ada dokumen yang tersedia.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
     };
 
     return (
@@ -342,12 +268,29 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
                                     Deskripsi Dokumen/Perihal
                                 </label>
                                 <textarea 
-                                    rows={3}
+                                    rows={2}
                                     value={deskripsiDokumen}
                                     onChange={(e) => setDeskripsiDokumen(e.target.value)}
                                     placeholder="Tuliskan deskripsi singkat atau perihal surat/dokumen ini..."
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center justify-between">
+                                    <span>Tags / Label</span>
+                                    <span className="text-[11px] text-gray-400 font-normal">Pisahkan dengan koma</span>
+                                </label>
+                                <div className="relative">
+                                    <input 
+                                        type="text"
+                                        value={tagsDokumen}
+                                        onChange={(e) => setTagsDokumen(e.target.value)}
+                                        placeholder="Contoh: Permohonan, Nadine, Urgent"
+                                        className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    />
+                                    <TagIcon className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                                </div>
                             </div>
 
                             <div>
@@ -439,10 +382,91 @@ const DokumenPendampingan: React.FC<DokumenPendampinganProps> = ({ record, posis
             </header>
 
             <main className="p-8 overflow-y-auto custom-scrollbar flex-1">
-                <div className="max-w-6xl mx-auto">
-                    {renderTable("1. Dokumen Permohonan & Pemanggilan", "permohonan")}
-                    {renderTable("2. Dokumen Pendampingan & Data Dukung", "pendampingan", true)}
-                    {renderTable("3. Dokumen Laporan", "laporan")}
+                <div className="max-w-6xl mx-auto space-y-6">
+                    {/* 1. Dokumen Permohonan & Pemanggilan */}
+                    <DocumentTable
+                        title="1. Dokumen Permohonan & Pemanggilan"
+                        categoryContext="permohonan"
+                        items={documents.filter(d => d.category === 'permohonan')}
+                        onDelete={(item) => item.id && handleDelete(item.id.toString())}
+                        headerAction={
+                            <div className="flex items-center space-x-2">
+                                <button 
+                                    onClick={() => handleUploadClick('permohonan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                >
+                                    <UploadIcon className="h-4 w-4" />
+                                    <span>UNGGAH</span>
+                                </button>
+                                <button 
+                                    onClick={() => handleGetFromNadine('permohonan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+                                >
+                                    <CloudArrowDownIcon className="h-4 w-4" />
+                                    <span>NADINE</span>
+                                </button>
+                            </div>
+                        }
+                    />
+
+                    {/* 2. Dokumen Pendampingan & Data Dukung */}
+                    <DocumentTable
+                        title="2. Dokumen Pendampingan & Data Dukung"
+                        categoryContext="pendampingan"
+                        items={documents.filter(d => d.category === 'pendampingan')}
+                        onDelete={(item) => item.id && handleDelete(item.id.toString())}
+                        headerAction={
+                            <div className="flex items-center space-x-2">
+                                <button 
+                                    onClick={() => handleUploadClick('pendampingan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                >
+                                    <UploadIcon className="h-4 w-4" />
+                                    <span>UNGGAH</span>
+                                </button>
+                                <button 
+                                    onClick={() => handleGetFromNadine('pendampingan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+                                >
+                                    <CloudArrowDownIcon className="h-4 w-4" />
+                                    <span>NADINE</span>
+                                </button>
+                                <button 
+                                    onClick={handleGenerateNaskah}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors shadow-md"
+                                >
+                                    <DocumentTextIcon className="h-4 w-4" />
+                                    <span>GENERATE</span>
+                                </button>
+                            </div>
+                        }
+                    />
+
+                    {/* 3. Dokumen Laporan */}
+                    <DocumentTable
+                        title="3. Dokumen Laporan"
+                        categoryContext="laporan"
+                        items={documents.filter(d => d.category === 'laporan')}
+                        onDelete={(item) => item.id && handleDelete(item.id.toString())}
+                        headerAction={
+                            <div className="flex items-center space-x-2">
+                                <button 
+                                    onClick={() => handleUploadClick('laporan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+                                >
+                                    <UploadIcon className="h-4 w-4" />
+                                    <span>UNGGAH</span>
+                                </button>
+                                <button 
+                                    onClick={() => handleGetFromNadine('laporan')}
+                                    className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+                                >
+                                    <CloudArrowDownIcon className="h-4 w-4" />
+                                    <span>NADINE</span>
+                                </button>
+                            </div>
+                        }
+                    />
                 </div>
             </main>
         </div>

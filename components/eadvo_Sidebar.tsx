@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { 
     MailIcon, BriefcaseIcon, HomeIcon, UserGroupIcon, ShieldCheckIcon, 
     DocumentTextIcon, CalendarIcon, DesktopComputerIcon, ArchiveIcon, TrashIcon, 
     TagIcon, InformationCircleIcon, QuestionMarkCircleIcon, UserAddIcon, SearchIcon, ClockIcon, TrendingUpIcon,
-    XIcon, ScaleIcon
+    XIcon, ScaleIcon, SparklesIcon
 } from './icons';
 import { View } from '../types';
 import { useAdvokasiStore } from '../useAdvokasiStore';
@@ -16,7 +15,9 @@ interface EAdvokasiSidebarProps {
 }
 
 // Export access check helper so it can be used for route guards
-export const checkViewAccess = (role: string, view: string): boolean => {
+export const checkViewAccess = (role: string, view?: string, isExternal?: boolean): boolean => {
+    if (isExternal) return true;
+    if (!view) return true;
     switch (view) {
         case 'eAdvokasiBeranda':
             return true;
@@ -121,7 +122,10 @@ export const checkViewAccess = (role: string, view: string): boolean => {
 type MenuItem = {
     icon: React.ReactNode;
     name: string;
-    view: View;
+    view?: View;
+    url?: string;
+    isExternal?: boolean;
+    badge?: string;
 };
 
 type MenuGroup = {
@@ -135,6 +139,13 @@ const menuGroups: MenuGroup[] = [
         items: [
             { icon: <HomeIcon className="h-5 w-5" />, name: 'Beranda', view: 'eAdvokasiBeranda' as View },
             { icon: <MailIcon className="h-5 w-5" />, name: 'Permohonan Bantuan Hukum', view: 'list' as View },
+            { 
+                icon: <SparklesIcon className="h-5 w-5 text-indigo-500" />, 
+                name: 'Law Analyzer', 
+                url: 'https://law-analyzer.kemenkeu.go.id/',
+                isExternal: true,
+                badge: 'AI'
+            },
             { icon: <QuestionMarkCircleIcon className="h-5 w-5" />, name: 'FAQ & Bantuan', view: 'faq' as View },
         ]
     },
@@ -180,8 +191,8 @@ const menuGroups: MenuGroup[] = [
 const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, currentView, onCloseMobile }) => {
     const globalRole = useAdvokasiStore((state) => state.globalRole);
   
-    const isActive = (view: View) => {
-        if ((view as any) === 'none') return false;
+    const isActive = (view?: View) => {
+        if (!view || (view as any) === 'none') return false;
         if (view === 'eAdvokasiPendampingan') {
             return currentView.startsWith('eAdvokasiPendampingan');
         }
@@ -206,7 +217,7 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
     // Filter menu groups and items according to role access
     const filteredGroups = menuGroups.map(group => ({
         ...group,
-        items: group.items.filter(item => checkViewAccess(globalRole, item.view))
+        items: group.items.filter(item => checkViewAccess(globalRole, item.view, item.isExternal))
     })).filter(group => group.items.length > 0);
 
   return (
@@ -231,20 +242,45 @@ const EAdvokasiSidebar: React.FC<EAdvokasiSidebarProps> = ({ onNavigate, current
             <ul className="space-y-1">
               {group.items.map((item, index) => (
                   <li key={index}>
-                    <button
-                      onClick={() => {
-                        onNavigate(item.view);
-                        if (onCloseMobile) onCloseMobile();
-                      }}
-                      className={`w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left ${
-                        isActive(item.view) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        {item.icon}
-                        <span>{item.name}</span>
-                      </div>
-                    </button>
+                    {item.isExternal && item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                          if (onCloseMobile) onCloseMobile();
+                        }}
+                        className="w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 group"
+                        title="Buka Law Analyzer Kemenkeu (Tab Baru)"
+                      >
+                        <div className="flex items-center space-x-3 min-w-0">
+                          {item.icon}
+                          <span className="truncate font-medium">{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <div className="flex items-center space-x-1.5 flex-shrink-0">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 group-hover:bg-indigo-200 leading-none">
+                              {item.badge}
+                            </span>
+                          </div>
+                        )}
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (item.view) onNavigate(item.view);
+                          if (onCloseMobile) onCloseMobile();
+                        }}
+                        className={`w-full flex items-center justify-between py-2 px-3 rounded-md text-sm transition text-left ${
+                          isActive(item.view) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          {item.icon}
+                          <span>{item.name}</span>
+                        </div>
+                      </button>
+                    )}
                   </li>
               ))}
             </ul>

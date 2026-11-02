@@ -7,6 +7,7 @@ import Breadcrumb from './Breadcrumb';
 import DetailPendampingan from './eadvo_DetailPendampingan';
 import DetailPerkara from './eadvo_DetailPerkara';
 import DetailPutusan from './eadvo_DetailPutusan';
+import DetailTelaahan from './eadvo_DetailTelaahan';
 
 interface ProsesPermohonanProps {
   permohonan: Permohonan;
@@ -611,21 +612,14 @@ const ProsesPermohonan: React.FC<ProsesPermohonanProps> = ({
                           <DetailPutusan record={viewingRecord.record} onBack={() => setViewingRecord(null)} />
                       )}
                       {viewingRecord.type === 'telaahan' && (
-                          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-                              <div>
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                      {viewingRecord.record.statusTelaahan || 'AKTIF'}
-                                  </span>
-                                  <h3 className="text-xl font-bold text-gray-900 mt-2">{viewingRecord.record.perihal}</h3>
-                                  <p className="text-sm text-gray-500 mt-1">No: {viewingRecord.record.nomorTelaahan} • Tanggal: {viewingRecord.record.tanggal || '-'}</p>
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm">
-                                  <div><span className="font-semibold text-gray-600">Unit / Pemohon:</span> <span className="text-gray-900">{viewingRecord.record.unit || viewingRecord.record.pemohon || '-'}</span></div>
-                                  <div><span className="font-semibold text-gray-600">Status Naskah:</span> <span className="text-gray-900">{viewingRecord.record.naskahTelaahan?.statusNaskah || 'Belum Dibuat'}</span></div>
-                                  <div><span className="font-semibold text-gray-600">PIC:</span> <span className="text-gray-900">{getPicName(viewingRecord.record)}</span></div>
-                                  <div><span className="font-semibold text-gray-600">Urgensi:</span> <span className="text-gray-900">{viewingRecord.record.urgensi || 'Biasa'}</span></div>
-                              </div>
-                          </div>
+                          <DetailTelaahan 
+                              record={viewingRecord.record} 
+                              onBack={() => setViewingRecord(null)}
+                              onNavigate={(view, r) => {
+                                  setViewingRecord(null);
+                                  onNavigate(view, r);
+                              }}
+                          />
                       )}
                   </div>
               </div>

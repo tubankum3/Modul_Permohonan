@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { PendampinganRecord, FileData, PosisiUpdate, Riwayat, View } from '../types';
 import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon, PrintIcon } from './icons';
 import Breadcrumb from './Breadcrumb';
+import DocumentTable from './eadvo_DocumentTable';
 
 type DetailTab = 'informasi' | 'posisi' | 'dokumen' | 'riwayat';
 
@@ -194,92 +195,44 @@ const PosisiPendampinganTab: React.FC<{ posisi: PosisiUpdate[] }> = ({ posisi })
 };
 
 const DokumenTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
-    // Categorize files
     const allFiles = record.files || [];
     const permohonanDocs = allFiles.map((f, i) => ({
         id: `f-${i}`,
         nama: f.name,
         nomor: record.Nomor || '-',
         tanggal: record.tanggal || '-',
-        type: 'upload'
+        deskripsi: f.deskripsi || 'Dokumen berkas permohonan & pemanggilan pendampingan',
+        size: f.size,
+        jenis: f.type ? (f.type.split('/')[1] || 'PDF') : 'PDF',
+        tags: f.tags || ['Permohonan', 'Pendampingan']
     }));
 
-    const renderDocumentTable = (title: string, docs: any[]) => (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8 last:mb-0">
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                    <h3 className="font-bold text-gray-800">{title}</h3>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{docs.length} Berkas</span>
-                </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-[#f9fafb]">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest w-16">No</th>
-                            <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nama Dokumen</th>
-                            <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nomor / Tanggal</th>
-                            <th className="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sumber</th>
-                            <th className="px-6 py-3 text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest w-32">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-100">
-                        {docs.length > 0 ? docs.map((doc, index) => (
-                            <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-                                <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                                    <div className="flex items-center space-x-3">
-                                        <div className={`p-2 rounded-lg ${
-                                            doc.type === 'upload' ? 'bg-orange-50 text-orange-600' : 
-                                            doc.type === 'nadine' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'
-                                        }`}>
-                                            <DocumentTextIcon className="h-5 w-5" />
-                                        </div>
-                                        <span>{doc.nama}</span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {doc.nomor && <span className="block font-bold text-gray-700">{doc.nomor}</span>}
-                                    {doc.tanggal && <span className="text-[11px] font-medium text-gray-400">{doc.tanggal}</span>}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                                        doc.type === 'upload' ? 'bg-orange-100 text-orange-700' : 
-                                        doc.type === 'nadine' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-                                    }`}>
-                                        {doc.type}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-3 text-gray-400">
-                                    <button className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-full transition-colors"><EyeIcon className="h-5 w-5" /></button>
-                                    <button className="text-gray-500 hover:text-gray-700 hover:bg-gray-50 p-1.5 rounded-full transition-colors"><DownloadIcon className="h-5 w-5" /></button>
-                                </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-gray-400 italic text-sm bg-gray-50/30">
-                                    Belum ada dokumen yang tersedia di kategori ini.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-
     return (
-        <div className="max-w-6xl mx-auto py-6">
-            <div className="mb-6 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto py-6 space-y-6">
+            <div className="mb-2 flex justify-between items-center">
                 <h2 className="text-xl font-bold text-gray-800">Manajemen Dokumen Pendampingan</h2>
             </div>
-            {renderDocumentTable("1. Dokumen Permohonan & Pemanggilan", permohonanDocs)}
-            {renderDocumentTable("2. Dokumen Pendampingan & Data Dukung", [])}
-            {renderDocumentTable("3. Dokumen Laporan", [])}
+            <DocumentTable
+                title="1. Dokumen Permohonan & Pemanggilan"
+                categoryContext="permohonan"
+                items={permohonanDocs}
+                emptyMessage="Belum ada dokumen permohonan & pemanggilan."
+            />
+            <DocumentTable
+                title="2. Dokumen Pendampingan & Data Dukung"
+                categoryContext="litigasi"
+                items={[]}
+                emptyMessage="Belum ada dokumen pendampingan & data dukung."
+            />
+            <DocumentTable
+                title="3. Dokumen Laporan"
+                categoryContext="laporan"
+                items={[]}
+                emptyMessage="Belum ada dokumen laporan."
+            />
         </div>
     );
-}
+};
 
 const RiwayatTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
     const { team, picId, auditTrail } = record;

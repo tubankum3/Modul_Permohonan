@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { PerkaraRecord, View, DokumenLitigasi, FileData, PosisiSidangEntry, Putusan } from '../types';
-import { ArrowLeftIcon, DownloadIcon, EyeIcon, SearchIcon, CloudArrowDownIcon, PencilSquareIcon, DocumentTextIcon, UploadIcon, XIcon, CheckIcon } from './icons';
+import { ArrowLeftIcon, DownloadIcon, EyeIcon, SearchIcon, CloudArrowDownIcon, PencilSquareIcon, DocumentTextIcon, UploadIcon, XIcon, CheckIcon, TagIcon } from './icons';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 import Breadcrumb from './Breadcrumb';
+import DocumentTable, { DocumentItemRow } from './eadvo_DocumentTable';
 
 interface DokumenPerkaraProps {
   record: PerkaraRecord;
@@ -70,6 +71,7 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
   const [tanggalDokumen, setTanggalDokumen] = useState('');
   const [jenisDokumen, setJenisDokumen] = useState('Surat Permohonan');
   const [deskripsiDokumen, setDeskripsiDokumen] = useState('');
+  const [tagsDokumen, setTagsDokumen] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [inputError, setInputError] = useState('');
@@ -79,6 +81,7 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
     setTanggalDokumen('');
     setJenisDokumen('Surat Permohonan');
     setDeskripsiDokumen('');
+    setTagsDokumen('');
     setSelectedFile(null);
     setDragActive(false);
     setInputError('');
@@ -92,12 +95,28 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
     setTanggalDokumen(new Date().toISOString().split('T')[0]);
     if (category === 'permohonan') {
       setJenisDokumen('Surat Permohonan');
+      setTagsDokumen('Permohonan, Nadine');
     } else if (category === 'litigasi') {
       setJenisDokumen('SKU / Berkas Jawab Jinawab');
+      setTagsDokumen('SKU, Litigasi');
     } else if (category === 'laporan') {
       setJenisDokumen('Laporan Sidang');
+      setTagsDokumen('Laporan, Sidang');
     } else {
       setJenisDokumen('Berkas Putusan');
+      setTagsDokumen('Putusan, Salinan');
+    }
+  };
+
+  const handleDeleteDoc = (category: DocCategory, item: any, index: number) => {
+    if (category === 'permohonan') {
+      setPermohonanDocs(permohonanDocs.filter((_, i) => i !== index));
+    } else if (category === 'litigasi') {
+      setLitigasiDocs(litigasiDocs.filter((_, i) => i !== index));
+    } else if (category === 'laporan') {
+      setLaporanDocs(laporanDocs.filter((_, i) => i !== index));
+    } else if (category === 'putusan') {
+      setPutusanDocs(putusanDocs.filter((_, i) => i !== index));
     }
   };
 
@@ -135,6 +154,10 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
       return;
     }
 
+    const parsedTags = tagsDokumen 
+      ? tagsDokumen.split(',').map(t => t.trim()).filter(Boolean)
+      : undefined;
+
     const filePayload = {
       id: Math.random().toString(36).substr(2, 9),
       name: selectedFile.name,
@@ -146,7 +169,8 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
       timestamp: tanggalDokumen || undefined, // For compatibility
       jenis: jenisDokumen,
       deskripsi: deskripsiDokumen || undefined,
-      description: deskripsiDokumen || undefined // For compatibility
+      description: deskripsiDokumen || undefined, // For compatibility
+      tags: parsedTags
     };
 
     if (uploadCategory === 'permohonan') {
@@ -161,44 +185,6 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
 
     resetUploadForm();
   };
-
-  const renderTable = (
-    title: string, 
-    columns: string[], 
-    data: any[], 
-    renderRow: (item: any, index: number) => React.ReactNode,
-    action?: React.ReactNode
-  ) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
-      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <h3 className="font-bold text-gray-800">{title}</h3>
-          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">{data.length} Berkas</span>
-        </div>
-        {action}
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">No</th>
-              {columns.map(col => (
-                <th key={col} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{col}</th>
-              ))}
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {data.length > 0 ? data.map((item, index) => renderRow(item, index)) : (
-              <tr>
-                <td colSpan={columns.length + 2} className="px-6 py-8 text-center text-gray-500 italic">Belum ada dokumen.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
 
   return (
     <div className="p-8 bg-gray-50 h-full overflow-y-auto">
@@ -272,12 +258,29 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
                   Deskripsi Dokumen/Perihal
                 </label>
                 <textarea 
-                  rows={3}
+                  rows={2}
                   value={deskripsiDokumen}
                   onChange={(e) => setDeskripsiDokumen(e.target.value)}
                   placeholder="Tuliskan deskripsi singkat atau perihal surat/dokumen ini..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center justify-between">
+                  <span>Tags / Label</span>
+                  <span className="text-[11px] text-gray-400 font-normal">Pisahkan dengan koma</span>
+                </label>
+                <div className="relative">
+                  <input 
+                    type="text"
+                    value={tagsDokumen}
+                    onChange={(e) => setTagsDokumen(e.target.value)}
+                    placeholder="Contoh: SKU, Litigasi, Prioritas"
+                    className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  <TagIcon className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                </div>
               </div>
 
               <div>
@@ -364,201 +367,106 @@ const DokumenPerkara: React.FC<DokumenPerkaraProps> = ({ record, onNavigate }) =
       <div className="grid grid-cols-1 gap-6">
         
         {/* 1. Dokumen Permohonan */}
-        {renderTable(
-          "1. Dokumen Permohonan",
-          ["Nama Berkas / Deskripsi", "No. & Tanggal Dokumen", "Ukuran / Jenis"],
-          permohonanDocs,
-          (file: any, index) => (
-            <tr key={index}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                <div className="flex items-start space-x-2">
-                  <DocumentTextIcon className="h-5 w-5 mt-0.5 text-blue-500 shrink-0" />
-                  <div>
-                    <span className="block font-bold text-gray-950">{file.name}</span>
-                    {file.jenis && <span className="inline-block bg-amber-50 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-amber-200 mt-1 mr-2">{file.jenis}</span>}
-                    {file.deskripsi && <p className="text-xs text-gray-500 mt-1 font-normal max-w-sm break-words">{file.deskripsi}</p>}
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className="block font-semibold text-gray-700">{file.nomor || '-'}</span>
-                <span className="text-xs text-gray-400 block mt-0.5">{file.tanggal || '-'}</span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'N/A'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-              </td>
-            </tr>
-          ),
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => handleUploadClick('permohonan')}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-            >
-              <UploadIcon className="h-4 w-4" />
-              <span>UNGGAH DOKUMEN</span>
-            </button>
-            <button 
-              onClick={() => setIsNadineModalOpen(true)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
-            >
-              <CloudArrowDownIcon className="h-4 w-4" />
-              <span>TARIK DARI NADINE</span>
-            </button>
-          </div>
-        )}
+        <DocumentTable
+          title="1. Dokumen Permohonan"
+          categoryContext="permohonan"
+          items={permohonanDocs}
+          onDelete={(item, index) => handleDeleteDoc('permohonan', item, index)}
+          headerAction={
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => handleUploadClick('permohonan')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+              >
+                <UploadIcon className="h-4 w-4" />
+                <span>UNGGAH DOKUMEN</span>
+              </button>
+              <button 
+                onClick={() => setIsNadineModalOpen(true)}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+              >
+                <CloudArrowDownIcon className="h-4 w-4" />
+                <span>TARIK DARI NADINE</span>
+              </button>
+            </div>
+          }
+        />
 
         {/* 2. Dokumen Litigasi */}
-        {renderTable(
-          "2. Dokumen Litigasi (SKU, Dokumen Jawab Jinawab, Data Dukung)",
-          ["Nama Berkas / Deskripsi", "No. & Tanggal Dokumen", "Ukuran / Jenis"],
-          litigasiDocs,
-          (doc: any, index) => (
-            <tr key={doc.id || index}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                <div className="flex items-start space-x-2">
-                  <DocumentTextIcon className="h-5 w-5 mt-0.5 text-purple-500 shrink-0" />
-                  <div>
-                    <span className="block font-bold text-gray-950">{doc.nama || doc.name || 'Dokumen Litigasi'}</span>
-                    {doc.jenis && <span className="inline-block bg-purple-50 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-200 mt-1 mr-2">{doc.jenis}</span>}
-                    {doc.deskripsi && <p className="text-xs text-gray-500 mt-1 font-normal max-w-sm break-words">{doc.deskripsi}</p>}
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className="block font-semibold text-gray-700">{doc.noNaskah || doc.nomor || '-'}</span>
-                <span className="text-xs text-gray-400 block mt-0.5">{doc.timestamp ? doc.timestamp.split(' ')[0] : doc.tanggal || '-'}</span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {doc.size ? `${(doc.size / 1024).toFixed(1)} KB` : 'N/A'}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-              </td>
-            </tr>
-          ),
-          <div className="flex items-center space-x-2">
-            <button 
-              onClick={() => handleUploadClick('litigasi')}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-            >
-              <UploadIcon className="h-4 w-4" />
-              <span>UNGGAH DOKUMEN</span>
-            </button>
-            <button 
-              onClick={() => setIsNadineModalOpen(true)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
-            >
-              <CloudArrowDownIcon className="h-4 w-4" />
-              <span>TARIK DARI NADINE</span>
-            </button>
-            <button 
-              onClick={() => onNavigate('pilihTemplate')}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors shadow-md"
-            >
-              <PencilSquareIcon className="h-4 w-4" />
-              <span>TULIS NASKAH</span>
-            </button>
-          </div>
-        )}
+        <DocumentTable
+          title="2. Dokumen Litigasi (SKU, Dokumen Jawab Jinawab, Data Dukung)"
+          categoryContext="litigasi"
+          items={litigasiDocs}
+          onDelete={(item, index) => handleDeleteDoc('litigasi', item, index)}
+          headerAction={
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => handleUploadClick('litigasi')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+              >
+                <UploadIcon className="h-4 w-4" />
+                <span>UNGGAH DOKUMEN</span>
+              </button>
+              <button 
+                onClick={() => setIsNadineModalOpen(true)}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+              >
+                <CloudArrowDownIcon className="h-4 w-4" />
+                <span>TARIK DARI NADINE</span>
+              </button>
+              <button 
+                onClick={() => onNavigate('pilihTemplate')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors shadow-md"
+              >
+                <PencilSquareIcon className="h-4 w-4" />
+                <span>TULIS NASKAH</span>
+              </button>
+            </div>
+          }
+        />
 
         {/* 3. Dokumen Laporan */}
-        {renderTable(
-          "3. Dokumen Laporan (Laporan Sidang, Laporan Putusan)",
-          ["Nama Laporan / Deskripsi", "No. & Tanggal Dokumen", "Ukuran / Sumber"],
-          laporanDocs,
-          (doc, index) => (
-            <tr key={doc.id || index}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                <div className="flex items-start space-x-2">
-                  <DocumentTextIcon className="h-5 w-5 mt-0.5 text-teal-500 shrink-0" />
-                  <div>
-                    <span className="block font-bold text-gray-950">{doc.name || doc.nama}</span>
-                    {doc.type && <span className="inline-block bg-teal-50 text-teal-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-teal-200 mt-1 mr-2">{doc.type}</span>}
-                    {(doc.description || doc.deskripsi) && <p className="text-xs text-gray-500 mt-1 font-normal max-w-sm break-words">{doc.description || doc.deskripsi}</p>}
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className="block font-semibold text-gray-700">{doc.noDokumen || doc.nomor || '-'}</span>
-                <span className="text-xs text-gray-400 block mt-0.5">{doc.date || doc.tanggal || '-'}</span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {doc.size ? `${(doc.size / 1024).toFixed(1)} KB` : <span className="text-gray-400 italic text-xs">{doc.source || 'Nadine (Auto-generated)'}</span>}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-              </td>
-            </tr>
-          ),
-          <div className="flex items-center space-x-2">
+        <DocumentTable
+          title="3. Dokumen Laporan (Laporan Sidang, Laporan Putusan)"
+          categoryContext="laporan"
+          items={laporanDocs}
+          onDelete={(item, index) => handleDeleteDoc('laporan', item, index)}
+          headerAction={
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => handleUploadClick('laporan')}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
+              >
+                <UploadIcon className="h-4 w-4" />
+                <span>UNGGAH DOKUMEN</span>
+              </button>
+              <button 
+                onClick={() => setIsNadineModalOpen(true)}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
+              >
+                <CloudArrowDownIcon className="h-4 w-4" />
+                <span>TARIK DARI NADINE</span>
+              </button>
+            </div>
+          }
+        />
+
+        {/* 4. Dokumen Putusan */}
+        <DocumentTable
+          title="4. Dokumen Putusan"
+          categoryContext="putusan"
+          items={putusanDocs}
+          onDelete={(item, index) => handleDeleteDoc('putusan', item, index)}
+          headerAction={
             <button 
-              onClick={() => handleUploadClick('laporan')}
+              onClick={() => handleUploadClick('putusan')}
               className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
             >
               <UploadIcon className="h-4 w-4" />
               <span>UNGGAH DOKUMEN</span>
             </button>
-            <button 
-              onClick={() => setIsNadineModalOpen(true)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white border border-blue-600 text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors shadow-sm"
-            >
-              <CloudArrowDownIcon className="h-4 w-4" />
-              <span>TARIK DARI NADINE</span>
-            </button>
-          </div>
-        )}
-
-        {/* 4. Dokumen Putusan */}
-        {renderTable(
-          "4. Dokumen Putusan",
-          ["Nama Putusan / Deskripsi", "No. Putusan / Tanggal", "Status / Ukuran"],
-          putusanDocs,
-          (doc, index) => (
-            <tr key={doc.id || index}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                <div className="flex items-start space-x-2">
-                  <DocumentTextIcon className="h-5 w-5 mt-0.5 text-red-500 shrink-0" />
-                  <div>
-                    <span className="block font-bold text-gray-950">{doc.name || doc.nama}</span>
-                    <span className="inline-block bg-red-50 text-red-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-200 mt-1 mr-2">{doc.type || 'Berkas Putusan'}</span>
-                    {(doc.description || doc.deskripsi) && <p className="text-xs text-gray-500 mt-1 font-normal max-w-sm break-words">{doc.description || doc.deskripsi}</p>}
-                  </div>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className="block font-semibold text-gray-700">{doc.nomor || '-'}</span>
-                <span className="text-xs text-gray-400 block mt-0.5">{doc.tanggal || '-'}</span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-2 py-1 rounded-md text-xs font-semibold ${doc.status === 'Menang' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                  {doc.status || 'Archived'}
-                </span>
-                {doc.size && <span className="block text-xs text-gray-400 mt-1 font-normal">{(doc.size / 1024).toFixed(1)} KB</span>}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                <button className="text-blue-500 hover:text-blue-700"><EyeIcon className="h-5 w-5" /></button>
-                <button className="text-gray-500 hover:text-gray-700"><DownloadIcon className="h-5 w-5" /></button>
-              </td>
-            </tr>
-          ),
-          <button 
-            onClick={() => handleUploadClick('putusan')}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white rounded text-xs font-bold hover:bg-green-700 transition-colors shadow-sm"
-          >
-            <UploadIcon className="h-4 w-4" />
-            <span>UNGGAH DOKUMEN</span>
-          </button>
-        )}
+          }
+        />
 
       </div>
       <TarikDataNadineModal 

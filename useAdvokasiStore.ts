@@ -141,7 +141,7 @@ export const useAdvokasiStore = create<AdvokasiState>((set, get) => ({
   selectedPendampingan: null,
   perkaraRecords: initialPerkaraRecords,
   selectedPerkara: null,
-  putusanRecords: [],
+  putusanRecords: initialPerkaraRecords.filter(r => (r.putusan && r.putusan.length > 0) || r.statusPutusan),
   selectedPutusan: null,
   telaahanRecords: initialTelaahanRecords,
   selectedTelaahan: null,

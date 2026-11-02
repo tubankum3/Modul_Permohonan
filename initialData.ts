@@ -8,6 +8,7 @@ import {
   StatusPendampingan, 
   PerkaraRecord, 
   StatusPerkara,
+  StatusPutusan,
   UserAccount,
   TelaahanRecord,
   StatusTelaahan,
@@ -262,6 +263,147 @@ export const initialPendampinganRecords: PendampinganRecord[] = [
             { id: 2, timestamp: new Date('2021-08-11T09:30:00Z'), user: 'Made', action: 'menambahkan', details: 'Posisi Pendampingan "Pemeriksaan saksi"' },
             { id: 3, timestamp: new Date('2021-08-12T14:00:00Z'), user: 'Admin System', action: 'memperbarui', details: 'Susunan Anggota Tim' },
         ],
+    },
+    {
+        id: 'pd-2',
+        Nomor: 'ND-104/BC.08/2026',
+        pemohon: 'Kepala Bidang Penindakan dan Penyidikan KPU BC Batam',
+        unit: 'Direktorat Jenderal Bea dan Cukai',
+        jenis: JenisPermohonan.PENDAMPINGAN,
+        perihal: 'Pendampingan Pemeriksaan Saksi Ahli Kasus Dugaan Penyelundupan Pasir Kuarsa',
+        uraian: 'Permohonan bantuan hukum pendampingan saksi pegawai Bea Cukai Batam yang dimintai keterangan dalam perkara tindak pidana kepabeanan ekspor ilegal.',
+        files: [{ name: 'Surat_Panggilan_Bareskrim_Tipidter.pdf', size: 345000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '14/01/2026',
+        history: [],
+        statusPendampingan: StatusPendampingan.AKTIF,
+        abstraksi: {
+            tahunMasuk: 2026,
+            nomorTiket: 'ND-104/BC.08/2026',
+            unitPemanggil: 'Kepolisian',
+            unitPemohon: 'Direktorat Jenderal Bea dan Cukai',
+            pihakDipanggil: 'Pemeriksa Bea Cukai Madya Batam',
+            wilayah: 'Sumatera',
+            pokokPermasalahan: 'Penyelidikan dugaan pelanggaran Pasal 102A UU Kepabeanan terkait dokumen PEB fiktif kuota ekspor pasir kuarsa.',
+            keterangan: 'Pemeriksaan saksi dan penyerahan data manifes kapal kargo di Bareskrim Polri.'
+        },
+        posisi: [
+            { id: 1, suratTugas: 'ST-18/SJ.4/2026', tanggalSuratTugas: '2026-01-18', agenda: 'Pemeriksaan Saksi Pertama di Dittipidter Bareskrim Polri', tanggalAgenda: '2026-01-22', suratPemanggilan: 'SPGL/45/I/RES.5.3/2026/Dittipidter', pemanggil: ['Penyidik Subdit II Dittipidter Bareskrim Polri'], terpanggil: ['Tim Hanggar Pabean KPU BC Batam'], posisiKasus: 'Pemeriksaan Saksi', lokasi: 'Gedung Bareskrim Polri Lt. 9, Jakarta', durasi: 210, rincian: 'Pemeriksaan kesesuaian fisik muatan kapal dengan nota pelayanan ekspor (NPE).', timestamp: new Date('2026-01-18') },
+            { id: 2, suratTugas: 'ST-31/SJ.4/2026', tanggalSuratTugas: '2026-02-04', agenda: 'Gelar Perkara Bersama Penyidik Mabes Polri', tanggalAgenda: '2026-02-10', suratPemanggilan: 'UND-82/Bareskrim/2026', pemanggil: ['Wadir Tipidter Bareskrim Polri'], terpanggil: ['Tim Kuasa Hukum Kemenkeu & Ahli Kepabeanan'], posisiKasus: 'Penyidikan', lokasi: 'Ruang Rapat Utama Bareskrim Polri', durasi: 180, rincian: 'Ekspose alat bukti dan penetapan status hukum barang bukti sitaan.', timestamp: new Date('2026-02-04') },
+        ],
+        team: [
+            { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Muda', teamRole: 'PIC' },
+            { id: 'usr-4', nama: 'Citra Lestari', nip: '198807202011012003', unit: 'Kantor Pusat DJBC', role: 'Analis Hukum', teamRole: 'Editor' }
+        ],
+        picId: 'usr-2',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2026-01-14T08:30:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Permohonan Pendampingan ND-104/BC.08/2026' }
+        ]
+    },
+    {
+        id: 'pd-3',
+        Nomor: 'ND-88/KN.05/2025',
+        pemohon: 'Kepala KPKNL Bandung',
+        unit: 'Direktorat Jenderal Kekayaan Negara',
+        jenis: JenisPermohonan.PENDAMPINGAN,
+        perihal: 'Pendampingan Audit Investigatif BPK RI atas Pengelolaan Lahan BMN Balai Latihan Kerja',
+        uraian: 'Permohonan asistensi hukum dalam rangka menghadapi audit investigatif pemeriksaan dengan tujuan tertentu (PDTT) oleh BPK RI.',
+        files: [{ name: 'Surat_Tugas_Investigasi_BPK.pdf', size: 512000, type: 'application/pdf' }],
+        status: StatusPermohonan.SELESAI,
+        tanggal: '12/08/2025',
+        history: [],
+        statusPendampingan: StatusPendampingan.SELESAI,
+        abstraksi: {
+            tahunMasuk: 2025,
+            nomorTiket: 'ND-88/KN.05/2025',
+            unitPemanggil: 'BPK',
+            unitPemohon: 'Direktorat Jenderal Kekayaan Negara',
+            pihakDipanggil: 'Pejabat Penatausahaan BMN KPKNL Bandung',
+            wilayah: 'Jawa',
+            pokokPermasalahan: 'Pemeriksaan potensi kerugian negara akibat penetapan tarif sewa BMN yang tidak sesuai PMK No. 115/PMK.06/2020.',
+            keterangan: 'Telah diterbitkan LHP BPK dengan rekomendasi penyesuaian SOP penilai pemerintah.'
+        },
+        posisi: [
+            { id: 1, suratTugas: 'ST-112/SJ.4/2025', tanggalSuratTugas: '2025-08-15', agenda: 'Entry Meeting Audit Investigatif BPK RI', tanggalAgenda: '2025-08-18', suratPemanggilan: 'ST-BPK/AK-01/VIII/2025', pemanggil: ['Penanggung Jawab Tim Pemeriksa BPK'], terpanggil: ['Kepala KPKNL Bandung & Tim Penilai'], posisiKasus: 'Pemeriksaan BPK', lokasi: 'Gedung Keuangan Negara Bandung', durasi: 120, rincian: 'Pemaparan metodologi penilaian wajar aset sewa BMN.', timestamp: new Date('2025-08-15') },
+            { id: 2, suratTugas: 'ST-125/SJ.4/2025', tanggalSuratTugas: '2025-09-02', agenda: 'Klarifikasi Dokumen dan Matriks Pemantauan Temuan', tanggalAgenda: '2025-09-08', suratPemanggilan: 'MEMO-BPK-04/2025', pemanggil: ['Ketua Tim Auditor Investigasi BPK'], terpanggil: ['Tim Biro Advokasi & KPKNL'], posisiKasus: 'Pemeriksaan BPK', lokasi: 'Kantor Perwakilan BPK Provinsi Jawa Barat', durasi: 240, rincian: 'Penyampaian tanggapan resmi dan berkas perizinan pemanfaatan BMN.', timestamp: new Date('2025-09-02') },
+            { id: 3, suratTugas: 'ST-140/SJ.4/2025', tanggalSuratTugas: '2025-10-10', agenda: 'Exit Meeting dan Penandatanganan Berita Acara Rekomendasi', tanggalAgenda: '2025-10-15', suratPemanggilan: 'UND-BPK-EXIT/2025', pemanggil: ['Auditor Utama Investigasi BPK RI'], terpanggil: ['Direktur BMN DJKN & Tim Advokasi'], posisiKasus: 'Pemeriksaan BPK', lokasi: 'Kantor Pusat BPK RI, Jakarta', durasi: 90, rincian: 'Penandatanganan matriks tindak lanjut perbaikan sistem tarif sewa BMN.', timestamp: new Date('2025-10-10') }
+        ],
+        team: [
+            { id: 'usr-1', nama: 'Sukiyem', nip: '198203122005012001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Madya', teamRole: 'PIC' }
+        ],
+        picId: 'usr-1',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2025-08-12T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Permohonan' },
+            { id: 2, timestamp: new Date('2025-10-20T11:00:00Z'), user: 'Sukiyem', action: 'menyelesaikan', details: 'Pendampingan dinyatakan selesai setelah LHP ditindaklanjuti.' }
+        ]
+    },
+    {
+        id: 'pd-4',
+        Nomor: 'ND-52/SJ.6/2026',
+        pemohon: 'Kepala Pusat Pembinaan Profesi Keuangan (PPPK)',
+        unit: 'Sekretariat Jenderal',
+        jenis: JenisPermohonan.PENDAMPINGAN,
+        perihal: 'Pendampingan Pemanggilan Klarifikasi oleh Kejaksaan Tinggi DKI Jakarta terkait Sanksi Akuntan Publik',
+        uraian: 'Permohonan pendampingan atas pemanggilan jaksa penyidik terkait dasar hukum penerbitan Keputusan Menkeu sanksi pembekuan izin Akuntan Publik.',
+        files: [{ name: 'Surat_Panggilan_Kejati_DKI.pdf', size: 215000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '08/02/2026',
+        history: [],
+        statusPendampingan: StatusPendampingan.AKTIF,
+        abstraksi: {
+            tahunMasuk: 2026,
+            nomorTiket: 'ND-52/SJ.6/2026',
+            unitPemanggil: 'Kejaksaan',
+            unitPemohon: 'Sekretariat Jenderal',
+            pihakDipanggil: 'Kabid Pengawasan Akuntan Publik PPPK',
+            wilayah: 'Pusat',
+            pokokPermasalahan: 'Klarifikasi laporan aduan masyarakat atas pembekuan izin AP rekanan KAP independen.',
+            keterangan: 'Pemeriksaan tahap klarifikasi intelijen yustisial di Kejati DKI Jakarta.'
+        },
+        posisi: [
+            { id: 1, suratTugas: 'ST-44/SJ.4/2026', tanggalSuratTugas: '2026-02-12', agenda: 'Wawancara Klarifikasi di Seksi Penkum / Intel Kejati DKI', tanggalAgenda: '2026-02-18', suratPemanggilan: 'B-812/M.1.3/Dek.1/02/2026', pemanggil: ['Jaksa Penyelidik Asintel Kejati DKI Jakarta'], terpanggil: ['Tim Ahli Hukum PPPK Kemenkeu'], posisiKasus: 'Klarifikasi', lokasi: 'Kantor Kejaksaan Tinggi DKI Jakarta, Jl. Rasuna Said', durasi: 150, rincian: 'Pemberian keterangan terkait bukti pelanggaran standar audit akuntan publik.', timestamp: new Date('2026-02-12') }
+        ],
+        team: [
+            { id: 'usr-3', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum Pertama', teamRole: 'PIC' }
+        ],
+        picId: 'usr-3',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2026-02-08T09:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Permohonan Pendampingan' }
+        ]
+    },
+    {
+        id: 'pd-5',
+        Nomor: 'ND-33/PB.02/2026',
+        pemohon: 'Kepala Kantor Pelayanan Perbendaharaan Negara Surabaya II',
+        unit: 'Direktorat Jenderal Perbendaharaan',
+        jenis: JenisPermohonan.PENDAMPINGAN,
+        perihal: 'Pendampingan Saksi Dugaan Tindak Pidana Korupsi Retur SP2D Palsu oleh Penyidik Kejari',
+        uraian: 'Pendampingan hukum bagi staf Seksi Pencairan Dana KPPN yang dipanggil sebagai saksi kasus perbankan daerah.',
+        files: [{ name: 'Panggilan_Kejari_Surabaya.pdf', size: 198000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '20/02/2026',
+        history: [],
+        statusPendampingan: StatusPendampingan.AKTIF,
+        abstraksi: {
+            tahunMasuk: 2026,
+            nomorTiket: 'ND-33/PB.02/2026',
+            unitPemanggil: 'Kejaksaan',
+            unitPemohon: 'Direktorat Jenderal Perbendaharaan',
+            pihakDipanggil: 'Front Office & Verifikator SP2D KPPN Surabaya II',
+            wilayah: 'Jawa',
+            pokokPermasalahan: 'Dugaan manipulasi kode billing dan retur pencairan SPM rekening kas satker daerah.',
+            keterangan: 'Pemeriksaan saksi pro-justitia tindak pidana korupsi.'
+        },
+        posisi: [
+            { id: 1, suratTugas: 'ST-56/SJ.4/2026', tanggalSuratTugas: '2026-02-23', agenda: 'Pemeriksaan Berita Acara Saksi di Ruang Pidsus Kejari', tanggalAgenda: '2026-02-27', suratPemanggilan: 'SP-Sidik/77/M.5.10/Fd.1/02/2026', pemanggil: ['Kasi Pidsus Kejaksaan Negeri Surabaya'], terpanggil: ['Petugas FO Pencairan Dana KPPN'], posisiKasus: 'Penyidikan', lokasi: 'Kejaksaan Negeri Surabaya, Jawa Timur', durasi: 180, rincian: 'Verifikasi tanda tangan elektronik SP2D dan rekonsiliasi Bank Operasional.', timestamp: new Date('2026-02-23') }
+        ],
+        team: [
+            { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Muda', teamRole: 'PIC' }
+        ],
+        picId: 'usr-2',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2026-02-20T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Permohonan' }
+        ]
     }
 ];
 
@@ -310,7 +452,7 @@ export const initialPerkaraRecords: PerkaraRecord[] = [
             tkPertama: [
                 {id: 1, suratTugas: 'ST-12', tanggalSuratTugas: '2026-02-11', agendaSidang: 'Mediasi', tanggalSidang: '2026-02-12', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2026-02-18', kehadiranPihak: []},
                 {id: 2, agendaSidang: 'Jawaban', tanggalSidang: '2026-02-18', agendaBerikutnya: 'Replik', tanggalSidangBerikutnya: '2026-02-22', kehadiranPihak: []},
-                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', kehadiranPihak: []},
+                {id: 3, suratTugas: 'ST-21', tanggalSuratTugas: '2026-02-21', agendaSidang: 'Replik', tanggalSidang: '2026-02-22', agendaBerikutnya: 'Duplik', tanggalSidangBerikutnya: '2026-02-26', statusSidang: 'Ditunda', kehadiranPihak: []},
                 {id: 4, suratTugas: 'ST-55/SJ.4/2026', tanggalSuratTugas: '2026-09-20', agendaSidang: 'Sidang Pembuktian & Pemeriksaan Saksi Ahli Tergugat', tanggalSidang: '2026-09-24', agendaBerikutnya: 'Sidang Kesimpulan Para Pihak', tanggalSidangBerikutnya: '2026-09-29', kehadiranPihak: []},
                 {id: 5, suratTugas: 'ST-62/SJ.4/2026', tanggalSuratTugas: '2026-09-26', agendaSidang: 'Sidang Kesimpulan Para Pihak', tanggalSidang: '2026-09-29', agendaBerikutnya: 'Sidang Pembacaan Putusan Akhir', tanggalSidangBerikutnya: '2026-10-06', kehadiranPihak: []},
             ],
@@ -354,6 +496,388 @@ export const initialPerkaraRecords: PerkaraRecord[] = [
             { id: 2, timestamp: new Date('2021-11-12T01:46:37Z'), user: 'Joko (PIC)', action: 'memperbarui', details: 'Posisi Sidang Tk. Pertama' },
         ],
     },
+    {
+        id: 'pk-2',
+        Nomor: '142/G/2026/PTUN.JKT',
+        pemohon: 'Kanwil DJP Jakarta Selatan I',
+        unit: 'Direktorat Jenderal Pajak',
+        jenis: JenisPermohonan.PENANGANAN_PERKARA,
+        perihal: 'Gugatan Pembatalan SK Penetapan Keberatan Pajak PPh Badan PT Nusantara Sejahtera',
+        uraian: 'Gugatan TUN yang diajukan oleh wajib pajak atas penerbitan Surat Keputusan Keberatan PPh Badan tahun pajak 2023.',
+        files: [{ name: 'Salinan_Gugatan_PTUN_142.pdf', size: 1450000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '10/01/2026',
+        history: [],
+        statusPerkara: StatusPerkara.AKTIF,
+        abstraksiPerkara: {
+            tahunMasuk: 2026,
+            noPerkara: '142/G/2026/PTUN.JKT',
+            tanggalPendaftaranGugatan: '2026-01-10',
+            wilayah: 'Pusat',
+            jenisPerkara: 'TUN',
+            pengadilan: 'PTUN Jakarta',
+            jenisPokokPerkara: 'Perpajakan',
+            rincianPokokPerkara: 'Sengketa yuridis koreksi positif biaya royalti dan jasa manajemen antar afiliasi mancanegara.',
+            nomorSuratKuasaKhusus: 'SKU-24/SJ.4/2026',
+            tagsPerkara: ['Strategis', 'Pajak'],
+        },
+        pihakP: [
+            { id: 'P1', noUrut: 'P1', pihak: 'Penggugat', identitas: 'PT Nusantara Sejahtera Tbk', keterangan: 'Kuasa Hukum Assegaf & Partners', unitBerperkara: 'Tidak' }
+        ],
+        pihakT: [
+            { id: 'T1', noUrut: 'T1', pihak: 'Tergugat', identitas: 'Direktur Jenderal Pajak cq Menkeu RI', keterangan: 'Biro Advokasi & Tim DJP', unitBerperkara: 'Ya' }
+        ],
+        tuntutan: [
+            { id: 1, objek: 'SK Keberatan', jenis: 'Materiil', jumlahNominal: 18500000000, satuan: 'IDR', keterangan: 'Pembatalan SK KEP-0082/WPJ.04/2025' }
+        ],
+        posisiSidang: {
+            tkPertama: [
+                { id: 1, suratTugas: 'ST-08/SJ.4/2026', tanggalSuratTugas: '2026-02-05', agendaSidang: 'Pemeriksaan Persiapan', tanggalSidang: '2026-02-10', agendaBerikutnya: 'Pembacaan Gugatan', tanggalSidangBerikutnya: '2026-02-24', kehadiranPihak: [] },
+                { id: 2, suratTugas: 'ST-19/SJ.4/2026', tanggalSuratTugas: '2026-02-20', agendaSidang: 'Pembacaan Gugatan & Jawaban Tergugat', tanggalSidang: '2026-02-24', agendaBerikutnya: 'Replik Penggugat', tanggalSidangBerikutnya: '2026-03-10', kehadiranPihak: [] },
+                { id: 3, suratTugas: 'ST-28/SJ.4/2026', tanggalSuratTugas: '2026-03-05', agendaSidang: 'Penyampaian Replik Penggugat', tanggalSidang: '2026-03-10', agendaBerikutnya: 'Duplik Tergugat', tanggalSidangBerikutnya: '2026-03-24', kehadiranPihak: [] },
+                { id: 4, suratTugas: 'ST-40/SJ.4/2026', tanggalSuratTugas: '2026-03-20', agendaSidang: 'Duplik Tergugat Kemenkeu', tanggalSidang: '2026-03-24', agendaBerikutnya: 'Sidang Pembuktian Surat Dokumen', tanggalSidangBerikutnya: '2026-04-07', kehadiranPihak: [] },
+                { id: 5, suratTugas: 'ST-58/SJ.4/2026', tanggalSuratTugas: '2026-04-02', agendaSidang: 'Sidang Pembuktian Surat Dokumen Para Pihak', tanggalSidang: '2026-04-07', agendaBerikutnya: 'Sidang Saksi Ahli Transfer Pricing', tanggalSidangBerikutnya: '2026-10-26', kehadiranPihak: [] },
+                { id: 6, suratTugas: 'ST-72/SJ.4/2026', tanggalSuratTugas: '2026-10-15', agendaSidang: 'Pemeriksaan Saksi Ahli Perpajakan Internasional', tanggalSidang: '2026-10-26', agendaBerikutnya: 'Kesimpulan Para Pihak', tanggalSidangBerikutnya: '2026-11-09', kehadiranPihak: [] },
+                { id: 7, suratTugas: 'ST-85/SJ.4/2026', tanggalSuratTugas: '2026-10-30', agendaSidang: 'Sidang Kesimpulan Para Pihak', tanggalSidang: '2026-11-09', agendaBerikutnya: 'Pembacaan Putusan Akhir', tanggalSidangBerikutnya: '2026-11-23', kehadiranPihak: [] },
+            ],
+            tkBanding: [], tkKasasi: [], tkPK: []
+        },
+        analisisPerkara: {
+            isuKrusial: 'Keabsahan metode transfer pricing dan kesebandingan tarif royalti internasional.',
+            analisaHukum: 'DJP telah menerapkan metode CUP sesuai ketentuan PER-22/PJ/2013 dan PMK No. 22/PMK.03/2020.',
+            potensiDampak: 'Potensi kerugian penerimaan pajak negara sebesar Rp 18,5 Miliar.',
+            risiko: 'Tinggi',
+            keteranganRisiko: 'Diperlukan keterangan ahli transfer pricing yang kompeten di persidangan.'
+        },
+        tindakLanjut: [
+            { id: 1, tanggal: '2026-03-22', tindakLanjut: 'Penyusunan Naskah Duplik bersama Kanwil DJP', uraian: 'Konsolidasi argumentasi dasar koreksi biaya royalti dengan tim penelaah keberatan.', jenisTindakLanjut: 'Penyusunan Dokumen' }
+        ],
+        putusan: [
+            {
+                id: 1,
+                nomor: '142/G/2026/PTUN.JKT',
+                tanggal: '2026-05-18',
+                amar: 'Mengabulkan gugatan Penggugat untuk sebagian terkait pos biaya manajemen; Menolak gugatan Penggugat untuk pos koreksi royalti transfer pricing; Menghukum Para Pihak membayar biaya perkara secara tanggung renteng.',
+                status: 'Sebagian Dikabulkan',
+                posisi: 'Pertama',
+                susunanMajelis: [
+                    { id: 1, jabatan: 'Hakim Ketua', identitas: 'Dr. Teguh Satya, S.H., M.H.' },
+                    { id: 2, jabatan: 'Hakim Anggota I', identitas: 'Dra. Endang Purwanti, S.H.' },
+                    { id: 3, jabatan: 'Hakim Anggota II', identitas: 'Mansyur Syah, S.H.' }
+                ]
+            }
+        ],
+        statusBHT: { status: 'Belum Inkracht', keteranganDampak: 'Kemenangan parsial; Tim Kuasa Kemenkeu menempuh upaya hukum banding ke PTTUN Jakarta atas pos biaya manajemen.' },
+        team: [
+            { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Muda', teamRole: 'PIC' }
+        ],
+        picId: 'usr-2',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2026-01-10T09:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Perkara 142/G/2026/PTUN.JKT' }
+        ]
+    },
+    {
+        id: 'pk-3',
+        Nomor: '88/G/BC/2025/PTUN.SBY',
+        pemohon: 'KPPBC Tipe Madya Pabean Tanjung Perak',
+        unit: 'Direktorat Jenderal Bea dan Cukai',
+        jenis: JenisPermohonan.PENANGANAN_PERKARA,
+        perihal: 'Gugatan Pembatalan Penetapan Nilai Pabean dan Denda Impor Mesin Cetak Industri',
+        uraian: 'Sengketa penetapan nilai pabean barang impor mesin tekstil berdasar SPTNP.',
+        files: [{ name: 'Putusan_Kasasi_MA_412.pdf', size: 2100000, type: 'application/pdf' }],
+        status: StatusPermohonan.SELESAI,
+        tanggal: '15/03/2025',
+        history: [],
+        statusPerkara: StatusPerkara.SELESAI,
+        statusPutusan: StatusPutusan.SELESAI,
+        abstraksiPerkara: {
+            tahunMasuk: 2025,
+            noPerkara: '88/G/BC/2025/PTUN.SBY',
+            tanggalPendaftaranGugatan: '2025-03-15',
+            wilayah: 'Jawa',
+            jenisPerkara: 'Kepabeanan',
+            pengadilan: 'PTUN Surabaya',
+            jenisPokokPerkara: 'Kepabeanan',
+            rincianPokokPerkara: 'Sengketa nilai pabean metode deduksi atas impor mesin cetak offset.',
+            nomorSuratKuasaKhusus: 'SKU-88/SJ.4/2025',
+            tagsPerkara: ['Non-Strategis', 'Kepabeanan'],
+        },
+        pihakP: [
+            { id: 'P1', noUrut: 'P1', pihak: 'Penggugat', identitas: 'PT Surya Perkasa Logistik', keterangan: 'Advokat Hartono & Rekan', unitBerperkara: 'Tidak' }
+        ],
+        pihakT: [
+            { id: 'T1', noUrut: 'T1', pihak: 'Tergugat', identitas: 'Kepala KPPBC Tanjung Perak cq Menkeu RI', keterangan: '', unitBerperkara: 'Ya' }
+        ],
+        tuntutan: [
+            { id: 1, objek: 'Nilai Pabean SPTNP', jenis: 'Materiil', jumlahNominal: 5200000000, satuan: 'IDR', keterangan: 'Klaim pengembalian bea masuk & denda' }
+        ],
+        posisiSidang: {
+            tkPertama: [
+                { id: 1, suratTugas: 'ST-22/2025', tanggalSuratTugas: '2025-04-01', agendaSidang: 'Sidang Putusan PTUN Surabaya', tanggalSidang: '2025-06-12', agendaBerikutnya: 'Upaya Hukum Banding', tanggalSidangBerikutnya: '2025-06-25', kehadiranPihak: [] }
+            ],
+            tkBanding: [
+                { id: 2, suratTugas: 'ST-45/2025', tanggalSuratTugas: '2025-07-01', agendaSidang: 'Putusan Banding PTTUN Surabaya', tanggalSidang: '2025-08-20', agendaBerikutnya: 'Memori Kasasi MA', tanggalSidangBerikutnya: '2025-09-10', kehadiranPihak: [] }
+            ],
+            tkKasasi: [
+                { id: 3, suratTugas: 'ST-68/2025', tanggalSuratTugas: '2025-09-15', agendaSidang: 'Musyawarah Putusan Kasasi Mahkamah Agung', tanggalSidang: '2025-11-20', agendaBerikutnya: 'Pemberitahuan Putusan BHT', tanggalSidangBerikutnya: '2025-12-05', kehadiranPihak: [] }
+            ],
+            tkPK: []
+        },
+        analisisPerkara: {
+            isuKrusial: 'Keabsahan penetapan nilai transaksi impor barang sejenis.',
+            risiko: 'Rendah',
+            potensiDampak: 'Penyelamatan penerimaan bea masuk Rp 5,2 Miliar.'
+        },
+        tindakLanjut: [
+            { id: 1, tanggal: '2025-12-10', tindakLanjut: 'Pencairan Jaminan Pembayaran Bea Masuk ke Kas Negara', uraian: 'Eksekusi amar putusan inkracht kasasi Mahkamah Agung bersama KPPBC.', jenisTindakLanjut: 'Pelaksanaan Putusan' }
+        ],
+        putusan: [
+            {
+                id: 1,
+                nomor: '412 K/TUN/2025',
+                tanggal: '2025-11-20',
+                amar: 'Menolak permohonan kasasi dari Pemohon Kasasi PT Surya Perkasa Logistik. Menghukum Pemohon Kasasi membayar biaya perkara pada tingkat kasasi.',
+                status: 'Menang',
+                posisi: 'Kasasi',
+                susunanMajelis: [
+                    { id: 1, jabatan: 'Hakim Agung Ketua', identitas: 'Dr. Yulius, S.H., M.H.' },
+                    { id: 2, jabatan: 'Hakim Agung Anggota I', identitas: 'Dr. H. Yodi Martono, S.H.' },
+                    { id: 3, jabatan: 'Hakim Agung Anggota II', identitas: 'Is Sudaryono, S.H., M.H.' }
+                ]
+            }
+        ],
+        statusBHT: { status: 'Inkracht', keteranganDampak: 'Kemenangan inkrah Mahkamah Agung, jaminan bea masuk senilai Rp 5,2 Miliar disetor penuh ke Kas Negara.' },
+        team: [
+            { id: 'usr-4', nama: 'Citra Lestari', nip: '198807202011012003', unit: 'Kantor Pusat DJBC', role: 'Analis Hukum', teamRole: 'PIC' }
+        ],
+        picId: 'usr-4',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2025-03-15T09:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Perkara' },
+            { id: 2, timestamp: new Date('2025-12-15T10:00:00Z'), user: 'Citra Lestari', action: 'menyelesaikan', details: 'Perkara selesai dengan kemenangan inkracht kasasi MA.' }
+        ]
+    },
+    {
+        id: 'pk-4',
+        Nomor: '24/HUM/2025/MA',
+        pemohon: 'Biro Hukum',
+        unit: 'Sekretariat Jenderal',
+        jenis: JenisPermohonan.PENANGANAN_PERKARA,
+        perihal: 'Uji Materiil Peraturan Menteri Keuangan tentang Standar Biaya Masukan TA 2025',
+        uraian: 'Permohonan Hak Uji Materiil (HUM) terhadap klausul besaran honorarium dan uang lembur.',
+        files: [{ name: 'Permohonan_HUM_MA_24.pdf', size: 890000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '18/09/2025',
+        history: [],
+        statusPerkara: StatusPerkara.AKTIF,
+        abstraksiPerkara: {
+            tahunMasuk: 2025,
+            noPerkara: '24/HUM/2025/MA',
+            tanggalPendaftaranGugatan: '2025-09-18',
+            wilayah: 'Pusat',
+            jenisPerkara: 'Uji Materiil',
+            pengadilan: 'Mahkamah Agung',
+            jenisPokokPerkara: 'Regulasi',
+            rincianPokokPerkara: 'Pengujian legalitas Pasal 4 ayat (2) PMK Standar Biaya Masukan terhadap UU No. 17 Tahun 2003 tentang Keuangan Negara.',
+            nomorSuratKuasaKhusus: 'SKU-02/MENKEU/2025',
+            tagsPerkara: ['Strategis', 'Regulasi'],
+        },
+        pihakP: [
+            { id: 'P1', noUrut: 'P1', pihak: 'Pemohon HUM', identitas: 'Forum Pegawai dan Tenaga Teknis Instansi', keterangan: '', unitBerperkara: 'Tidak' }
+        ],
+        pihakT: [
+            { id: 'T1', noUrut: 'T1', pihak: 'Termohon', identitas: 'Menteri Keuangan Republik Indonesia', keterangan: '', unitBerperkara: 'Ya' }
+        ],
+        tuntutan: [
+            { id: 1, objek: 'Pasal PMK', jenis: 'Non-Materiil', jumlahNominal: 0, satuan: '-', keterangan: 'Pembatalan lampiran besaran standar biaya honorarium' }
+        ],
+        posisiSidang: {
+            tkPertama: [],
+            tkBanding: [],
+            tkKasasi: [
+                { id: 1, suratTugas: 'ST-82/SJ.4/2025', tanggalSuratTugas: '2025-10-01', agendaSidang: 'Penyampaian Jawaban Termohon Menkeu ke Panitera MA', tanggalSidang: '2025-10-15', agendaBerikutnya: 'Musyawarah Majelis Hakim Agung', tanggalSidangBerikutnya: '2026-03-25', kehadiranPihak: [] },
+                { id: 2, suratTugas: 'ST-14/SJ.4/2026', tanggalSuratTugas: '2026-03-10', agendaSidang: 'Musyawarah dan Pemeriksaan Berkas Majelis Hakim Agung', tanggalSidang: '2026-03-25', agendaBerikutnya: 'Pengucapan Putusan Yudisial', tanggalSidangBerikutnya: '2026-04-15', kehadiranPihak: [] }
+            ],
+            tkPK: []
+        },
+        analisisPerkara: {
+            isuKrusial: 'Kewenangan atribusi Menteri Keuangan dalam menetapkan batas efisiensi belanja negara.',
+            analisaHukum: 'Pasal 8 UU No. 17/2003 memberikan mandat penuh kepada Menkeu selaku Pengelola Fiskal Negara.',
+            risiko: 'Sedang',
+            potensiDampak: 'Implikasi revisi menyeluruh regulasi SBM pada seluruh K/L.'
+        },
+        tindakLanjut: [
+            { id: 1, tanggal: '2025-10-14', tindakLanjut: 'Finalisasi Surat Jawaban Resmi Termohon Menkeu', uraian: 'Penyelarasan materi bantahan bersama Ditjen Anggaran (DJA) dan Biro Hukum.', jenisTindakLanjut: 'Penyusunan Dokumen' }
+        ],
+        putusan: [
+            {
+                id: 1,
+                nomor: '24 P/HUM/2025',
+                tanggal: '2026-04-15',
+                amar: 'Menolak permohonan keberatan hak uji materiil dari Para Pemohon. Menghukum Para Pemohon membayar biaya perkara.',
+                status: 'Menang',
+                posisi: 'Kasasi',
+                susunanMajelis: [
+                    { id: 1, jabatan: 'Hakim Agung Ketua', identitas: 'Prof. Dr. H. Supandi, S.H., M.Hum.' },
+                    { id: 2, jabatan: 'Hakim Agung Anggota I', identitas: 'Dr. H. Yosran, S.H., M.Hum.' },
+                    { id: 3, jabatan: 'Hakim Agung Anggota II', identitas: 'H. Is Sudaryono, S.H., M.H.' }
+                ]
+            }
+        ],
+        statusBHT: { status: 'Inkracht', keteranganDampak: 'Putusan final & mengikat Mahkamah Agung mempertahankan keberlakuan legalitas PMK Standar Biaya Masukan.' },
+        team: [
+            { id: 'usr-1', nama: 'Sukiyem', nip: '198203122005012001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Madya', teamRole: 'PIC' }
+        ],
+        picId: 'usr-1',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2025-09-18T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Perkara HUM MA' }
+        ]
+    },
+    {
+        id: 'pk-5',
+        Nomor: '56/Pdt.Sus-PHI/2025/PN.Jkt.Pst',
+        pemohon: 'Pusat Sistem Informasi dan Teknologi Keuangan',
+        unit: 'Sekretariat Jenderal',
+        jenis: JenisPermohonan.PENANGANAN_PERKARA,
+        perihal: 'Gugatan Perselisihan Pemutusan Hubungan Kerja Tenaga Programmer BLU',
+        uraian: 'Gugatan ganti rugi pesangon yang diajukan eks tenaga kontrak jasa konsultan IT Pusintek.',
+        files: [{ name: 'Salinan_Putusan_PHI_56.pdf', size: 1200000, type: 'application/pdf' }],
+        status: StatusPermohonan.SELESAI,
+        tanggal: '20/04/2025',
+        history: [],
+        statusPerkara: StatusPerkara.SELESAI,
+        statusPutusan: StatusPutusan.SELESAI,
+        abstraksiPerkara: {
+            tahunMasuk: 2025,
+            noPerkara: '56/Pdt.Sus-PHI/2025/PN.Jkt.Pst',
+            tanggalPendaftaranGugatan: '2025-04-20',
+            wilayah: 'Pusat',
+            jenisPerkara: 'PHI',
+            pengadilan: 'PN Jakarta Pusat',
+            jenisPokokPerkara: 'Kepegawaian',
+            rincianPokokPerkara: 'Gugatan uang pesangon dan uang kompensasi berakhirnya kontrak kerja perseorangan.',
+            nomorSuratKuasaKhusus: 'SKU-56/SJ.4/2025',
+            tagsPerkara: ['Non-Strategis', 'Ketenagakerjaan'],
+        },
+        pihakP: [
+            { id: 'P1', noUrut: 'P1', pihak: 'Penggugat', identitas: 'Bambang Sudarsono dkk', keterangan: '', unitBerperkara: 'Tidak' }
+        ],
+        pihakT: [
+            { id: 'T1', noUrut: 'T1', pihak: 'Tergugat', identitas: 'PPK Pusintek Setjen Kementerian Keuangan RI', keterangan: '', unitBerperkara: 'Ya' }
+        ],
+        tuntutan: [
+            { id: 1, objek: 'Uang Kompensasi & Pesangon', jenis: 'Materiil', jumlahNominal: 350000000, satuan: 'IDR', keterangan: 'Klaim sisa pembayaran masa kontrak' }
+        ],
+        posisiSidang: {
+            tkPertama: [
+                { id: 1, suratTugas: 'ST-35/2025', tanggalSuratTugas: '2025-05-02', agendaSidang: 'Sidang Mediasi PHI', tanggalSidang: '2025-05-15', agendaBerikutnya: 'Jawaban', tanggalSidangBerikutnya: '2025-05-29', kehadiranPihak: [] },
+                { id: 2, suratTugas: 'ST-48/2025', tanggalSuratTugas: '2025-07-20', agendaSidang: 'Pembacaan Putusan Akhir Pengadilan Hubungan Industrial', tanggalSidang: '2025-08-14', agendaBerikutnya: 'Pemberitahuan Putusan', tanggalSidangBerikutnya: '2025-08-28', kehadiranPihak: [] }
+            ],
+            tkBanding: [], tkKasasi: [], tkPK: []
+        },
+        analisisPerkara: {
+            isuKrusial: 'Perjanjian kerja berstatus perikatan perdata pengadaan jasa konsultan perorangan, bukan hubungan industrial UU Ketenagakerjaan.',
+            risiko: 'Rendah'
+        },
+        tindakLanjut: [
+            { id: 1, tanggal: '2025-09-01', tindakLanjut: 'Pengambilan Salinan Putusan Inkracht dari Kepaniteraan PHI', uraian: 'Memastikan putusan berkekuatan hukum tetap tanpa ada pengajuan kasasi dari penggugat.', jenisTindakLanjut: 'Administrasi Putusan' }
+        ],
+        putusan: [
+            {
+                id: 1,
+                nomor: '56/Pdt.Sus-PHI/2025/PN.Jkt.Pst',
+                tanggal: '2025-08-14',
+                amar: 'Mengabulkan Eksepsi Kompetensi Absolut Tergugat. Menyatakan Pengadilan Hubungan Industrial pada PN Jakarta Pusat tidak berwenang mengadili perkara ini (Niet Ontvankelijke Verklaard / NO). Menghukum Penggugat membayar biaya perkara.',
+                status: 'Menang',
+                posisi: 'Pertama'
+            }
+        ],
+        statusBHT: { status: 'Inkracht', keteranganDampak: 'Kemenangan putusan NO, tidak ada pengeluaran anggaran negara atas tuntutan pesangon fiktif.' },
+        team: [
+            { id: 'usr-3', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum Pertama', teamRole: 'PIC' }
+        ],
+        picId: 'usr-3',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2025-04-20T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Perkara PHI' }
+        ]
+    },
+    {
+        id: 'pk-6',
+        Nomor: '215/Pdt.G/2026/PN.Jkt.Sel',
+        pemohon: 'KPKNL Jakarta IV',
+        unit: 'Direktorat Jenderal Kekayaan Negara',
+        jenis: JenisPermohonan.PENANGANAN_PERKARA,
+        perihal: 'Gugatan Perbuatan Melawan Hukum atas Eksekusi Pengosongan Lahan Aset Agunan BMN',
+        uraian: 'Gugatan PMH yang diajukan oleh debitur atas rencana lelang eksekusi hak tanggungan aset properti komersial.',
+        files: [{ name: 'Gugatan_PMH_PN_Jaksel_215.pdf', size: 1750000, type: 'application/pdf' }],
+        status: StatusPermohonan.DIPROSES,
+        tanggal: '05/02/2026',
+        history: [],
+        statusPerkara: StatusPerkara.AKTIF,
+        abstraksiPerkara: {
+            tahunMasuk: 2026,
+            noPerkara: '215/Pdt.G/2026/PN.Jkt.Sel',
+            tanggalPendaftaranGugatan: '2026-02-05',
+            wilayah: 'Pusat',
+            jenisPerkara: 'Perdata',
+            pengadilan: 'PN Jakarta Selatan',
+            jenisPokokPerkara: 'Kekayaan Negara',
+            rincianPokokPerkara: 'Perlawanan pihak ketiga dan permohonan provisi penundaan lelang hak tanggungan BMN.',
+            nomorSuratKuasaKhusus: 'SKU-15/SJ.4/2026',
+            tagsPerkara: ['Strategis', 'Aset BMN'],
+        },
+        pihakP: [
+            { id: 'P1', noUrut: 'P1', pihak: 'Penggugat', identitas: 'PT Graha Cipta Mandiri', keterangan: 'Law Firm Otto & Rekan', unitBerperkara: 'Tidak' }
+        ],
+        pihakT: [
+            { id: 'T1', noUrut: 'T1', pihak: 'Tergugat I', identitas: 'Menteri Keuangan RI cq KPKNL Jakarta IV', keterangan: '', unitBerperkara: 'Ya' },
+            { id: 'T2', noUrut: 'T2', pihak: 'Tergugat II', identitas: 'Panitia Urusan Piutang Negara (PUPN) DKI Jakarta', keterangan: '', unitBerperkara: 'Ya' }
+        ],
+        tuntutan: [
+            { id: 1, objek: 'Ganti Rugi Materiil & Immateriil', jenis: 'Materiil', jumlahNominal: 45000000000, satuan: 'IDR', keterangan: 'Tuntutan pembatalan risalah lelang & ganti rugi' }
+        ],
+        posisiSidang: {
+            tkPertama: [
+                { id: 1, suratTugas: 'ST-29/SJ.4/2026', tanggalSuratTugas: '2026-02-25', agendaSidang: 'Sidang Pertama & Pemeriksaan Legal Standing Kuasa Hukum', tanggalSidang: '2026-03-04', agendaBerikutnya: 'Mediasi Pengadilan', tanggalSidangBerikutnya: '2026-03-18', kehadiranPihak: [] },
+                { id: 2, suratTugas: 'ST-38/SJ.4/2026', tanggalSuratTugas: '2026-03-12', agendaSidang: 'Sidang Mediasi di Depan Hakim Mediator', tanggalSidang: '2026-03-18', agendaBerikutnya: 'Laporan Hasil Mediasi & Pembacaan Gugatan', tanggalSidangBerikutnya: '2026-04-01', kehadiranPihak: [] },
+                { id: 3, suratTugas: 'ST-50/SJ.4/2026', tanggalSuratTugas: '2026-03-26', agendaSidang: 'Pembacaan Gugatan Penggugat & Eksepsi Tergugat Menkeu', tanggalSidang: '2026-04-01', agendaBerikutnya: 'Putusan Sela atas Provisi', tanggalSidangBerikutnya: '2026-04-15', kehadiranPihak: [] },
+                { id: 4, suratTugas: 'ST-64/SJ.4/2026', tanggalSuratTugas: '2026-10-14', agendaSidang: 'Sidang Pembuktian Surat Dokumen Penggugat & Tergugat Menkeu', tanggalSidang: '2026-10-28', agendaBerikutnya: 'Pemeriksaan Saksi Penggugat', tanggalSidangBerikutnya: '2026-11-12', kehadiranPihak: [] }
+            ],
+            tkBanding: [], tkKasasi: [], tkPK: []
+        },
+        analisisPerkara: {
+            isuKrusial: 'Permohonan putusan provisi penundaan lelang yang diajukan penggugat berpotensi menghambat pemulihan piutang negara.',
+            analisaHukum: 'Lelang eksekusi Pasal 6 UU Hak Tanggungan merupakan hak parate eksekusi yang dilindungi undang-undang.',
+            risiko: 'Sedang',
+            potensiDampak: 'Risiko tertundanya pemulihan hak tagih negara sebesar Rp 45 Miliar.'
+        },
+        tindakLanjut: [
+            { id: 1, tanggal: '2026-03-20', tindakLanjut: 'Koordinasi Penyusunan Eksepsi Kompetensi dan Tanggapan Provisi', uraian: 'Pertemuan intensif dengan tim seksi hukum KPKNL Jakarta IV.', jenisTindakLanjut: 'Penyusunan Eksepsi' }
+        ],
+        putusan: [
+            {
+                id: 1,
+                nomor: '215/Pdt.G/2026/PN.Jkt.Sel',
+                tanggal: '2026-03-25',
+                amar: 'Menolak permohonan provisi Penggugat untuk menangguhkan pelaksanaan lelang eksekusi hak tanggungan BMN.',
+                status: 'Menang',
+                posisi: 'Pertama',
+                susunanMajelis: [
+                    { id: 1, jabatan: 'Hakim Ketua', identitas: 'Dr. Ahmad Fauzi, S.H., M.H.' },
+                    { id: 2, jabatan: 'Hakim Anggota I', identitas: 'Sri Wahyuni, S.H.' },
+                    { id: 3, jabatan: 'Hakim Anggota II', identitas: 'Bambang Irawan, S.H.' }
+                ]
+            }
+        ],
+        statusBHT: { status: 'Belum Inkracht', keteranganDampak: 'Putusan Sela menolak provisi; pemeriksaan materi pokok perkara terus berlanjut.' },
+        team: [
+            { id: 'usr-1', nama: 'Sukiyem', nip: '198203122005012001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Madya', teamRole: 'PIC' },
+            { id: 'usr-2', nama: 'Andi Pratama', nip: '198501012010011001', unit: 'Biro Advokasi, Setjen', role: 'Ahli Muda', teamRole: 'Editor' }
+        ],
+        picId: 'usr-1',
+        auditTrail: [
+            { id: 1, timestamp: new Date('2026-02-05T10:00:00Z'), user: 'Admin System', action: 'merekam', details: 'Registrasi Perkara PMH PN Jaksel' }
+        ]
+    }
 ];
 
 export const initialUserAccounts: UserAccount[] = [
@@ -497,5 +1021,216 @@ export const initialTelaahanRecords: TelaahanRecord[] = [
       { id: 't1', nama: 'Hendra Cahyono', nip: '198505122008011003', unit: 'Biro Advokasi, Setjen', role: 'Koordinator Advokasi III', teamRole: 'PIC' }
     ],
     picId: 't1'
+  },
+  {
+    id: 'TLH-2026-004',
+    Nomor: 'ND-112/ROKUM/2026',
+    nomorTelaahan: 'TLH-04/SJ.4/2026',
+    pemohon: 'Kepala Biro Hukum, Sekretariat Jenderal',
+    unit: 'Biro Hukum, Setjen',
+    tanggal: '18/02/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Harmonisasi dan Kajian Uji Materiil Peraturan Pemerintah terkait Tarif PNBP',
+    uraian: 'Permohonan Uji Materiil terhadap Klausul Tarif Royalti Progresif Ekspor Mineral (Perkara 12/HUM/2026/MA).',
+    files: [{ name: 'Salinan_Permohonan_HUM_MA_No12.pdf', size: 680000, type: 'application/pdf' }],
+    status: StatusPermohonan.DIPROSES,
+    statusTelaahan: StatusTelaahan.AKTIF,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Permohonan Uji Materiil terhadap Klausul Tarif Royalti Progresif Ekspor Mineral (Perkara 12/HUM/2026/MA).',
+      faktaHukum: 'Asosiasi Pengusaha mengajukan hak uji materiil atas norma perhitungan tarif PNBP progresif pada PP No. 26 Tahun 2022.',
+      dasarHukum: [
+        'UU No. 9 Tahun 2018 tentang PNBP',
+        'UU No. 12 Tahun 2011 jo UU No. 13 Tahun 2022 tentang Pembentukan Peraturan Perundang-undangan'
+      ],
+      analisisKajian: 'Delegasi wewenang penetapan tarif diatur jelas dalam UU No. 9 Tahun 2018 tentang PNBP. Tidak bertentangan dengan asas kepastian hukum perpajakan.',
+      rekomendasi: 'Penyusunan Surat Jawaban Termohon HUM MA bersama Ditjen Anggaran dan BKF.',
+      tingkatUrgensi: 'Sangat Segera',
+      kategoriHukum: 'Hak Uji Materiil (HUM)'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-30', name: 'Salinan_Permohonan_HUM_MA_No12.pdf', size: 680000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '18/02/2026' }
+    ],
+    naskahTelaahan: {
+      statusNaskah: StatusNaskahTelaahan.DRAFT,
+      perihal: 'Jawaban Termohon Uji Materiil Klausul Tarif Royalti Progresif Ekspor Mineral'
+    },
+    team: [
+      { id: 't-budi', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum', teamRole: 'PIC' }
+    ],
+    picId: 't-budi'
+  },
+  {
+    id: 'TLH-2026-005',
+    Nomor: 'ND-120/PB.02/2026',
+    nomorTelaahan: 'TLH-05/SJ.4/2026',
+    pemohon: 'Direktur Pengelolaan Kas Negara, Ditjen Perbendaharaan',
+    unit: 'Direktorat Jenderal Perbendaharaan',
+    tanggal: '27/02/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Analisis Gugatan PMH atas Penolakan SPM Retur Rekening Bendahara Pengeluaran',
+    uraian: 'Tuntutan Ganti Kerugian Bunga Akibat Retur SP2D Pembayaran Termin Kontrak Fisik (Perkara 44/Pdt.G/2026/PN.Bdg).',
+    files: [{ name: 'Gugatan_PMH_Retur_SPM_Bandung.pdf', size: 310000, type: 'application/pdf' }],
+    status: StatusPermohonan.DIPROSES,
+    statusTelaahan: StatusTelaahan.AKTIF,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Tuntutan Ganti Kerugian Bunga Akibat Retur SP2D Pembayaran Termin Kontrak Fisik (Perkara 44/Pdt.G/2026/PN.Bdg).',
+      faktaHukum: 'Rekening pihak ketiga yang ditunjuk tidak aktif sehingga sistem SPAN menerbitkan retur SP2D secara otomatis.',
+      dasarHukum: [
+        'UU No. 1 Tahun 2004 tentang Perbendaharaan Negara',
+        'PMK No. 190/PMK.05/2012 tentang Tata Cara Pembayaran APBN'
+      ],
+      analisisKajian: 'KPPN menolak SPM karena nomor rekening bank pihak ketiga tidak sinkron dengan data SPAN. Sesuai PMK Pengelolaan Rekening Kas Negara.',
+      rekomendasi: 'Eksepsi kompetensi absolut dan bukti sistem audit trail SPAN perbendaharaan.',
+      tingkatUrgensi: 'Segera',
+      kategoriHukum: 'Perdata / Gugatan PMH'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-40', name: 'Gugatan_PMH_Retur_SPM_Bandung.pdf', size: 310000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '27/02/2026' }
+    ],
+    naskahTelaahan: {
+      statusNaskah: StatusNaskahTelaahan.DRAFT,
+      perihal: 'Kajian Hukum dan Eksepsi Gugatan PMH Retur SPM Rekening KPPN Bandung'
+    },
+    team: [
+      { id: 't-admin', nama: 'Admin Tuban Kum', nip: '198709122010011004', unit: 'Biro Advokasi, Setjen', role: 'Koordinator Advokasi I', teamRole: 'PIC' }
+    ],
+    picId: 't-admin'
+  },
+  {
+    id: 'TLH-2026-006',
+    Nomor: 'ND-135/BKF/2026',
+    nomorTelaahan: 'TLH-06/SJ.4/2026',
+    pemohon: 'Kepala Pusat Kebijakan Sektor Keuangan, BKF',
+    unit: 'Badan Kebijakan Fiskal',
+    tanggal: '08/03/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Telaahan Aspek Hukum Klausul Arbitrase Internasional pada Perjanjian Kerjasama Multilateral',
+    uraian: 'Klaim Wanprestasi Dukungan Kelayakan Proyek KPBU SPAM Regional (Perkara ARB/BANI/2026/019).',
+    files: [{ name: 'Perjanjian_KPBU_SPAM_Multilateral.pdf', size: 1450000, type: 'application/pdf' }],
+    status: StatusPermohonan.SELESAI,
+    statusTelaahan: StatusTelaahan.SELESAI,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Klaim Wanprestasi Dukungan Kelayakan Proyek KPBU SPAM Regional senilai USD 3.200.000.',
+      faktaHukum: 'Klausul force majeure pada masa pandemi dan pergeseran trase perizinan daerah bukan tanggung jawab sepihak Pemerintah Pusat.',
+      dasarHukum: [
+        'UU No. 30 Tahun 1999 tentang Arbitrase dan Alternatif Penyelesaian Sengketa',
+        'Perpres No. 38 Tahun 2015 tentang Kerjasama Pemerintah dengan Badan Usaha'
+      ],
+      analisisKajian: 'Klausul force majeure pada masa pandemi dan pergeseran trase perizinan daerah bukan tanggung jawab sepihak Pemerintah Pusat.',
+      rekomendasi: 'Penetapan Arbiter Pendamping dan negosiasi rekonsiliasi adendum kontrak KPBU.',
+      tingkatUrgensi: 'Biasa',
+      kategoriHukum: 'Arbitrase Komersial'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-50', name: 'Perjanjian_KPBU_SPAM_Multilateral.pdf', size: 1450000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '08/03/2026' },
+      { id: 'dt-51', name: 'ND-135-SJ.4-2026_Telaahan_Arbitrase_TTE.pdf', size: 520000, type: 'application/pdf', kategori: 'Naskah Telaahan', tanggal: '12/03/2026', nomor: 'ND-135/SJ.4/2026' }
+    ],
+    naskahTelaahan: {
+      naskahId: 'NADINE-TLH-006',
+      nomorNaskah: 'ND-135/SJ.4/2026',
+      statusNaskah: StatusNaskahTelaahan.DIKIRIM,
+      tglTte: '12/03/2026 10:15 WIB',
+      tglKirim: '12/03/2026 11:00 WIB',
+      perihal: 'Telaahan Klausul Arbitrase Internasional Proyek KPBU SPAM Regional'
+    },
+    team: [
+      { id: 't-dedi', nama: 'Dedi Irawan', nip: '198603102009011002', unit: 'Biro Advokasi, Setjen', role: 'Analis Kebijakan', teamRole: 'PIC' }
+    ],
+    picId: 't-dedi'
+  },
+  {
+    id: 'TLH-2026-007',
+    Nomor: 'ND-142/DJP.04/2026',
+    nomorTelaahan: 'TLH-07/SJ.4/2026',
+    pemohon: 'Direktur Penegakan Hukum, Ditjen Pajak',
+    unit: 'Direktorat Jenderal Pajak',
+    tanggal: '19/03/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Kajian Hukum Permohonan Praperadilan Penetapan Tersangka Tindak Pidana Perpajakan',
+    uraian: 'Gugatan Praperadilan atas Keabsahan Penetapan Tersangka dan Penyitaan Dokumen Akuntansi (Perkara 07/Pid.Pra/2026/PN.Jkt.Pst).',
+    files: [{ name: 'Gugatan_Praperadilan_Faktur_Pajak.pdf', size: 420000, type: 'application/pdf' }],
+    status: StatusPermohonan.DIPROSES,
+    statusTelaahan: StatusTelaahan.AKTIF,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Gugatan Praperadilan atas Keabsahan Penetapan Tersangka dan Penyitaan Dokumen Akuntansi.',
+      faktaHukum: 'Penyidik telah memenuhi minimal dua alat bukti sah sesuai putusan MK No. 21/PUU-XII/2014.',
+      dasarHukum: [
+        'Pasal 77 s.d. Pasal 83 KUHAP',
+        'UU No. 6 Tahun 1983 jo UU KUP Terakhir',
+        'Peraturan Mahkamah Agung No. 4 Tahun 2016'
+      ],
+      analisisKajian: 'Bukti permulaan cukup didukung minimal 3 alat bukti sah (Keterangan saksi, dokumen faktur, dan keterangan ahli forensik digital). Prosedur penyitaan didukung izin Ketua PN.',
+      rekomendasi: 'Siapkan eksepsi serta hadirkan Ahli Hukum Acara Pidana pada sidang praperadilan.',
+      tingkatUrgensi: 'Sangat Segera',
+      kategoriHukum: 'Praperadilan Pidana Pajak'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-60', name: 'Gugatan_Praperadilan_Faktur_Pajak.pdf', size: 420000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '19/03/2026' }
+    ],
+    naskahTelaahan: {
+      statusNaskah: StatusNaskahTelaahan.DRAFT,
+      perihal: 'Telaahan Yuridis dan Materi Eksepsi Praperadilan DJP Jakarta Pusat'
+    },
+    team: [
+      { id: 't-rini', nama: 'Rini Astuti', nip: '199104082014022001', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum Ahli Muda', teamRole: 'PIC' }
+    ],
+    picId: 't-rini'
+  },
+  {
+    id: 'TLH-2026-008',
+    Nomor: 'ND-150/PPK/2026',
+    nomorTelaahan: 'TLH-08/SJ.4/2026',
+    pemohon: 'Sekretaris Badan Pendidikan dan Pelatihan Keuangan',
+    unit: 'Badan Pendidikan dan Pelatihan Keuangan (BPPK)',
+    tanggal: '24/03/2026',
+    jenis: JenisPermohonan.TELAAHAN_KASUS_HUKUM,
+    perihal: 'Telaahan Status Kepemilikan Lahan Gedung Balai Diklat Keuangan Cimahi',
+    uraian: 'Sengketa Kepemilikan Hak Milik Adat atas Tanah Kompleks Kampus BDK Cimahi (Perkara 109/Pdt.Bth/2026/PN.Cmh).',
+    files: [{ name: 'Gugatan_Perlawanan_Sita_BDK_Cimahi.pdf', size: 560000, type: 'application/pdf' }],
+    status: StatusPermohonan.SELESAI,
+    statusTelaahan: StatusTelaahan.SELESAI,
+    history: [],
+    sumber: 'Nadine',
+    tahunMasuk: 2026,
+    abstraksiTelaahan: {
+      pokokPermasalahan: 'Sengketa Kepemilikan Hak Milik Adat atas Tanah Kompleks Kampus BDK Cimahi senilai Rp 18 Miliar.',
+      faktaHukum: 'Sertifikat Hak Pakai atas nama Pemerintah RI terbit tahun 1982 dan telah dikuasai secara fisik tanpa interupsi lebih dari 40 tahun.',
+      dasarHukum: [
+        'UU No. 5 Tahun 1960 tentang Pokok Agraria',
+        'PP No. 18 Tahun 2021 tentang Hak Pengelolaan, Hak Atas Tanah, dan Pendaftaran Tanah'
+      ],
+      analisisKajian: 'Sertifikat Hak Pakai atas nama Pemerintah RI terbit tahun 1982 dan telah dikuasai secara fisik tanpa interupsi lebih dari 40 tahun. Gugatan pihak lawan daluwarsa (rechtsverwerking).',
+      rekomendasi: 'Pertahankan aset BMN dengan mengajukan alat bukti otentik buku warkah BPN dan memohon pembatalan sita jaminan.',
+      tingkatUrgensi: 'Biasa',
+      kategoriHukum: 'Perdata / Perlawanan Sita'
+    },
+    dokumenTelaahan: [
+      { id: 'dt-70', name: 'Gugatan_Perlawanan_Sita_BDK_Cimahi.pdf', size: 560000, type: 'application/pdf', kategori: 'Permohonan', tanggal: '24/03/2026' },
+      { id: 'dt-71', name: 'ND-150-SJ.4-2026_Telaahan_BDK_Cimahi_TTE.pdf', size: 840000, type: 'application/pdf', kategori: 'Naskah Telaahan', tanggal: '28/03/2026', nomor: 'ND-150/SJ.4/2026' }
+    ],
+    naskahTelaahan: {
+      naskahId: 'NADINE-TLH-008',
+      nomorNaskah: 'ND-150/SJ.4/2026',
+      statusNaskah: StatusNaskahTelaahan.DIKIRIM,
+      tglTte: '28/03/2026 14:00 WIB',
+      tglKirim: '28/03/2026 14:30 WIB',
+      perihal: 'Telaahan Yuridis Penyelamatan Aset BMN Gedung Balai Diklat Keuangan Cimahi'
+    },
+    team: [
+      { id: 't-budi2', nama: 'Budi Santoso', nip: '199002152015021002', unit: 'Biro Advokasi, Setjen', role: 'Analis Hukum', teamRole: 'PIC' }
+    ],
+    picId: 't-budi2'
   }
 ];

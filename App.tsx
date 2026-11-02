@@ -87,6 +87,7 @@ const Referensi = lazyWithRetry(() => import('./components/eadvo_Referensi'));
 const ManajemenUser = lazyWithRetry(() => import('./components/eadvo_ManajemenUser'));
 const PengelolaanTim = lazyWithRetry(() => import('./components/eadvo_PengelolaanTim'));
 const TelaahanKasusHukum = lazyWithRetry(() => import('./components/eadvo_TelaahanKasusHukum'));
+const DetailTelaahan = lazyWithRetry(() => import('./components/eadvo_DetailTelaahan'));
 
 const viewToPath = (view: View, id?: string): string => {
   switch (view) {
@@ -124,6 +125,7 @@ const viewToPath = (view: View, id?: string): string => {
     case 'eAdvokasiPutusanTim': return id ? `/eadvokasi/putusan/tim/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiPutusanDokumen': return id ? `/eadvokasi/putusan/dokumen/${id}` : '/eadvokasi/putusan';
     case 'eAdvokasiTelaahanKasusHukum': return '/eadvokasi/telaahan';
+    case 'eAdvokasiTelaahanDetail': return id ? `/eadvokasi/telaahan/detail/${id}` : '/eadvokasi/telaahan';
     case 'eAdvokasiDashboard': return '/eadvokasi/monitoring/dashboard';
     case 'eAdvokasiPencarian': return '/eadvokasi/monitoring/cari-perkara';
     case 'eAdvokasiPencarianPerkara': return '/eadvokasi/monitoring/cari-perkara';
@@ -187,6 +189,7 @@ const pathToView = (pathname: string): { view: View; id?: string } => {
   if (pathname.startsWith('/eadvokasi/putusan/tim/')) return { view: 'eAdvokasiPutusanTim', id: pathname.replace('/eadvokasi/putusan/tim/', '') };
   if (pathname.startsWith('/eadvokasi/putusan/dokumen/')) return { view: 'eAdvokasiPutusanDokumen', id: pathname.replace('/eadvokasi/putusan/dokumen/', '') };
   if (pathname === '/eadvokasi/telaahan') return { view: 'eAdvokasiTelaahanKasusHukum' };
+  if (pathname.startsWith('/eadvokasi/telaahan/detail/')) return { view: 'eAdvokasiTelaahanDetail', id: pathname.replace('/eadvokasi/telaahan/detail/', '') };
   if (pathname === '/eadvokasi/monitoring/dashboard') return { view: 'eAdvokasiDashboard' };
   if (pathname === '/eadvokasi/monitoring/cari-perkara') return { view: 'eAdvokasiPencarianPerkara' };
   if (pathname === '/eadvokasi/monitoring/cari-pendampingan') return { view: 'eAdvokasiPencarianPendampingan' };
@@ -230,12 +233,14 @@ const AppContent: React.FC = () => {
     putusanRecords,
     selectedPutusan,
     telaahanRecords,
+    selectedTelaahan,
     setNotification,
     setPutusanRecords,
     setSelectedPermohonan,
     setSelectedPendampingan,
     setSelectedPerkara,
     setSelectedPutusan,
+    setSelectedTelaahan,
     handleSaveDraft,
     handleUpdateDraft,
     handleDelete,
@@ -295,16 +300,20 @@ const AppContent: React.FC = () => {
     if (!view.startsWith('eAdvokasiPutusan')) {
         setSelectedPutusan(null);
     }
+    if (!view.startsWith('eAdvokasiTelaahan')) {
+        setSelectedTelaahan(null);
+    }
 
     if (data && typeof data !== 'string') {
         if (view.startsWith('eAdvokasiPendampingan')) setSelectedPendampingan(data);
         if (view.startsWith('eAdvokasiPerkara')) setSelectedPerkara(data);
         if (view.startsWith('eAdvokasiPutusan')) setSelectedPutusan(data);
+        if (view.startsWith('eAdvokasiTelaahan')) setSelectedTelaahan(data);
     }
 
     const path = viewToPath(view, id);
     navigate(path);
-  }, [navigate, setSelectedPermohonan, setSelectedPendampingan, setSelectedPerkara, setSelectedPutusan]);
+  }, [navigate, setSelectedPermohonan, setSelectedPendampingan, setSelectedPerkara, setSelectedPutusan, setSelectedTelaahan]);
 
   // Synchronize state lookup automatically on URL/pathname changes to enable URL sharing
   useEffect(() => {
@@ -325,6 +334,11 @@ const AppContent: React.FC = () => {
          if (record && selectedPutusan?.id !== id) {
            setSelectedPutusan(record);
          }
+       } else if (view.startsWith('eAdvokasiTelaahan')) {
+         const record = telaahanRecords.find(r => r.id === id);
+         if (record && selectedTelaahan?.id !== id) {
+           setSelectedTelaahan(record);
+         }
        } else if (view === 'detail' || view === 'edit') {
          const record = permohonanList.find(r => r.id === id);
          if (record && selectedPermohonan?.id !== id) {
@@ -337,7 +351,7 @@ const AppContent: React.FC = () => {
          }
        }
     }
-  }, [pathname, permohonanList, pendampinganRecords, perkaraRecords, putusanRecords, selectedPendampingan, selectedPerkara, selectedPutusan, selectedPermohonan, currentPermohonanToProses, setSelectedPendampingan, setSelectedPerkara, setSelectedPutusan, setSelectedPermohonan]);
+  }, [pathname, permohonanList, pendampinganRecords, perkaraRecords, putusanRecords, telaahanRecords, selectedPendampingan, selectedPerkara, selectedPutusan, selectedTelaahan, selectedPermohonan, currentPermohonanToProses, setSelectedPendampingan, setSelectedPerkara, setSelectedPutusan, setSelectedTelaahan, setSelectedPermohonan]);
 
   // Reactive logic that moves active matters with Kalah judgments into Penanganan Putusan
   useEffect(() => {
@@ -527,6 +541,16 @@ const AppContent: React.FC = () => {
         return selectedPutusan ? <DokumenPutusan record={selectedPutusan} onNavigate={handleNavigate} /> : <div className="p-8">Data tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiPenangananPutusan')} className="text-blue-600 underline">Penanganan Putusan</button>.</div>;
       case 'eAdvokasiTelaahanKasusHukum':
         return <TelaahanKasusHukum onNavigate={handleNavigate} />;
+      case 'eAdvokasiTelaahanDetail':
+        return selectedTelaahan ? (
+          <DetailTelaahan 
+            record={selectedTelaahan} 
+            onBack={() => handleNavigate('eAdvokasiTelaahanKasusHukum')} 
+            onNavigate={handleNavigate} 
+          />
+        ) : (
+          <div className="p-8">Data telaahan tidak ditemukan. Kembali ke <button onClick={() => handleNavigate('eAdvokasiTelaahanKasusHukum')} className="text-blue-600 underline">Telaahan Kasus Hukum</button>.</div>
+        );
       case 'eAdvokasiMonitoring':
       case 'eAdvokasiDashboard':
       case 'eAdvokasiPencarian':

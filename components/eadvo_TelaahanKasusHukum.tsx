@@ -16,6 +16,7 @@ import {
 } from './icons';
 import TarikDataNadineModal from './eadvo_TarikDataNadineModal';
 import AssignTeamModal, { ALL_PERSONNEL, Personnel } from './AssignTeamModal';
+import DocumentTable from './eadvo_DocumentTable';
 
 interface TelaahanKasusHukumProps {
   onNavigate?: (view: View, record?: any) => void;
@@ -968,8 +969,22 @@ export const TelaahanKasusHukum: React.FC<TelaahanKasusHukumProps> = ({ onNaviga
                         value={detailRecord.perihal || detailRecord.naskahTelaahan?.perihal || '-'} 
                       />
                       <DetailRow 
-                        label="Status Surat Balasan" 
-                        value={getStatusPosisiBadge(detailRecord)} 
+                        label="Status Posisi" 
+                        value={
+                          <div className="flex items-center space-x-2 flex-wrap gap-1.5">
+                            {getStatusPosisiBadge(detailRecord)}
+                            {detailRecord.naskahTelaahan?.nomorNaskah && (
+                              <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200" title="Nomor Naskah Telaahan">
+                                {detailRecord.naskahTelaahan.nomorNaskah}
+                              </span>
+                            )}
+                            {detailRecord.naskahTelaahan?.tglTte && (
+                              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                                TTE: {detailRecord.naskahTelaahan.tglTte.split(' ')[0]}
+                              </span>
+                            )}
+                          </div>
+                        } 
                       />
                       <DetailRow 
                         label="Tingkat Urgensi" 
@@ -985,57 +1000,63 @@ export const TelaahanKasusHukum: React.FC<TelaahanKasusHukumProps> = ({ onNaviga
                       />
                     </DetailSection>
 
-                    <DetailSection title="Pokok Permasalahan & Analisis Yuridis">
+                    <DetailSection title="Summary Naskah">
                       <DetailRow 
                         label="Pokok Permasalahan" 
                         value={
                           <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-                            {detailRecord.abstraksiTelaahan?.pokokPermasalahan || detailRecord.uraian || 'Tidak ada uraian spesifik.'}
+                            {detailRecord.abstraksiTelaahan?.pokokPermasalahan || detailRecord.naskahTelaahan?.resumeRingkas || detailRecord.uraian || 'Tidak ada uraian spesifik.'}
                           </div>
                         } 
                       />
                       
-                      {detailRecord.abstraksiTelaahan?.faktaHukum && (
+                      {(detailRecord.abstraksiTelaahan?.faktaHukum || detailRecord.naskahTelaahan?.resumeRingkas) && (
                         <DetailRow 
                           label="Fakta Hukum & Kronologi" 
                           value={
                             <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-                              {detailRecord.abstraksiTelaahan.faktaHukum}
+                              {detailRecord.abstraksiTelaahan?.faktaHukum || detailRecord.naskahTelaahan?.resumeRingkas}
                             </div>
                           } 
                         />
                       )}
 
-                      {detailRecord.abstraksiTelaahan?.dasarHukum && detailRecord.abstraksiTelaahan.dasarHukum.length > 0 && (
+                      {((detailRecord.abstraksiTelaahan?.dasarHukum && detailRecord.abstraksiTelaahan.dasarHukum.length > 0) || detailRecord.naskahTelaahan?.dasarHukum) && (
                         <DetailRow 
                           label="Dasar Peraturan Perundang-undangan" 
                           value={
-                            <ul className="list-disc list-inside space-y-1 text-sm text-gray-800">
-                              {detailRecord.abstraksiTelaahan.dasarHukum.map((dh, idx) => (
-                                <li key={idx} className="leading-relaxed">{dh}</li>
-                              ))}
-                            </ul>
+                            detailRecord.abstraksiTelaahan?.dasarHukum && detailRecord.abstraksiTelaahan.dasarHukum.length > 0 ? (
+                              <ul className="list-disc list-inside space-y-1 text-sm text-gray-800">
+                                {detailRecord.abstraksiTelaahan.dasarHukum.map((dh, idx) => (
+                                  <li key={idx} className="leading-relaxed">{dh}</li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
+                                {detailRecord.naskahTelaahan?.dasarHukum}
+                              </div>
+                            )
                           } 
                         />
                       )}
 
-                      {detailRecord.abstraksiTelaahan?.analisisKajian && (
+                      {(detailRecord.abstraksiTelaahan?.analisisKajian || detailRecord.naskahTelaahan?.analisisHukum) && (
                         <DetailRow 
                           label="Analisis Yuridis & Kajian Hukum" 
                           value={
                             <div className="whitespace-pre-wrap leading-relaxed text-gray-800">
-                              {detailRecord.abstraksiTelaahan.analisisKajian}
+                              {detailRecord.abstraksiTelaahan?.analisisKajian || detailRecord.naskahTelaahan?.analisisHukum}
                             </div>
                           } 
                         />
                       )}
 
-                      {detailRecord.abstraksiTelaahan?.rekomendasi && (
+                      {(detailRecord.abstraksiTelaahan?.rekomendasi || detailRecord.naskahTelaahan?.kesimpulanRekomendasi || detailRecord.naskahTelaahan?.rekomendasi) && (
                         <DetailRow 
                           label="Kesimpulan & Rekomendasi Advokasi" 
                           value={
                             <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900 font-medium whitespace-pre-wrap leading-relaxed">
-                              {detailRecord.abstraksiTelaahan.rekomendasi}
+                              {detailRecord.abstraksiTelaahan?.rekomendasi || detailRecord.naskahTelaahan?.kesimpulanRekomendasi || detailRecord.naskahTelaahan?.rekomendasi}
                             </div>
                           } 
                         />
@@ -1051,161 +1072,30 @@ export const TelaahanKasusHukum: React.FC<TelaahanKasusHukumProps> = ({ onNaviga
                   <div className="space-y-6 animate-fadeIn">
                     
                     {/* Dokumen Permohonan */}
-                    <div className="bg-white rounded-xl shadow-2xs border border-gray-200 overflow-hidden">
-                      <div className="bg-gray-50 px-5 py-3.5 border-b border-gray-200 flex justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-bold text-gray-800 text-sm">1. Dokumen Permohonan</h3>
-                          <span className="bg-blue-100 text-[#0055A5] text-xs font-semibold px-2 py-0.5 rounded-full">
-                            {permohonanDocs.length} Berkas
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200 text-xs">
-                          <thead className="bg-[#f9fafb]">
-                            <tr>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider w-12">No</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Nomor / Tanggal</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Sumber</th>
-                              <th className="px-5 py-3 text-center font-bold text-gray-500 uppercase tracking-wider w-28">Aksi</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-100">
-                            {permohonanDocs.length > 0 ? (
-                              permohonanDocs.map((doc, idx) => (
-                                <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                                  <td className="px-5 py-3.5 text-gray-500 font-medium">{idx + 1}</td>
-                                  <td className="px-5 py-3.5 font-semibold text-gray-900">
-                                    <div className="flex items-center space-x-2.5">
-                                      <div className="p-1.5 rounded-lg bg-orange-50 text-orange-600 border border-orange-100">
-                                        <DocumentTextIcon className="h-4 w-4" />
-                                      </div>
-                                      <span className="truncate max-w-md" title={doc.name}>{doc.name}</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                                    <span className="font-semibold block text-gray-800">{doc.nomor}</span>
-                                    <span className="text-[11px] text-gray-400">{doc.tanggal}</span>
-                                  </td>
-                                  <td className="px-5 py-3.5 whitespace-nowrap">
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200">
-                                      {doc.sumber}
-                                    </span>
-                                  </td>
-                                  <td className="px-5 py-3.5 text-center whitespace-nowrap space-x-2">
-                                    <button 
-                                      onClick={() => showNotification(`Membuka preview ${doc.name}`, 'info')}
-                                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition" 
-                                      title="Lihat Dokumen"
-                                    >
-                                      <EyeIcon className="h-4 w-4" />
-                                    </button>
-                                    <button 
-                                      onClick={() => showNotification(`Mengunduh ${doc.name}...`, 'info')}
-                                      className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition" 
-                                      title="Unduh Dokumen"
-                                    >
-                                      <DownloadIcon className="h-4 w-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))
-                            ) : (
-                              <tr>
-                                <td colSpan={5} className="px-5 py-8 text-center text-gray-400 italic">
-                                  Belum ada dokumen permohonan.
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <DocumentTable
+                      title="1. Dokumen Permohonan"
+                      categoryContext="permohonan"
+                      items={permohonanDocs}
+                    />
 
                     {/* Dokumen Telaahan dan Data Dukung */}
-                    <div className="bg-white rounded-xl shadow-2xs border border-gray-200 overflow-hidden">
-                      <div className="bg-gray-50 px-5 py-3.5 border-b border-gray-200 flex justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="font-bold text-gray-800 text-sm">2. Dokumen Telaahan dan Data Dukung</h3>
-                          <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-2 py-0.5 rounded-full">
-                            {telaahanDanDukungDocs.length} Berkas
-                          </span>
-                        </div>
+                    <DocumentTable
+                      title="2. Dokumen Telaahan dan Data Dukung"
+                      categoryContext="telaahan"
+                      items={telaahanDanDukungDocs}
+                      headerAction={
                         <button
                           onClick={() => {
                             const rec = detailRecord;
                             setDetailRecord(null);
                             setDokumenModalRecord(rec);
                           }}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                          className="px-3 py-1.5 bg-blue-50 text-[#0055A5] border border-blue-200/80 rounded-lg text-xs font-semibold hover:bg-blue-100 transition"
                         >
                           + Kelola / Unggah Dokumen
                         </button>
-                      </div>
-                      
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200 text-xs">
-                          <thead className="bg-[#f9fafb]">
-                            <tr>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider w-12">No</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Nama Dokumen</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Kategori</th>
-                              <th className="px-5 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
-                              <th className="px-5 py-3 text-center font-bold text-gray-500 uppercase tracking-wider w-28">Aksi</th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-100">
-                            {telaahanDanDukungDocs.length > 0 ? (
-                              telaahanDanDukungDocs.map((doc, idx) => (
-                                <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                                  <td className="px-5 py-3.5 text-gray-500 font-medium">{idx + 1}</td>
-                                  <td className="px-5 py-3.5 font-semibold text-gray-900">
-                                    <div className="flex items-center space-x-2.5">
-                                      <div className="p-1.5 rounded-lg bg-blue-50 text-[#0055A5] border border-blue-100">
-                                        <DocumentTextIcon className="h-4 w-4" />
-                                      </div>
-                                      <span className="truncate max-w-md" title={doc.name}>{doc.name}</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-5 py-3.5 whitespace-nowrap">
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
-                                      {doc.kategori}
-                                    </span>
-                                  </td>
-                                  <td className="px-5 py-3.5 text-gray-500 whitespace-nowrap">
-                                    {doc.tanggal}
-                                  </td>
-                                  <td className="px-5 py-3.5 text-center whitespace-nowrap space-x-2">
-                                    <button 
-                                      onClick={() => showNotification(`Membuka preview ${doc.name}`, 'info')}
-                                      className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition" 
-                                      title="Lihat Dokumen"
-                                    >
-                                      <EyeIcon className="h-4 w-4" />
-                                    </button>
-                                    <button 
-                                      onClick={() => showNotification(`Mengunduh ${doc.name}...`, 'info')}
-                                      className="p-1.5 text-gray-600 hover:bg-gray-100 rounded transition" 
-                                      title="Unduh Dokumen"
-                                    >
-                                      <DownloadIcon className="h-4 w-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))
-                            ) : (
-                              <tr>
-                                <td colSpan={5} className="px-5 py-8 text-center text-gray-400 italic">
-                                  Belum ada dokumen telaahan atau data dukung tambahan tersimpan.
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                      }
+                    />
 
                   </div>
                 )}
@@ -1354,19 +1244,6 @@ export const TelaahanKasusHukum: React.FC<TelaahanKasusHukumProps> = ({ onNaviga
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  {detailRecord.statusTelaahan === StatusTelaahan.AKTIF && (
-                    <button
-                      onClick={() => {
-                        const rec = detailRecord;
-                        setDetailRecord(null);
-                        handleRedirectNadineTulisNaskah(rec);
-                      }}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition flex items-center space-x-1.5"
-                    >
-                      <ArrowUpIcon className="h-4 w-4" />
-                      <span>Tulis Naskah Dinas (Aplikasi Nadine)</span>
-                    </button>
-                  )}
                   <button
                     onClick={() => {
                       const rec = detailRecord;
@@ -2072,6 +1949,7 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
   const [tanggalDokumen, setTanggalDokumen] = useState('');
   const [jenisDokumen, setJenisDokumen] = useState('Surat Permohonan');
   const [deskripsiDokumen, setDeskripsiDokumen] = useState('');
+  const [tagsDokumen, setTagsDokumen] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [inputError, setInputError] = useState('');
@@ -2157,6 +2035,7 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
     setTanggalDokumen('');
     setJenisDokumen('Data Dukung');
     setDeskripsiDokumen('');
+    setTagsDokumen('');
     setSelectedFile(null);
     setDragActive(false);
     setInputError('');
@@ -2169,6 +2048,7 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
     setIsUploadOpen(true);
     setTanggalDokumen(new Date().toISOString().split('T')[0]);
     setJenisDokumen(category === 'permohonan' ? 'Surat Permohonan' : 'Data Dukung');
+    setTagsDokumen(category === 'permohonan' ? 'Permohonan, Nadine' : 'Telaahan, Kajian Yuridis');
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -2205,6 +2085,10 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
       return;
     }
 
+    const parsedTags = tagsDokumen 
+      ? tagsDokumen.split(',').map(t => t.trim()).filter(Boolean)
+      : undefined;
+
     const newDoc: DokumenTelaahanItem = {
       id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       name: selectedFile.name,
@@ -2214,7 +2098,8 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
       tanggal: tanggalDokumen || new Date().toLocaleDateString('id-ID'),
       kategori: uploadCategory === 'permohonan' ? 'Permohonan' : jenisDokumen,
       deskripsi: deskripsiDokumen || undefined,
-      source: 'upload'
+      source: 'upload',
+      tags: parsedTags
     };
 
     onAddDocument(newDoc);
@@ -2258,35 +2143,19 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
     showTulisNaskah: boolean = false
   ) => {
     return (
-      <div className="bg-white rounded-xl shadow-2xs border border-gray-200 overflow-hidden mb-6 last:mb-0">
-        {/* Table Card Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <h3 className="font-bold text-gray-800 text-sm">{title}</h3>
-            <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
-              {docs.length} Berkas
-            </span>
-          </div>
-
+      <DocumentTable
+        title={title}
+        categoryContext={category === 'permohonan' ? 'permohonan' : 'telaahan'}
+        items={docs}
+        onDelete={(item) => {
+          if (item.id) {
+            onDeleteDocument(String(item.id));
+          }
+        }}
+        onPreview={(item) => setPreviewDoc(item as DokumenTelaahanItem)}
+        onDownload={(item) => onShowNotification?.(`Mengunduh berkas ${item.nama || item.name}...`, 'info')}
+        headerAction={
           <div className="flex items-center space-x-2 flex-wrap gap-1">
-            {showTulisNaskah && (
-              <button 
-                type="button"
-                onClick={() => {
-                  if (onTulisNaskah) {
-                    onTulisNaskah();
-                  } else {
-                    onShowNotification?.('Mengarahkan ke Aplikasi Nadine untuk menulis naskah...', 'info');
-                  }
-                }}
-                className="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-xs"
-                title="Tulis Naskah Dinas di Aplikasi Nadine"
-              >
-                <DocumentTextIcon className="h-4 w-4" />
-                <span>TULIS NASKAH</span>
-              </button>
-            )}
-
             <button 
               type="button"
               onClick={() => handleUploadClick(category)}
@@ -2307,123 +2176,8 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
               <span>TARIK DATA NADINE</span>
             </button>
           </div>
-        </div>
-
-        {/* Table Content */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-xs">
-            <thead className="bg-[#f9fafb]">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider w-14">
-                  No
-                </th>
-                <th scope="col" className="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">
-                  Nama Dokumen
-                </th>
-                <th scope="col" className="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider">
-                  Nomor / Tanggal
-                </th>
-                <th scope="col" className="px-6 py-3 text-left font-bold text-gray-500 uppercase tracking-wider w-28">
-                  Sumber
-                </th>
-                <th scope="col" className="px-6 py-3 text-center font-bold text-gray-500 uppercase tracking-wider w-28">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {docs.length > 0 ? (
-                docs.map((doc, index) => {
-                  const src = (doc.source || (doc.type === 'generate' ? 'generate' : 'upload')).toLowerCase();
-                  return (
-                    <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-3.5 whitespace-nowrap text-gray-500 font-medium">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-3.5 text-gray-900">
-                        <div className="flex items-start space-x-2.5">
-                          <DocumentTextIcon 
-                            className={`h-5 w-5 mt-0.5 shrink-0 ${
-                              src === 'upload' ? 'text-orange-500' : 
-                              src === 'nadine' ? 'text-blue-500' : 'text-green-600'
-                            }`} 
-                          />
-                          <div className="min-w-0">
-                            <span className="block font-bold text-gray-900 hover:text-blue-600 cursor-pointer" onClick={() => setPreviewDoc(doc)}>
-                              {doc.name}
-                            </span>
-                            {doc.kategori && (
-                              <span className="inline-block bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200 mt-1 mr-2">
-                                {doc.kategori}
-                              </span>
-                            )}
-                            {doc.deskripsi && (
-                              <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
-                                {doc.deskripsi}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-3.5 whitespace-nowrap text-gray-600">
-                        {doc.nomor ? (
-                          <span className="block font-semibold text-gray-800">{doc.nomor}</span>
-                        ) : (
-                          <span className="text-gray-400 font-light italic">-</span>
-                        )}
-                        {doc.tanggal && (
-                          <span className="text-[11px] text-gray-400 block mt-0.5">{doc.tanggal}</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-3.5 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                          src === 'upload' ? 'bg-orange-100 text-orange-700 border border-orange-200' : 
-                          src === 'nadine' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 
-                          'bg-green-100 text-green-700 border border-green-200'
-                        }`}>
-                          {src}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3.5 whitespace-nowrap text-center space-x-1.5">
-                        <button 
-                          type="button"
-                          onClick={() => setPreviewDoc(doc)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                          title="Lihat Dokumen"
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={() => onShowNotification?.(`Mengunduh berkas ${doc.name}...`, 'info')}
-                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-                          title="Unduh Dokumen"
-                        >
-                          <DownloadIcon className="h-4 w-4" />
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={() => onDeleteDocument(doc.id)}
-                          className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
-                          title="Hapus Dokumen"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">
-                    Belum ada dokumen yang tersedia pada bagian ini.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        }
+      />
     );
   };
 
@@ -2579,6 +2333,20 @@ const DokumenOrganizerModal: React.FC<DokumenOrganizerModalProps> = ({
                   value={deskripsiDokumen}
                   onChange={(e) => setDeskripsiDokumen(e.target.value)}
                   placeholder="Keterangan singkat relevansi dokumen..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center justify-between">
+                  <span>Tags / Label</span>
+                  <span className="text-[10px] text-gray-400 font-normal">Pisahkan dengan koma</span>
+                </label>
+                <input 
+                  type="text"
+                  value={tagsDokumen}
+                  onChange={(e) => setTagsDokumen(e.target.value)}
+                  placeholder="Contoh: Telaahan, Kajian Yuridis, Penting"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs bg-white"
                 />
               </div>

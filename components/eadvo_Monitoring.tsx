@@ -11,6 +11,7 @@ import {
 import Breadcrumb from './Breadcrumb';
 import { CariDokumen } from './eadvo_CariDokumen';
 import { useAdvokasiStore } from '../useAdvokasiStore';
+import { DetailTelaahan } from './eadvo_DetailTelaahan';
 import { 
     BarChart, 
     Bar, 
@@ -27,7 +28,7 @@ import {
 
 interface MonitoringProps {
     currentView: View;
-    onNavigate: (view: View) => void;
+    onNavigate: (view: View, record?: any) => void;
 }
 
 const FilterIconPlaceholder = (props: any) => (
@@ -47,17 +48,23 @@ const PrinterIconPlaceholder = (props: any) => (
     const FILTER_OPTIONS = {
         tahunMasuk: ['2026', '2025', '2024', '2023', '2022', '2021'],
         unitInstansi: ['Setjen', 'Itjen', 'DJP', 'DJBC', 'DJPK', 'DJKN', 'DJPb', 'BKF', 'BPPK'],
-        unitPemohon: ['Setjen', 'Itjen', 'DJP', 'DJBC', 'DJPK', 'DJKN'],
-        unitPemanggil: ['Kejari', 'Kejati', 'Polres', 'Polda', 'KPK'],
-        jenisPerkara: ['Perdata', 'Pidana', 'TUN', 'Uji Materiil', 'PHI'],
-        pokokPerkara: ['Keuangan Negara', 'Aset Negara', 'Kepegawaian', 'Kontrak', 'PMH'],
+        unitPemohon: ['Setjen', 'Itjen', 'DJP', 'DJBC', 'DJPK', 'DJKN', 'DJPb'],
+        unitPemanggil: ['Kejaksaan', 'Kepolisian', 'KPK', 'BPK', 'Kejari', 'Kejati', 'Polres', 'Polda'],
+        jenisPerkara: ['Perdata', 'Pidana', 'TUN', 'Kepabeanan', 'Uji Materiil', 'PHI'],
+        pokokPerkara: ['Kekayaan Negara', 'Perpajakan', 'Kepabeanan', 'Kepegawaian', 'Regulasi', 'Aset Negara', 'PMH', 'Kontrak'],
         wilayah: ['Pusat', 'Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Bali & Nusa Tenggara', 'Maluku & Papua'],
-        pengadilan: ['PN Jakarta Pusat', 'PN Jakarta Selatan', 'PTUN Jakarta', 'MA', 'MK'],
-        objekTuntutan: ['Ganti Rugi Materil', 'Ganti Rugi Immateril', 'Pembatalan SK', 'Pemulihan Aset'],
+        pengadilan: ['PTUN Jakarta', 'PN Jakarta Pusat', 'PN Jakarta Selatan', 'PTUN Surabaya', 'Mahkamah Agung', 'Pengadilan Tinggi Sabang'],
+        objekTuntutan: ['Ganti Rugi Materil', 'Ganti Rugi Immateril', 'Pembatalan SK', 'Pemulihan Aset', 'Non-Materiil'],
         posisiPerkara: ['Tingkat Pertama', 'Banding', 'Kasasi', 'Peninjauan Kembali'],
-        posisiKasus: ['Saksi', 'Tersangka', 'Terdakwa', 'Teradu'],
-        status: ['Aktif', 'Selesai', 'Dihentikan', 'Mediasi'],
-        pic: ['Admin Tuban Kum', 'Dedi Irawan', 'Rini Astuti', 'Budi Santoso']
+        posisiKasus: ['Penyelidikan', 'Penyidikan', 'Pemeriksaan Saksi', 'Pemeriksaan BPK', 'Klarifikasi', 'Persidangan'],
+        status: ['Aktif', 'Selesai'],
+        statusBHT: ['Inkracht', 'Belum Inkracht', 'Banding', 'Kasasi', 'Peninjauan Kembali'],
+        amarPutusan: ['Menang', 'Kalah', 'Sebagian Dikabulkan', 'NO'],
+        agendaSidang: ['Mediasi', 'Jawaban', 'Replik', 'Duplik', 'Pembuktian', 'Saksi', 'Kesimpulan', 'Pembacaan Putusan'],
+        statusSidang: ['Terjadwal', 'Selesai', 'Ditunda'],
+        tingkatSidang: ['Tingkat Pertama', 'Banding', 'Kasasi', 'Peninjauan Kembali'],
+        risiko: ['Tinggi', 'Sedang', 'Rendah'],
+        pic: ['Sukiyem', 'Andi Pratama', 'Budi Santoso', 'Citra Lestari', 'Joko']
     };
 
     const MultiSelectDropdown: React.FC<{
@@ -150,23 +157,51 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
     const [kelengkapanPage, setKelengkapanPage] = useState(1);
     const [selectedAuditRecordForModal, setSelectedAuditRecordForModal] = useState<any | null>(null);
 
-    const [filters, setFilters] = useState({
+    // States for Modul Monitoring Perkara
+    const [perkaraSearch, setPerkaraSearch] = useState('');
+    const [perkaraPage, setPerkaraPage] = useState(1);
+    const [selectedPerkaraDetail, setSelectedPerkaraDetail] = useState<any | null>(null);
+
+    // States for Modul Monitoring Pendampingan
+    const [pendampinganSearch, setPendampinganSearch] = useState('');
+    const [pendampinganPage, setPendampinganPage] = useState(1);
+    const [selectedPendampinganDetail, setSelectedPendampinganDetail] = useState<any | null>(null);
+
+    // States for Modul Monitoring Putusan
+    const [putusanSearch, setPutusanSearch] = useState('');
+    const [putusanPage, setPutusanPage] = useState(1);
+    const [selectedPutusanDetail, setSelectedPutusanDetail] = useState<any | null>(null);
+
+    // States for Modul Monitoring Persidangan
+    const [persidanganSearch, setPersidanganSearch] = useState('');
+    const [persidanganPage, setPersidanganPage] = useState(1);
+    const [selectedPersidanganDetail, setSelectedPersidanganDetail] = useState<any | null>(null);
+
+    const initialFilters = {
         tahunMasuk: [] as string[],
         startDate: '',
         endDate: '',
-        unitInstansi: [] as string[], // Used for Perkara
+        unitInstansi: [] as string[], // Used for Perkara, Putusan, Persidangan
         unitPemohon: [] as string[],   // For Pendampingan
         unitPemanggil: [] as string[],  // For Pendampingan
         jenisPerkara: [] as string[],   // For Perkara
         pokokPerkara: [] as string[],
         wilayah: [] as string[],
-        pengadilan: [] as string[],      // For Perkara
+        pengadilan: [] as string[],      // For Perkara & Persidangan
         objekTuntutan: [] as string[],   // For Perkara
-        posisiPerkara: [] as string[],
+        posisiPerkara: [] as string[],   // For Perkara & Putusan
         posisiKasus: [] as string[],     // For Pendampingan
-        status: [] as string[],
-        pic: [] as string[]
-    });
+        status: [] as string[],          // For Perkara, Pendampingan, Putusan
+        pic: [] as string[],
+        statusBHT: [] as string[],       // For Putusan
+        amarPutusan: [] as string[],     // For Putusan
+        agendaSidang: [] as string[],    // For Persidangan
+        statusSidang: [] as string[],    // For Persidangan
+        tingkatSidang: [] as string[],   // For Persidangan
+        risiko: [] as string[],          // For Perkara
+    };
+
+    const [filters, setFilters] = useState(initialFilters);
 
     const statsData = {
         permohonan: { total: 156, active: { count: 42, trend: 'up' as const, percent: 12 }, selesai: { count: 114, trend: 'up' as const, percent: 8 } },
@@ -565,23 +600,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
 
                         <div className="flex items-end lg:col-span-1">
                             <button 
-                                onClick={() => setFilters({
-                                    tahunMasuk: [],
-                                    startDate: '',
-                                    endDate: '',
-                                    unitInstansi: [],
-                                    unitPemohon: [],
-                                    unitPemanggil: [],
-                                    jenisPerkara: [],
-                                    pokokPerkara: [],
-                                    wilayah: [],
-                                    pengadilan: [],
-                                    objekTuntutan: [],
-                                    posisiPerkara: [],
-                                    posisiKasus: [],
-                                    status: [],
-                                    pic: []
-                                })}
+                                onClick={() => setFilters(initialFilters)}
                                 className="w-full text-center p-3 text-red-500 hover:bg-red-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors border border-dashed border-red-200"
                             >
                                 Reset Semua Filter
@@ -611,172 +630,2269 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
         </div>
     );
 
-    const renderMonitoringTable = (title: string, columns: string[]) => (
-        <div className="space-y-6">
-             <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
-             <div className="flex justify-between items-end px-2">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800 tracking-tight">{title}</h1>
-                    <p className="text-gray-500 text-sm mt-1">Monitoring update data penanganan.</p>
-                </div>
-                <div className="flex space-x-2">
-                    <button 
-                        onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg transition text-sm font-semibold shadow-sm focus:ring-2 focus:ring-blue-100 border ${isFilterOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'}`}
-                    >
-                        <FilterIconPlaceholder className="h-4 w-4" />
-                        <span>Filter</span>
-                    </button>
-                    <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg flex items-center justify-center space-x-2 transition text-sm font-semibold shadow-sm">
-                        <DownloadIcon className="h-4 w-4" />
-                        <span>Ekspor</span>
-                    </button>
-                </div>
-            </div>
+    // ==========================================
+    // UTILITY HELPERS FOR MONITORING
+    // ==========================================
+    const isDateInRange = (dateStr?: string, start?: string, end?: string): boolean => {
+        if (!start && !end) return true;
+        if (!dateStr) return false;
+        let d: Date;
+        if (dateStr.includes('/')) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                d = new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+            } else {
+                d = new Date(dateStr);
+            }
+        } else {
+            d = new Date(dateStr);
+        }
+        if (isNaN(d.getTime())) return true;
+        if (start) {
+            const startDate = new Date(start);
+            if (d < startDate) return false;
+        }
+        if (end) {
+            const endDate = new Date(end);
+            endDate.setHours(23, 59, 59, 999);
+            if (d > endDate) return false;
+        }
+        return true;
+    };
 
-            {isFilterOpen && (
-                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm animate-in slide-in-from-top-2 duration-300">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <div className="space-y-4">
-                            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Periode</label>
-                            <div className="flex flex-col space-y-2">
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-[10px] text-gray-500 w-8">Dari</span>
-                                    <input 
-                                        type="date" 
-                                        className="flex-1 px-3 py-1.5 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-100 outline-none"
-                                        value={filters.startDate}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-[10px] text-gray-500 w-8">Sampai</span>
-                                    <input 
-                                        type="date" 
-                                        className="flex-1 px-3 py-1.5 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-100 outline-none"
-                                        value={filters.endDate}
-                                        onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
-                                    />
-                                </div>
-                                {(filters.startDate || filters.endDate) && (
-                                    <button 
-                                        onClick={() => setFilters(prev => ({ ...prev, startDate: '', endDate: '' }))}
-                                        className="text-[10px] text-blue-600 hover:text-blue-800 font-semibold text-right"
-                                    >
-                                        Reset Tanggal
-                                    </button>
-                                )}
+    const isUnitMatch = (unit?: string, selectedUnits: string[] = []): boolean => {
+        if (!selectedUnits || selectedUnits.length === 0) return true;
+        const lower = (unit || '').toLowerCase();
+        return selectedUnits.some(u => {
+            const uLower = u.toLowerCase();
+            if (lower.includes(uLower)) return true;
+            if (u === 'DJP' && (lower.includes('pajak') || lower.includes('djp'))) return true;
+            if (u === 'DJBC' && (lower.includes('bea') || lower.includes('cukai') || lower.includes('djbc'))) return true;
+            if (u === 'DJKN' && (lower.includes('kekayaan') || lower.includes('djkn') || lower.includes('kpknl'))) return true;
+            if (u === 'DJPb' && (lower.includes('perbendaharaan') || lower.includes('djpb') || lower.includes('kppn'))) return true;
+            if (u === 'Setjen' && (lower.includes('sekretariat') || lower.includes('setjen') || lower.includes('biro advokasi'))) return true;
+            if (u === 'Itjen' && (lower.includes('inspektorat') || lower.includes('itjen'))) return true;
+            if (u === 'DJPK' && lower.includes('djpk')) return true;
+            if (u === 'BKF' && lower.includes('bkf')) return true;
+            return false;
+        });
+    };
+
+    const isPemanggilMatch = (pemanggil?: string, selectedPemanggil: string[] = []): boolean => {
+        if (!selectedPemanggil || selectedPemanggil.length === 0) return true;
+        const lower = (pemanggil || '').toLowerCase();
+        return selectedPemanggil.some(p => {
+            const pLower = p.toLowerCase();
+            if (lower.includes(pLower)) return true;
+            if (p === 'Kejaksaan' && (lower.includes('kejaksaan') || lower.includes('kejari') || lower.includes('kejati') || lower.includes('jampidsus'))) return true;
+            if (p === 'Kepolisian' && (lower.includes('polisi') || lower.includes('polres') || lower.includes('polda') || lower.includes('bareskrim'))) return true;
+            if (p === 'BPK' && lower.includes('bpk')) return true;
+            if (p === 'KPK' && lower.includes('kpk')) return true;
+            if (p === 'Kejari' && lower.includes('kejari')) return true;
+            if (p === 'Kejati' && lower.includes('kejati')) return true;
+            if (p === 'Polres' && lower.includes('polres')) return true;
+            if (p === 'Polda' && lower.includes('polda')) return true;
+            return false;
+        });
+    };
+
+    const formatRupiah = (val?: number): string => {
+        if (!val || isNaN(val)) return 'Rp 0';
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+    };
+
+    const exportToCSV = (filename: string, headers: string[], rows: (string | number)[][]) => {
+        const escapeCell = (val: string | number) => {
+            const str = String(val ?? '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+        const csvContent = '\uFEFF' + [
+            headers.map(escapeCell).join(','),
+            ...rows.map(r => r.map(escapeCell).join(','))
+        ].join('\r\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${filename}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    // ==========================================
+    // 1. MONITORING PERKARA
+    // ==========================================
+    const renderMonitoringPerkara = () => {
+        const getTahapan = (rec: any) => {
+            if (rec.posisiSidang?.tkPK && rec.posisiSidang.tkPK.length > 0) return 'Peninjauan Kembali';
+            if (rec.posisiSidang?.tkKasasi && rec.posisiSidang.tkKasasi.length > 0) return 'Kasasi';
+            if (rec.posisiSidang?.tkBanding && rec.posisiSidang.tkBanding.length > 0) return 'Banding';
+            return 'Tingkat Pertama';
+        };
+
+        const getTotalTuntutan = (rec: any) => {
+            return (rec.tuntutan || []).reduce((acc: number, t: any) => acc + (t.jumlahNominal || 0), 0);
+        };
+
+        const filteredPerkara = perkaraRecords.filter(rec => {
+            // Search text
+            if (perkaraSearch) {
+                const q = perkaraSearch.toLowerCase();
+                const matchNomor = (rec.Nomor || '').toLowerCase().includes(q) || (rec.abstraksiPerkara?.noPerkara || '').toLowerCase().includes(q);
+                const matchPerihal = (rec.perihal || '').toLowerCase().includes(q) || (rec.uraian || '').toLowerCase().includes(q);
+                const matchUnit = (rec.unit || '').toLowerCase().includes(q) || (rec.pemohon || '').toLowerCase().includes(q);
+                const matchPenggugat = (rec.pihakP || []).some((p: any) => (p.identitas || '').toLowerCase().includes(q));
+                const matchTergugat = (rec.pihakT || []).some((t: any) => (t.identitas || '').toLowerCase().includes(q));
+                if (!matchNomor && !matchPerihal && !matchUnit && !matchPenggugat && !matchTergugat) return false;
+            }
+
+            // Periode
+            const tgl = rec.abstraksiPerkara?.tanggalPendaftaranGugatan || rec.tanggal;
+            if (!isDateInRange(tgl, filters.startDate, filters.endDate)) return false;
+
+            // Tahun Masuk
+            if (filters.tahunMasuk.length > 0) {
+                const thn = String(rec.abstraksiPerkara?.tahunMasuk || (rec.tanggal ? rec.tanggal.slice(-4) : ''));
+                if (!filters.tahunMasuk.includes(thn)) return false;
+            }
+
+            // Unit Instansi
+            if (!isUnitMatch(rec.unit || rec.pemohon, filters.unitInstansi)) return false;
+
+            // Jenis Perkara
+            if (filters.jenisPerkara.length > 0) {
+                const jp = rec.abstraksiPerkara?.jenisPerkara || '';
+                if (!filters.jenisPerkara.some(f => jp.toLowerCase().includes(f.toLowerCase()))) return false;
+            }
+
+            // Pokok Perkara
+            if (filters.pokokPerkara.length > 0) {
+                const pp = rec.abstraksiPerkara?.jenisPokokPerkara || '';
+                if (!filters.pokokPerkara.some(f => pp.toLowerCase().includes(f.toLowerCase()))) return false;
+            }
+
+            // Tingkat Pengadilan / Tahapan
+            if (filters.posisiPerkara.length > 0) {
+                const tahapan = getTahapan(rec);
+                if (!filters.posisiPerkara.includes(tahapan)) return false;
+            }
+
+            // Pengadilan
+            if (filters.pengadilan.length > 0) {
+                const peng = (rec.abstraksiPerkara?.pengadilan || '').toLowerCase();
+                if (!filters.pengadilan.some(f => peng.includes(f.toLowerCase()))) return false;
+            }
+
+            // Wilayah
+            if (filters.wilayah.length > 0) {
+                const wil = (rec.abstraksiPerkara?.wilayah || '').toLowerCase();
+                if (!filters.wilayah.some(f => wil.includes(f.toLowerCase()))) return false;
+            }
+
+            // Status
+            if (filters.status.length > 0) {
+                const st = rec.statusPerkara || 'Aktif';
+                if (!filters.status.includes(st)) return false;
+            }
+
+            // Risiko
+            if (filters.risiko.length > 0) {
+                const rsk = rec.analisisPerkara?.risiko || 'Sedang';
+                if (!filters.risiko.includes(rsk)) return false;
+            }
+
+            return true;
+        });
+
+        // Pagination
+        const pageSize = 10;
+        const totalPages = Math.ceil(filteredPerkara.length / pageSize) || 1;
+        const displayed = filteredPerkara.slice((perkaraPage - 1) * pageSize, perkaraPage * pageSize);
+
+        // Stats calculation
+        const totalAktif = perkaraRecords.filter(r => r.statusPerkara === 'Aktif').length;
+        const totalSelesai = perkaraRecords.filter(r => r.statusPerkara === 'Selesai').length;
+        const totalTuntutanAll = perkaraRecords.reduce((acc, r) => acc + getTotalTuntutan(r), 0);
+        const totalRisikoTinggi = perkaraRecords.filter(r => r.analisisPerkara?.risiko === 'Tinggi').length;
+
+        // Active filter counter
+        const activeFilterCount = (filters.startDate || filters.endDate ? 1 : 0) +
+            filters.tahunMasuk.length + filters.unitInstansi.length + filters.jenisPerkara.length +
+            filters.pokokPerkara.length + filters.posisiPerkara.length + filters.pengadilan.length +
+            filters.wilayah.length + filters.status.length + filters.risiko.length;
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-2">
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <span className="p-2 bg-blue-50 text-[#0055A5] rounded-xl border border-blue-100">
+                                <ShieldCheckIcon className="h-6 w-6" />
+                            </span>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Monitoring Penanganan Perkara</h1>
+                                <p className="text-gray-500 text-xs mt-0.5">Pemantauan perkara litigasi, klasifikasi pokok perkara, tahapan sidang, dan mitigasi risiko.</p>
                             </div>
                         </div>
+                    </div>
 
-                        {(currentView === 'eAdvokasiMonitoringPerkara') && (
-                            <MultiSelectDropdown 
-                                label="Unit Instansi" 
-                                options={FILTER_OPTIONS.unitInstansi} 
-                                selected={filters.unitInstansi} 
-                                onToggle={(val) => handleFilterToggle('unitInstansi', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, unitInstansi: [] }))}
+                    <div className="flex items-center space-x-2">
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <SearchIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari No. Perkara, Pihak, Unit..."
+                                value={perkaraSearch}
+                                onChange={(e) => { setPerkaraSearch(e.target.value); setPerkaraPage(1); }}
+                                className="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs w-64 focus:ring-2 focus:ring-blue-100 outline-none"
                             />
-                        )}
+                            {perkaraSearch && (
+                                <button onClick={() => setPerkaraSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <XIcon className="h-3.5 w-3.5" />
+                                </button>
+                            )}
+                        </div>
 
-                        {(currentView === 'eAdvokasiMonitoringPutusan' || currentView === 'eAdvokasiMonitoringPerkara' || currentView === 'eAdvokasiMonitoringRisikoHukum') && (
-                            <MultiSelectDropdown 
-                                label="Jenis Perkara" 
-                                options={FILTER_OPTIONS.jenisPerkara} 
-                                selected={filters.jenisPerkara} 
-                                onToggle={(val) => handleFilterToggle('jenisPerkara', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, jenisPerkara: [] }))}
-                            />
-                        )}
+                        {/* Filter Toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition text-xs font-semibold shadow-xs border ${
+                                isFilterOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            <FilterIconPlaceholder className="h-4 w-4" />
+                            <span>Filter</span>
+                            {activeFilterCount > 0 && (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isFilterOpen ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </button>
 
-                        {(currentView === 'eAdvokasiMonitoringPutusan' || currentView === 'eAdvokasiMonitoringPerkara' || currentView === 'eAdvokasiMonitoringRisikoHukum') && (
-                            <MultiSelectDropdown 
-                                label="Pokok Perkara" 
-                                options={FILTER_OPTIONS.pokokPerkara} 
-                                selected={filters.pokokPerkara} 
-                                onToggle={(val) => handleFilterToggle('pokokPerkara', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, pokokPerkara: [] }))}
-                            />
-                        )}
-
-                        {(currentView === 'eAdvokasiMonitoringPerkara') && (
-                            <MultiSelectDropdown 
-                                label="Tingkat Pengadilan" 
-                                options={FILTER_OPTIONS.posisiPerkara} 
-                                selected={filters.posisiPerkara} 
-                                onToggle={(val) => handleFilterToggle('posisiPerkara', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, posisiPerkara: [] }))}
-                            />
-                        )}
-
-                        {(currentView === 'eAdvokasiMonitoringPutusan' || currentView === 'eAdvokasiMonitoringRisikoHukum') && (
-                            <MultiSelectDropdown 
-                                label="Objek Tuntutan" 
-                                options={FILTER_OPTIONS.objekTuntutan} 
-                                selected={filters.objekTuntutan} 
-                                onToggle={(val) => handleFilterToggle('objekTuntutan', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, objekTuntutan: [] }))}
-                            />
-                        )}
-
-                        {(currentView === 'eAdvokasiMonitoringPerkara') && (
-                            <MultiSelectDropdown 
-                                label="Status" 
-                                options={FILTER_OPTIONS.status} 
-                                selected={filters.status} 
-                                onToggle={(val) => handleFilterToggle('status', val)} 
-                                onReset={() => setFilters(prev => ({ ...prev, status: [] }))}
-                            />
-                        )}
+                        {/* Ekspor CSV */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const headers = ['No', 'Nomor Perkara', 'Tgl Pendaftaran', 'Unit Instansi', 'Penggugat', 'Tergugat', 'Jenis Perkara', 'Pokok Perkara', 'Tahapan', 'Pengadilan', 'Nilai Tuntutan', 'Risiko', 'Status'];
+                                const rows = filteredPerkara.map((r, i) => [
+                                    i + 1,
+                                    r.abstraksiPerkara?.noPerkara || r.Nomor,
+                                    r.abstraksiPerkara?.tanggalPendaftaranGugatan || r.tanggal,
+                                    r.unit || '-',
+                                    (r.pihakP || []).map((p: any) => p.identitas).join('; ') || '-',
+                                    (r.pihakT || []).map((t: any) => t.identitas).join('; ') || '-',
+                                    r.abstraksiPerkara?.jenisPerkara || '-',
+                                    r.abstraksiPerkara?.jenisPokokPerkara || '-',
+                                    getTahapan(r),
+                                    r.abstraksiPerkara?.pengadilan || '-',
+                                    getTotalTuntutan(r),
+                                    r.analisisPerkara?.risiko || 'Sedang',
+                                    r.statusPerkara || 'Aktif'
+                                ]);
+                                exportToCSV('Monitoring_Perkara_' + new Date().toISOString().slice(0, 10), headers, rows);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg flex items-center justify-center space-x-1.5 transition text-xs font-semibold shadow-xs"
+                        >
+                            <DownloadIcon className="h-4 w-4" />
+                            <span>Ekspor CSV</span>
+                        </button>
                     </div>
                 </div>
-            )}
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50/50 border-b border-gray-100">
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">No</th>
-                                {columns.map((col, idx) => (
-                                    <th key={idx} className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                        {col}
-                                    </th>
-                                ))}
-                                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {[1, 2, 3, 4, 5, 6, 7].map((item) => (
-                                <tr key={item} className="group hover:bg-blue-50/30 transition-colors">
-                                    <td className="px-8 py-5 text-sm font-bold text-gray-300">{item}</td>
-                                    {columns.map((_, idx) => (
-                                        <td key={idx} className="px-8 py-5">
-                                            <div className="h-2 bg-gray-100 group-hover:bg-blue-100 rounded-full w-24 transition-colors"></div>
-                                        </td>
-                                    ))}
-                                    <td className="px-8 py-5 text-center">
-                                        <button className="text-blue-600 hover:bg-blue-600 hover:text-white p-2.5 rounded-xl transition-all shadow-sm hover:shadow-blue-200">
-                                            <EyeIcon className="h-4 w-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Perkara</div>
+                        <div className="text-xl font-black text-gray-800 mt-1">{perkaraRecords.length}</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">Database E-Advokasi</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-blue-100 bg-blue-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Perkara Aktif</div>
+                        <div className="text-xl font-black text-blue-700 mt-1">{totalAktif}</div>
+                        <div className="text-[10px] text-blue-600/80 mt-0.5">Proses persidangan</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Perkara Selesai</div>
+                        <div className="text-xl font-black text-emerald-700 mt-1">{totalSelesai}</div>
+                        <div className="text-[10px] text-emerald-600/80 mt-0.5">Sudah inkracht / selesai</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-amber-100 bg-amber-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Total Tuntutan</div>
+                        <div className="text-lg font-black text-amber-700 mt-1 truncate" title={formatRupiah(totalTuntutanAll)}>
+                            {formatRupiah(totalTuntutanAll)}
+                        </div>
+                        <div className="text-[10px] text-amber-600/80 mt-0.5">Potensi kerugian negara</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-rose-100 bg-rose-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Risiko Tinggi</div>
+                        <div className="text-xl font-black text-rose-700 mt-1">{totalRisikoTinggi}</div>
+                        <div className="text-[10px] text-rose-600/80 mt-0.5">Perlu perhatian intensif</div>
+                    </div>
                 </div>
-                <div className="p-6 bg-gray-50/30 border-t border-gray-100 flex justify-between items-center px-8">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Showing 7 of 124 Results</span>
-                    <div className="flex space-x-2">
-                        <button className="px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-400 text-xs font-black cursor-not-allowed">PREV</button>
-                        <button className="px-4 py-2 bg-[#0055A5] text-white rounded-xl text-xs font-black shadow-lg shadow-blue-100">1</button>
-                        <button className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-xs font-black hover:bg-gray-50 transition">2</button>
-                        <button className="px-4 py-2 border border-gray-200 rounded-xl bg-white text-gray-600 text-xs font-black hover:bg-gray-50 transition">NEXT</button>
+
+                {/* Filter Box */}
+                {isFilterOpen && (
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-in slide-in-from-top-2 duration-300 space-y-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <span className="text-xs font-bold text-gray-700 flex items-center space-x-1.5">
+                                <FilterIconPlaceholder className="h-4 w-4 text-blue-600" />
+                                <span>Filter Lanjutan Monitoring Perkara</span>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setFilters(initialFilters)}
+                                className="text-xs font-bold text-blue-600 hover:text-blue-800"
+                            >
+                                Reset Semua Filter
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {/* Periode */}
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Periode Pendaftaran</label>
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Dari</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.startDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Sampai</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.endDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <MultiSelectDropdown
+                                label="Tahun Masuk"
+                                options={FILTER_OPTIONS.tahunMasuk}
+                                selected={filters.tahunMasuk}
+                                onToggle={(val) => handleFilterToggle('tahunMasuk', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, tahunMasuk: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Unit Instansi"
+                                options={FILTER_OPTIONS.unitInstansi}
+                                selected={filters.unitInstansi}
+                                onToggle={(val) => handleFilterToggle('unitInstansi', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, unitInstansi: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Jenis Perkara"
+                                options={FILTER_OPTIONS.jenisPerkara}
+                                selected={filters.jenisPerkara}
+                                onToggle={(val) => handleFilterToggle('jenisPerkara', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, jenisPerkara: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Pokok Perkara"
+                                options={FILTER_OPTIONS.pokokPerkara}
+                                selected={filters.pokokPerkara}
+                                onToggle={(val) => handleFilterToggle('pokokPerkara', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, pokokPerkara: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Tingkat Pengadilan / Tahapan"
+                                options={FILTER_OPTIONS.posisiPerkara}
+                                selected={filters.posisiPerkara}
+                                onToggle={(val) => handleFilterToggle('posisiPerkara', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, posisiPerkara: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Pengadilan"
+                                options={FILTER_OPTIONS.pengadilan}
+                                selected={filters.pengadilan}
+                                onToggle={(val) => handleFilterToggle('pengadilan', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, pengadilan: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Tingkat Risiko"
+                                options={FILTER_OPTIONS.risiko}
+                                selected={filters.risiko}
+                                onToggle={(val) => handleFilterToggle('risiko', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, risiko: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Status Perkara"
+                                options={FILTER_OPTIONS.status}
+                                selected={filters.status}
+                                onToggle={(val) => handleFilterToggle('status', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, status: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Wilayah Hukum"
+                                options={FILTER_OPTIONS.wilayah}
+                                selected={filters.wilayah}
+                                onToggle={(val) => handleFilterToggle('wilayah', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, wilayah: [] }))}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Table Perkara */}
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-gray-200">
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 w-12 text-center">No</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">No. Perkara & Tanggal</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Unit Instansi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Para Pihak</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Klasifikasi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Nilai Tuntutan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Tahapan & Pengadilan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Risiko</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Status</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {displayed.length > 0 ? (
+                                    displayed.map((rec, idx) => {
+                                        const totalNominal = getTotalTuntutan(rec);
+                                        const tahapan = getTahapan(rec);
+                                        const rsk = rec.analisisPerkara?.risiko || 'Sedang';
+                                        return (
+                                            <tr key={rec.id} className="hover:bg-blue-50/20 transition-colors">
+                                                <td className="px-4 py-3 text-center text-gray-400 font-semibold">
+                                                    {(perkaraPage - 1) * pageSize + idx + 1}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-bold text-gray-900">{rec.abstraksiPerkara?.noPerkara || rec.Nomor}</div>
+                                                    <div className="text-[11px] text-gray-400 mt-0.5">{rec.abstraksiPerkara?.tanggalPendaftaranGugatan || rec.tanggal || '-'}</div>
+                                                    {rec.abstraksiPerkara?.nomorSuratKuasaKhusus && (
+                                                        <div className="text-[10px] font-mono text-blue-700 bg-blue-50 inline-block px-1.5 py-0.2 rounded mt-1 border border-blue-100">
+                                                            {rec.abstraksiPerkara.nomorSuratKuasaKhusus}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-semibold text-gray-800">{rec.unit || '-'}</div>
+                                                    <div className="text-[11px] text-gray-400 truncate max-w-[160px]">{rec.pemohon || '-'}</div>
+                                                </td>
+                                                <td className="px-4 py-3 max-w-[200px]">
+                                                    <div className="text-gray-900 truncate" title={(rec.pihakP || []).map((p: any) => p.identitas).join(', ')}>
+                                                        <span className="font-bold text-blue-600">P: </span>
+                                                        {(rec.pihakP && rec.pihakP.length > 0) ? rec.pihakP.map((p: any) => p.identitas).join(', ') : '-'}
+                                                    </div>
+                                                    <div className="text-gray-600 text-[11px] truncate mt-0.5" title={(rec.pihakT || []).map((t: any) => t.identitas).join(', ')}>
+                                                        <span className="font-bold text-amber-600">T: </span>
+                                                        {(rec.pihakT && rec.pihakT.length > 0) ? rec.pihakT.map((t: any) => t.identitas).join(', ') : '-'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
+                                                        {rec.abstraksiPerkara?.jenisPerkara || 'Perdata'}
+                                                    </span>
+                                                    <div className="text-[11px] text-gray-500 mt-1 truncate max-w-[140px]">
+                                                        {rec.abstraksiPerkara?.jenisPokokPerkara || '-'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-bold text-gray-900">
+                                                        {totalNominal > 0 ? formatRupiah(totalNominal) : 'Non-Materiil'}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-400">
+                                                        {(rec.tuntutan || []).length} Tuntutan
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded text-[11px] border border-blue-100">
+                                                        {tahapan}
+                                                    </span>
+                                                    <div className="text-[11px] text-gray-500 mt-1 truncate max-w-[160px]">
+                                                        {rec.abstraksiPerkara?.pengadilan || '-'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                        rsk === 'Tinggi' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
+                                                        rsk === 'Sedang' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                                                        'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                                    }`}>
+                                                        {rsk}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                                        rec.statusPerkara === 'Aktif' 
+                                                            ? 'bg-blue-100 text-blue-800' 
+                                                            : 'bg-emerald-100 text-emerald-800'
+                                                    }`}>
+                                                        {rec.statusPerkara || 'Aktif'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedPerkaraDetail(rec)}
+                                                        className="text-blue-600 hover:text-white hover:bg-blue-600 p-2 rounded-lg transition border border-blue-200 hover:border-blue-600 shadow-2xs"
+                                                        title="Lihat Detail Monitoring Perkara"
+                                                    >
+                                                        <EyeIcon className="h-4 w-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                ) : (
+                                    <tr>
+                                        <td colSpan={10} className="px-6 py-12 text-center text-gray-400">
+                                            Tidak ada data penanganan perkara yang cocok dengan parameter filter yang dipilih.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center px-6 text-xs text-gray-500">
+                        <span>Menampilkan <strong className="text-gray-700">{filteredPerkara.length === 0 ? 0 : (perkaraPage - 1) * pageSize + 1}</strong> - <strong className="text-gray-700">{Math.min(perkaraPage * pageSize, filteredPerkara.length)}</strong> dari <strong className="text-gray-700">{filteredPerkara.length}</strong> Perkara</span>
+                        <div className="flex items-center space-x-1.5">
+                            <button
+                                disabled={perkaraPage === 1}
+                                onClick={() => setPerkaraPage(p => p - 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                PREV
+                            </button>
+                            <span className="font-bold text-gray-700 px-2">{perkaraPage} / {totalPages}</span>
+                            <button
+                                disabled={perkaraPage >= totalPages}
+                                onClick={() => setPerkaraPage(p => p + 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                NEXT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modal Detail Perkara */}
+                {selectedPerkaraDetail && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                        <ShieldCheckIcon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-gray-900">Detail Monitoring Perkara</h3>
+                                        <span className="text-xs text-gray-500">{selectedPerkaraDetail.abstraksiPerkara?.noPerkara || selectedPerkaraDetail.Nomor}</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedPerkaraDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
+                                    <XIcon className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Perihal Gugatan</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.perihal || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Pengadilan & Wilayah</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.abstraksiPerkara?.pengadilan || '-'} ({selectedPerkaraDetail.abstraksiPerkara?.wilayah || '-'})</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Unit Tergugat</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.unit || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Nilai Tuntutan Finansial</span>
+                                        <p className="font-semibold text-amber-700 mt-0.5">{formatRupiah(getTotalTuntutan(selectedPerkaraDetail))}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-bold text-gray-700 mb-2 uppercase text-[11px]">Para Pihak Berperkara</h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="p-3 bg-blue-50/40 border border-blue-100 rounded-lg">
+                                            <span className="text-blue-700 font-bold block mb-1">Pihak Penggugat (P)</span>
+                                            {(selectedPerkaraDetail.pihakP || []).map((p: any, i: number) => (
+                                                <div key={i} className="text-gray-700 font-medium">{p.pihak}: {p.identitas}</div>
+                                            ))}
+                                        </div>
+                                        <div className="p-3 bg-amber-50/40 border border-amber-100 rounded-lg">
+                                            <span className="text-amber-700 font-bold block mb-1">Pihak Tergugat (T)</span>
+                                            {(selectedPerkaraDetail.pihakT || []).map((t: any, i: number) => (
+                                                <div key={i} className="text-gray-700 font-medium">{t.pihak}: {t.identitas}</div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {selectedPerkaraDetail.analisisPerkara && (
+                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-bold text-gray-800">Analisis Yuridis & Mitigasi Risiko</span>
+                                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                                                Risiko {selectedPerkaraDetail.analisisPerkara.risiko || 'Sedang'}
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600 leading-relaxed">{selectedPerkaraDetail.analisisPerkara.isuKrusial || selectedPerkaraDetail.analisisPerkara.analisaHukum || '-'}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const rec = selectedPerkaraDetail;
+                                        setSelectedPerkaraDetail(null);
+                                        onNavigate('eAdvokasiPerkaraDetail', rec);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
+                                >
+                                    Buka di Modul Penanganan Perkara &rarr;
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPerkaraDetail(null)}
+                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==========================================
+    // 2. MONITORING PENDAMPINGAN
+    // ==========================================
+    const renderMonitoringPendampingan = () => {
+        const getLatestPosisi = (rec: any) => {
+            if (!rec.posisi || rec.posisi.length === 0) return null;
+            return rec.posisi[rec.posisi.length - 1];
+        };
+
+        const filteredPendampingan = pendampinganRecords.filter(rec => {
+            // Search text
+            if (pendampinganSearch) {
+                const q = pendampinganSearch.toLowerCase();
+                const matchNomor = (rec.Nomor || '').toLowerCase().includes(q) || (rec.abstraksi?.nomorTiket || '').toLowerCase().includes(q);
+                const matchPokok = (rec.abstraksi?.pokokPermasalahan || '').toLowerCase().includes(q) || (rec.perihal || '').toLowerCase().includes(q) || (rec.uraian || '').toLowerCase().includes(q);
+                const matchPihak = (rec.abstraksi?.pihakDipanggil || '').toLowerCase().includes(q) || (rec.pemohon || '').toLowerCase().includes(q);
+                const matchUnit = (rec.unit || '').toLowerCase().includes(q) || (rec.abstraksi?.unitPemohon || '').toLowerCase().includes(q);
+                if (!matchNomor && !matchPokok && !matchPihak && !matchUnit) return false;
+            }
+
+            // Periode
+            if (!isDateInRange(rec.tanggal, filters.startDate, filters.endDate)) return false;
+
+            // Tahun Masuk
+            if (filters.tahunMasuk.length > 0) {
+                const thn = String(rec.abstraksi?.tahunMasuk || (rec.tanggal ? rec.tanggal.slice(-4) : ''));
+                if (!filters.tahunMasuk.includes(thn)) return false;
+            }
+
+            // Unit Pemohon
+            if (!isUnitMatch(rec.abstraksi?.unitPemohon || rec.unit, filters.unitPemohon)) return false;
+
+            // Unit Pemanggil
+            if (!isPemanggilMatch(rec.abstraksi?.unitPemanggil, filters.unitPemanggil)) return false;
+
+            // Posisi Kasus
+            if (filters.posisiKasus.length > 0) {
+                const lp = getLatestPosisi(rec);
+                const pk = lp?.posisiKasus || 'Penyelidikan';
+                if (!filters.posisiKasus.some(f => pk.toLowerCase().includes(f.toLowerCase()))) return false;
+            }
+
+            // Wilayah
+            if (filters.wilayah.length > 0) {
+                const wil = (rec.abstraksi?.wilayah || '').toLowerCase();
+                if (!filters.wilayah.some(f => wil.includes(f.toLowerCase()))) return false;
+            }
+
+            // Status
+            if (filters.status.length > 0) {
+                const st = rec.statusPendampingan || 'Aktif';
+                if (!filters.status.includes(st)) return false;
+            }
+
+            return true;
+        });
+
+        const pageSize = 10;
+        const totalPages = Math.ceil(filteredPendampingan.length / pageSize) || 1;
+        const displayed = filteredPendampingan.slice((pendampinganPage - 1) * pageSize, pendampinganPage * pageSize);
+
+        const totalAktif = pendampinganRecords.filter(r => r.statusPendampingan === 'Aktif').length;
+        const totalSelesai = pendampinganRecords.filter(r => r.statusPendampingan === 'Selesai').length;
+        const totalAgenda = pendampinganRecords.reduce((acc, r) => acc + (r.posisi?.length || 0), 0);
+        const totalKejaksaan = pendampinganRecords.filter(r => (r.abstraksi?.unitPemanggil || '').toLowerCase().includes('kejaksaan')).length;
+        const totalKepolisian = pendampinganRecords.filter(r => (r.abstraksi?.unitPemanggil || '').toLowerCase().includes('polisi')).length;
+
+        const activeFilterCount = (filters.startDate || filters.endDate ? 1 : 0) +
+            filters.tahunMasuk.length + filters.unitPemohon.length + filters.unitPemanggil.length +
+            filters.posisiKasus.length + filters.wilayah.length + filters.status.length;
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-2">
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <span className="p-2 bg-blue-50 text-[#0055A5] rounded-xl border border-blue-100">
+                                <UserGroupIcon className="h-6 w-6" />
+                            </span>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Monitoring Pendampingan Hukum</h1>
+                                <p className="text-gray-500 text-xs mt-0.5">Pemantauan asistensi pemanggilan saksi/ahli oleh instansi penegak hukum (Kejaksaan, Kepolisian, BPK, KPK).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="relative">
+                            <SearchIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari No. Tiket, Pihak, Masalah..."
+                                value={pendampinganSearch}
+                                onChange={(e) => { setPendampinganSearch(e.target.value); setPendampinganPage(1); }}
+                                className="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs w-64 focus:ring-2 focus:ring-blue-100 outline-none"
+                            />
+                            {pendampinganSearch && (
+                                <button onClick={() => setPendampinganSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <XIcon className="h-3.5 w-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition text-xs font-semibold shadow-xs border ${
+                                isFilterOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            <FilterIconPlaceholder className="h-4 w-4" />
+                            <span>Filter</span>
+                            {activeFilterCount > 0 && (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isFilterOpen ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const headers = ['No', 'Nomor Tiket', 'Tahun', 'Tgl Registrasi', 'Unit Pemohon', 'Instansi Pemanggil', 'Pihak Terpanggil', 'Pokok Permasalahan', 'Posisi Kasus', 'Status'];
+                                const rows = filteredPendampingan.map((r, i) => {
+                                    const lp = getLatestPosisi(r);
+                                    return [
+                                        i + 1,
+                                        r.abstraksi?.nomorTiket || r.Nomor,
+                                        r.abstraksi?.tahunMasuk || '-',
+                                        r.tanggal || '-',
+                                        r.abstraksi?.unitPemohon || r.unit || '-',
+                                        r.abstraksi?.unitPemanggil || '-',
+                                        r.abstraksi?.pihakDipanggil || '-',
+                                        r.abstraksi?.pokokPermasalahan || r.perihal || '-',
+                                        lp?.posisiKasus || 'Penyelidikan',
+                                        r.statusPendampingan || 'Aktif'
+                                    ];
+                                });
+                                exportToCSV('Monitoring_Pendampingan_' + new Date().toISOString().slice(0, 10), headers, rows);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg flex items-center justify-center space-x-1.5 transition text-xs font-semibold shadow-xs"
+                        >
+                            <DownloadIcon className="h-4 w-4" />
+                            <span>Ekspor CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Metric Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Pendampingan</div>
+                        <div className="text-xl font-black text-gray-800 mt-1">{pendampinganRecords.length}</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">Berkas permohonan</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-blue-100 bg-blue-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Pendampingan Aktif</div>
+                        <div className="text-xl font-black text-blue-700 mt-1">{totalAktif}</div>
+                        <div className="text-[10px] text-blue-600/80 mt-0.5">Sedang berjalan</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Selesai</div>
+                        <div className="text-xl font-black text-emerald-700 mt-1">{totalSelesai}</div>
+                        <div className="text-[10px] text-emerald-600/80 mt-0.5">Pemeriksaan rampung</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-purple-100 bg-purple-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-purple-600">Agenda Pemeriksaan</div>
+                        <div className="text-xl font-black text-purple-700 mt-1">{totalAgenda}</div>
+                        <div className="text-[10px] text-purple-600/80 mt-0.5">Total riwayat sesi</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-indigo-100 bg-indigo-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">APH Pemanggil</div>
+                        <div className="text-sm font-black text-indigo-700 mt-2 truncate">
+                            Kejaksaan: {totalKejaksaan} | Polri: {totalKepolisian}
+                        </div>
+                        <div className="text-[10px] text-indigo-600/80 mt-0.5">Distribusi instansi</div>
+                    </div>
+                </div>
+
+                {/* Filter Box */}
+                {isFilterOpen && (
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-in slide-in-from-top-2 duration-300 space-y-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <span className="text-xs font-bold text-gray-700 flex items-center space-x-1.5">
+                                <FilterIconPlaceholder className="h-4 w-4 text-blue-600" />
+                                <span>Filter Lanjutan Monitoring Pendampingan</span>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setFilters(initialFilters)}
+                                className="text-xs font-bold text-blue-600 hover:text-blue-800"
+                            >
+                                Reset Semua Filter
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Periode Masuk</label>
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Dari</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.startDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Sampai</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.endDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <MultiSelectDropdown
+                                label="Tahun Masuk"
+                                options={FILTER_OPTIONS.tahunMasuk}
+                                selected={filters.tahunMasuk}
+                                onToggle={(val) => handleFilterToggle('tahunMasuk', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, tahunMasuk: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Unit Pemohon"
+                                options={FILTER_OPTIONS.unitPemohon}
+                                selected={filters.unitPemohon}
+                                onToggle={(val) => handleFilterToggle('unitPemohon', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, unitPemohon: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Instansi Pemanggil"
+                                options={FILTER_OPTIONS.unitPemanggil}
+                                selected={filters.unitPemanggil}
+                                onToggle={(val) => handleFilterToggle('unitPemanggil', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, unitPemanggil: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Posisi Kasus"
+                                options={FILTER_OPTIONS.posisiKasus}
+                                selected={filters.posisiKasus}
+                                onToggle={(val) => handleFilterToggle('posisiKasus', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, posisiKasus: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Wilayah"
+                                options={FILTER_OPTIONS.wilayah}
+                                selected={filters.wilayah}
+                                onToggle={(val) => handleFilterToggle('wilayah', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, wilayah: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Status Pendampingan"
+                                options={FILTER_OPTIONS.status}
+                                selected={filters.status}
+                                onToggle={(val) => handleFilterToggle('status', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, status: [] }))}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Table Pendampingan */}
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-gray-200">
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 w-12 text-center">No</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">No. Tiket & Tahun</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Pihak Terkait</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Unit Pemohon</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Instansi Pemanggil</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Pokok Permasalahan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Progress & Posisi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Status</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {displayed.length > 0 ? (
+                                    displayed.map((rec, idx) => {
+                                        const lp = getLatestPosisi(rec);
+                                        return (
+                                            <tr key={rec.id} className="hover:bg-blue-50/20 transition-colors">
+                                                <td className="px-4 py-3 text-center text-gray-400 font-semibold">
+                                                    {(pendampinganPage - 1) * pageSize + idx + 1}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-bold text-gray-900">{rec.abstraksi?.nomorTiket || rec.Nomor}</div>
+                                                    <div className="text-[11px] text-gray-400 mt-0.5">Tahun {rec.abstraksi?.tahunMasuk || rec.tanggal?.slice(-4) || '2026'}</div>
+                                                    <div className="text-[10px] text-gray-400 mt-0.5">{rec.tanggal || '-'}</div>
+                                                </td>
+                                                <td className="px-4 py-3 max-w-[180px]">
+                                                    <div className="font-semibold text-gray-900 truncate" title={rec.abstraksi?.pihakDipanggil || rec.pemohon}>
+                                                        {rec.abstraksi?.pihakDipanggil || rec.pemohon || '-'}
+                                                    </div>
+                                                    <div className="text-[11px] text-gray-400 truncate mt-0.5">Wilayah: {rec.abstraksi?.wilayah || '-'}</div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="font-semibold text-gray-800">{rec.abstraksi?.unitPemohon || rec.unit || '-'}</div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                        {rec.abstraksi?.unitPemanggil || 'Kejaksaan'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 max-w-[220px]">
+                                                    <p className="text-gray-800 line-clamp-2 leading-relaxed" title={rec.abstraksi?.pokokPermasalahan || rec.perihal}>
+                                                        {rec.abstraksi?.pokokPermasalahan || rec.perihal || '-'}
+                                                    </p>
+                                                </td>
+                                                <td className="px-4 py-3 max-w-[180px]">
+                                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                                        {lp?.posisiKasus || 'Penyelidikan'}
+                                                    </span>
+                                                    <div className="text-[11px] text-gray-500 mt-1 truncate" title={lp?.agenda || 'Pemeriksaan Saksi'}>
+                                                        {lp?.agenda || 'Klarifikasi'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                                        rec.statusPendampingan === 'Aktif' 
+                                                            ? 'bg-blue-100 text-blue-800' 
+                                                            : 'bg-emerald-100 text-emerald-800'
+                                                    }`}>
+                                                        {rec.statusPendampingan || 'Aktif'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSelectedPendampinganDetail(rec)}
+                                                        className="text-blue-600 hover:text-white hover:bg-blue-600 p-2 rounded-lg transition border border-blue-200 hover:border-blue-600 shadow-2xs"
+                                                        title="Lihat Detail Monitoring Pendampingan"
+                                                    >
+                                                        <EyeIcon className="h-4 w-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                ) : (
+                                    <tr>
+                                        <td colSpan={9} className="px-6 py-12 text-center text-gray-400">
+                                            Tidak ada data pendampingan yang cocok dengan parameter filter yang dipilih.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center px-6 text-xs text-gray-500">
+                        <span>Menampilkan <strong className="text-gray-700">{filteredPendampingan.length === 0 ? 0 : (pendampinganPage - 1) * pageSize + 1}</strong> - <strong className="text-gray-700">{Math.min(pendampinganPage * pageSize, filteredPendampingan.length)}</strong> dari <strong className="text-gray-700">{filteredPendampingan.length}</strong> Pendampingan</span>
+                        <div className="flex items-center space-x-1.5">
+                            <button
+                                disabled={pendampinganPage === 1}
+                                onClick={() => setPendampinganPage(p => p - 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                PREV
+                            </button>
+                            <span className="font-bold text-gray-700 px-2">{pendampinganPage} / {totalPages}</span>
+                            <button
+                                disabled={pendampinganPage >= totalPages}
+                                onClick={() => setPendampinganPage(p => p + 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                NEXT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modal Detail Pendampingan */}
+                {selectedPendampinganDetail && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                        <UserGroupIcon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-gray-900">Detail Monitoring Pendampingan</h3>
+                                        <span className="text-xs text-gray-500">{selectedPendampinganDetail.abstraksi?.nomorTiket || selectedPendampinganDetail.Nomor}</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedPendampinganDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
+                                    <XIcon className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Unit Pemohon</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPendampinganDetail.abstraksi?.unitPemohon || selectedPendampinganDetail.unit || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Instansi Pemanggil</span>
+                                        <p className="font-semibold text-indigo-700 mt-0.5">{selectedPendampinganDetail.abstraksi?.unitPemanggil || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Pihak Terpanggil / Saksi</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPendampinganDetail.abstraksi?.pihakDipanggil || selectedPendampinganDetail.pemohon || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Status Pendampingan</span>
+                                        <p className="font-semibold text-blue-700 mt-0.5">{selectedPendampinganDetail.statusPendampingan || 'Aktif'}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-gray-400 font-bold uppercase text-[10px] block mb-1">Pokok Permasalahan & Latar Belakang</span>
+                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-gray-700 leading-relaxed">
+                                        {selectedPendampinganDetail.abstraksi?.pokokPermasalahan || selectedPendampinganDetail.uraian || '-'}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-bold text-gray-700 mb-2 uppercase text-[11px]">Timeline Agenda Pemanggilan ({(selectedPendampinganDetail.posisi || []).length} Sesi)</h4>
+                                    <div className="space-y-2">
+                                        {(selectedPendampinganDetail.posisi || []).map((p: any, i: number) => (
+                                            <div key={i} className="p-3 bg-white border border-gray-200 rounded-lg flex justify-between items-start">
+                                                <div>
+                                                    <div className="font-bold text-gray-900">{p.agenda}</div>
+                                                    <div className="text-[11px] text-gray-500 mt-0.5">Lokasi: {p.lokasi || '-'} | Durasi: {p.durasi || 120} Menit</div>
+                                                    <div className="text-[11px] text-gray-400 mt-0.5 font-mono">{p.suratTugas || '-'} | Surat Panggilan: {p.suratPemanggilan || '-'}</div>
+                                                </div>
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0 ml-2">
+                                                    {p.tanggalAgenda}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const rec = selectedPendampinganDetail;
+                                        setSelectedPendampinganDetail(null);
+                                        onNavigate('eAdvokasiPendampinganDetail', rec);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
+                                >
+                                    Buka di Modul Pendampingan &rarr;
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPendampinganDetail(null)}
+                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==========================================
+    // 3. MONITORING PUTUSAN
+    // ==========================================
+    const renderMonitoringPutusan = () => {
+        // Collect all putusan items across perkaraRecords and putusanRecords
+        const combinedRecordsMap = new Map<string, any>();
+        perkaraRecords.forEach(rec => combinedRecordsMap.set(rec.id, rec));
+        putusanRecords.forEach(rec => combinedRecordsMap.set(rec.id, rec));
+        const recordsToScan = Array.from(combinedRecordsMap.values());
+
+        const allPutusanItems: any[] = [];
+        recordsToScan.forEach(rec => {
+            if (rec.putusan && rec.putusan.length > 0) {
+                rec.putusan.forEach((p: any) => {
+                    allPutusanItems.push({
+                        id: `${rec.id}-p-${p.id}`,
+                        parentRecord: rec,
+                        nomorPutusan: p.nomor,
+                        tanggalPutusan: p.tanggal,
+                        nomorPerkara: rec.Nomor || rec.abstraksiPerkara?.noPerkara || '-',
+                        pengadilan: rec.abstraksiPerkara?.pengadilan || '-',
+                        tingkat: p.posisi === 'Kasasi' ? 'Kasasi' : p.posisi === 'Banding' ? 'Banding' : p.posisi === 'PK' ? 'Peninjauan Kembali' : 'Tingkat Pertama',
+                        amar: p.amar,
+                        statusAmar: p.status || 'Menang',
+                        statusBHT: rec.statusBHT?.status || (p.posisi === 'Kasasi' || p.posisi === 'PK' ? 'Inkracht' : 'Belum Inkracht'),
+                        tindakLanjut: rec.tindakLanjut?.[0]?.tindakLanjut || 'Pelaksanaan Amar Putusan',
+                        unit: rec.unit,
+                        statusPenanganan: rec.statusPutusan || rec.statusPerkara || 'Aktif'
+                    });
+                });
+            }
+        });
+
+        const filteredPutusan = allPutusanItems.filter(item => {
+            // Search text
+            if (putusanSearch) {
+                const q = putusanSearch.toLowerCase();
+                const matchNomorPutusan = (item.nomorPutusan || '').toLowerCase().includes(q);
+                const matchNomorPerkara = (item.nomorPerkara || '').toLowerCase().includes(q);
+                const matchAmar = (item.amar || '').toLowerCase().includes(q);
+                const matchUnit = (item.unit || '').toLowerCase().includes(q);
+                const matchTindakLanjut = (item.tindakLanjut || '').toLowerCase().includes(q);
+                if (!matchNomorPutusan && !matchNomorPerkara && !matchAmar && !matchUnit && !matchTindakLanjut) return false;
+            }
+
+            // Periode
+            if (!isDateInRange(item.tanggalPutusan, filters.startDate, filters.endDate)) return false;
+
+            // Tahun
+            if (filters.tahunMasuk.length > 0) {
+                const thn = String(item.tanggalPutusan ? item.tanggalPutusan.slice(0, 4) : '');
+                if (!filters.tahunMasuk.includes(thn)) return false;
+            }
+
+            // Hasil Amar Putusan
+            if (filters.amarPutusan.length > 0) {
+                const sa = (item.statusAmar || '').toLowerCase();
+                const amarText = (item.amar || '').toLowerCase();
+                if (!filters.amarPutusan.some(f => sa.includes(f.toLowerCase()) || amarText.includes(f.toLowerCase()))) return false;
+            }
+
+            // Status BHT
+            if (filters.statusBHT.length > 0) {
+                const bht = (item.statusBHT || '').toLowerCase();
+                if (!filters.statusBHT.some(f => bht.includes(f.toLowerCase()))) return false;
+            }
+
+            // Tingkat Pengadilan
+            if (filters.posisiPerkara.length > 0) {
+                if (!filters.posisiPerkara.includes(item.tingkat)) return false;
+            }
+
+            // Unit Instansi
+            if (!isUnitMatch(item.unit, filters.unitInstansi)) return false;
+
+            // Status Penanganan
+            if (filters.status.length > 0) {
+                if (!filters.status.includes(item.statusPenanganan)) return false;
+            }
+
+            return true;
+        });
+
+        const pageSize = 10;
+        const totalPages = Math.ceil(filteredPutusan.length / pageSize) || 1;
+        const displayed = filteredPutusan.slice((putusanPage - 1) * pageSize, putusanPage * pageSize);
+
+        const totalMenang = allPutusanItems.filter(p => (p.statusAmar || '').toLowerCase().includes('menang')).length;
+        const totalKalah = allPutusanItems.filter(p => (p.statusAmar || '').toLowerCase().includes('kalah')).length;
+        const totalInkracht = allPutusanItems.filter(p => (p.statusBHT || '').toLowerCase().includes('inkracht')).length;
+        const totalAktif = allPutusanItems.filter(p => p.statusPenanganan === 'Aktif').length;
+
+        const activeFilterCount = (filters.startDate || filters.endDate ? 1 : 0) +
+            filters.tahunMasuk.length + filters.amarPutusan.length + filters.statusBHT.length +
+            filters.posisiPerkara.length + filters.unitInstansi.length + filters.status.length;
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-2">
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <span className="p-2 bg-blue-50 text-[#0055A5] rounded-xl border border-blue-100">
+                                <DocumentTextIcon className="h-6 w-6" />
+                            </span>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Monitoring Penanganan Putusan</h1>
+                                <p className="text-gray-500 text-xs mt-0.5">Pemantauan amar putusan pengadilan, status kekuatan hukum tetap (BHT), dan progres tindak lanjut eksekusi.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="relative">
+                            <SearchIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari No. Putusan, Amar, Unit..."
+                                value={putusanSearch}
+                                onChange={(e) => { setPutusanSearch(e.target.value); setPutusanPage(1); }}
+                                className="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs w-64 focus:ring-2 focus:ring-blue-100 outline-none"
+                            />
+                            {putusanSearch && (
+                                <button onClick={() => setPutusanSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <XIcon className="h-3.5 w-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition text-xs font-semibold shadow-xs border ${
+                                isFilterOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            <FilterIconPlaceholder className="h-4 w-4" />
+                            <span>Filter</span>
+                            {activeFilterCount > 0 && (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isFilterOpen ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const headers = ['No', 'Nomor Putusan', 'Tgl Putusan', 'Nomor Perkara', 'Tingkat', 'Pengadilan', 'Unit Instansi', 'Amar Putusan', 'Hasil Amar', 'Status BHT', 'Tindak Lanjut'];
+                                const rows = filteredPutusan.map((item, i) => [
+                                    i + 1,
+                                    item.nomorPutusan,
+                                    item.tanggalPutusan,
+                                    item.nomorPerkara,
+                                    item.tingkat,
+                                    item.pengadilan,
+                                    item.unit || '-',
+                                    item.amar || '-',
+                                    item.statusAmar || '-',
+                                    item.statusBHT || '-',
+                                    item.tindakLanjut || '-'
+                                ]);
+                                exportToCSV('Monitoring_Putusan_' + new Date().toISOString().slice(0, 10), headers, rows);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg flex items-center justify-center space-x-1.5 transition text-xs font-semibold shadow-xs"
+                        >
+                            <DownloadIcon className="h-4 w-4" />
+                            <span>Ekspor CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Putusan</div>
+                        <div className="text-xl font-black text-gray-800 mt-1">{allPutusanItems.length}</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">Tercatat di sistem</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Putusan Menang</div>
+                        <div className="text-xl font-black text-emerald-700 mt-1">{totalMenang}</div>
+                        <div className="text-[10px] text-emerald-600/80 mt-0.5">Gugatan ditolak / NO</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-rose-100 bg-rose-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-rose-600">Putusan Kalah</div>
+                        <div className="text-xl font-black text-rose-700 mt-1">{totalKalah}</div>
+                        <div className="text-[10px] text-rose-600/80 mt-0.5">Upaya hukum lanjutan</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-indigo-100 bg-indigo-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Status Inkracht</div>
+                        <div className="text-xl font-black text-indigo-700 mt-1">{totalInkracht}</div>
+                        <div className="text-[10px] text-indigo-600/80 mt-0.5">Berkekuatan hukum tetap</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-blue-100 bg-blue-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Tindak Lanjut Aktif</div>
+                        <div className="text-xl font-black text-blue-700 mt-1">{totalAktif}</div>
+                        <div className="text-[10px] text-blue-600/80 mt-0.5">Pelaksanaan eksekusi</div>
+                    </div>
+                </div>
+
+                {/* Filter Box */}
+                {isFilterOpen && (
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-in slide-in-from-top-2 duration-300 space-y-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <span className="text-xs font-bold text-gray-700 flex items-center space-x-1.5">
+                                <FilterIconPlaceholder className="h-4 w-4 text-blue-600" />
+                                <span>Filter Lanjutan Monitoring Putusan</span>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setFilters(initialFilters)}
+                                className="text-xs font-bold text-blue-600 hover:text-blue-800"
+                            >
+                                Reset Semua Filter
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Periode Putusan</label>
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Dari</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.startDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Sampai</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.endDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <MultiSelectDropdown
+                                label="Tahun Putusan"
+                                options={FILTER_OPTIONS.tahunMasuk}
+                                selected={filters.tahunMasuk}
+                                onToggle={(val) => handleFilterToggle('tahunMasuk', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, tahunMasuk: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Hasil Amar Putusan"
+                                options={FILTER_OPTIONS.amarPutusan}
+                                selected={filters.amarPutusan}
+                                onToggle={(val) => handleFilterToggle('amarPutusan', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, amarPutusan: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Status BHT"
+                                options={FILTER_OPTIONS.statusBHT}
+                                selected={filters.statusBHT}
+                                onToggle={(val) => handleFilterToggle('statusBHT', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, statusBHT: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Tingkat Pengadilan"
+                                options={FILTER_OPTIONS.posisiPerkara}
+                                selected={filters.posisiPerkara}
+                                onToggle={(val) => handleFilterToggle('posisiPerkara', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, posisiPerkara: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Unit Instansi"
+                                options={FILTER_OPTIONS.unitInstansi}
+                                selected={filters.unitInstansi}
+                                onToggle={(val) => handleFilterToggle('unitInstansi', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, unitInstansi: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Status Penanganan"
+                                options={FILTER_OPTIONS.status}
+                                selected={filters.status}
+                                onToggle={(val) => handleFilterToggle('status', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, status: [] }))}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Table Putusan */}
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-gray-200">
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 w-12 text-center">No</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Tgl. & No. Putusan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">No. Perkara & Tingkat</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Unit Instansi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Amar Putusan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Status BHT</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Tindak Lanjut</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Status</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {displayed.length > 0 ? (
+                                    displayed.map((item, idx) => (
+                                        <tr key={item.id} className="hover:bg-blue-50/20 transition-colors">
+                                            <td className="px-4 py-3 text-center text-gray-400 font-semibold">
+                                                {(putusanPage - 1) * pageSize + idx + 1}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-bold text-gray-900">{item.nomorPutusan}</div>
+                                                <div className="text-[11px] text-gray-400 mt-0.5">{item.tanggalPutusan || '-'}</div>
+                                                <div className="mt-1">
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                                        (item.statusAmar || '').toLowerCase().includes('menang') 
+                                                            ? 'bg-emerald-100 text-emerald-800'
+                                                            : (item.statusAmar || '').toLowerCase().includes('kalah')
+                                                            ? 'bg-rose-100 text-rose-800'
+                                                            : 'bg-amber-100 text-amber-800'
+                                                    }`}>
+                                                        {item.statusAmar || 'Menang'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-semibold text-gray-800">{item.nomorPerkara}</div>
+                                                <div className="text-[11px] text-blue-700 font-medium mt-0.5">{item.tingkat}</div>
+                                                <div className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[140px]">{item.pengadilan}</div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-semibold text-gray-800">{item.unit || '-'}</div>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[240px]">
+                                                <p className="text-gray-800 line-clamp-2 leading-relaxed" title={item.amar}>
+                                                    {item.amar || '-'}
+                                                </p>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                    (item.statusBHT || '').toLowerCase().includes('inkracht')
+                                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                                                }`}>
+                                                    {item.statusBHT || 'Belum Inkracht'}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[180px]">
+                                                <div className="text-gray-700 truncate" title={item.tindakLanjut}>
+                                                    {item.tindakLanjut}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    item.statusPenanganan === 'Aktif' 
+                                                        ? 'bg-blue-100 text-blue-800' 
+                                                        : 'bg-emerald-100 text-emerald-800'
+                                                }`}>
+                                                    {item.statusPenanganan}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedPutusanDetail(item)}
+                                                    className="text-blue-600 hover:text-white hover:bg-blue-600 p-2 rounded-lg transition border border-blue-200 hover:border-blue-600 shadow-2xs"
+                                                    title="Lihat Detail Monitoring Putusan"
+                                                >
+                                                    <EyeIcon className="h-4 w-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={9} className="px-6 py-12 text-center text-gray-400">
+                                            Tidak ada data penanganan putusan yang cocok dengan parameter filter yang dipilih.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center px-6 text-xs text-gray-500">
+                        <span>Menampilkan <strong className="text-gray-700">{filteredPutusan.length === 0 ? 0 : (putusanPage - 1) * pageSize + 1}</strong> - <strong className="text-gray-700">{Math.min(putusanPage * pageSize, filteredPutusan.length)}</strong> dari <strong className="text-gray-700">{filteredPutusan.length}</strong> Putusan</span>
+                        <div className="flex items-center space-x-1.5">
+                            <button
+                                disabled={putusanPage === 1}
+                                onClick={() => setPutusanPage(p => p - 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                PREV
+                            </button>
+                            <span className="font-bold text-gray-700 px-2">{putusanPage} / {totalPages}</span>
+                            <button
+                                disabled={putusanPage >= totalPages}
+                                onClick={() => setPutusanPage(p => p + 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                NEXT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modal Detail Putusan */}
+                {selectedPutusanDetail && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                        <DocumentTextIcon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-gray-900">Detail Monitoring Putusan</h3>
+                                        <span className="text-xs text-gray-500">{selectedPutusanDetail.nomorPutusan}</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedPutusanDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
+                                    <XIcon className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">No. Perkara Terkait</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPutusanDetail.nomorPerkara}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Pengadilan & Tingkat</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPutusanDetail.pengadilan} ({selectedPutusanDetail.tingkat})</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Tanggal Putusan</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPutusanDetail.tanggalPutusan || '-'}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Status Kekuatan Hukum</span>
+                                        <p className="font-semibold text-emerald-700 mt-0.5">{selectedPutusanDetail.statusBHT || 'Belum Inkracht'}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-gray-400 font-bold uppercase text-[10px] block mb-1">Amar Putusan Pengadilan</span>
+                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-gray-800 leading-relaxed font-medium">
+                                        {selectedPutusanDetail.amar || '-'}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-gray-400 font-bold uppercase text-[10px] block mb-1">Tindak Lanjut & Eksekusi</span>
+                                    <div className="p-3.5 bg-blue-50/40 border border-blue-100 rounded-xl text-blue-900 leading-relaxed">
+                                        {selectedPutusanDetail.tindakLanjut || 'Konsolidasi pelaksanaan putusan bersama instansi terkait.'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const rec = selectedPutusanDetail.parentRecord;
+                                        setSelectedPutusanDetail(null);
+                                        onNavigate('eAdvokasiPutusanDetail', rec);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
+                                >
+                                    Buka di Modul Penanganan Putusan &rarr;
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPutusanDetail(null)}
+                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==========================================
+    // 4. MONITORING PERSIDANGAN
+    // ==========================================
+    const renderMonitoringPersidangan = () => {
+        // Collect all hearing sessions across all perkaraRecords and putusanRecords
+        const combinedRecordsMap = new Map<string, any>();
+        perkaraRecords.forEach(rec => combinedRecordsMap.set(rec.id, rec));
+        putusanRecords.forEach(rec => combinedRecordsMap.set(rec.id, rec));
+        const recordsToScan = Array.from(combinedRecordsMap.values());
+
+        const allSidangItems: any[] = [];
+        recordsToScan.forEach(rec => {
+            const ps = rec.posisiSidang;
+            if (ps) {
+                const levels: Array<{ key: 'tkPertama' | 'tkBanding' | 'tkKasasi' | 'tkPK', label: string }> = [
+                    { key: 'tkPertama', label: 'Tingkat Pertama' },
+                    { key: 'tkBanding', label: 'Banding' },
+                    { key: 'tkKasasi', label: 'Kasasi' },
+                    { key: 'tkPK', label: 'Peninjauan Kembali' }
+                ];
+
+                levels.forEach(lvl => {
+                    const sessions = ps[lvl.key] || [];
+                    sessions.forEach(s => {
+                        const isPast = new Date(s.tanggalSidang) <= new Date();
+                        allSidangItems.push({
+                            id: `${rec.id}-sidang-${lvl.key}-${s.id}`,
+                            parentRecord: rec,
+                            tanggalSidang: s.tanggalSidang,
+                            nomorPerkara: rec.Nomor || rec.abstraksiPerkara?.noPerkara || '-',
+                            pengadilan: rec.abstraksiPerkara?.pengadilan || 'Pengadilan',
+                            tingkatSidang: lvl.label,
+                            agendaSidang: s.agendaSidang,
+                            agendaBerikutnya: s.agendaBerikutnya || '-',
+                            tanggalSidangBerikutnya: s.tanggalSidangBerikutnya || '-',
+                            suratTugas: s.suratTugas || 'ST-' + s.id + '/SJ.4/2026',
+                            unit: rec.unit,
+                            timHadir: rec.team && rec.team.length > 0 ? rec.team.map((t: any) => t.nama).join(', ') : 'Tim Kuasa Advokasi Kemenkeu',
+                            statusSidang: s.statusSidang || (isPast ? 'Selesai' : 'Terjadwal')
+                        });
+                    });
+                });
+            }
+        });
+
+        // Sort by date descending
+        allSidangItems.sort((a, b) => new Date(b.tanggalSidang).getTime() - new Date(a.tanggalSidang).getTime());
+
+        const filteredSidang = allSidangItems.filter(item => {
+            // Search text
+            if (persidanganSearch) {
+                const q = persidanganSearch.toLowerCase();
+                const matchNomor = (item.nomorPerkara || '').toLowerCase().includes(q);
+                const matchPengadilan = (item.pengadilan || '').toLowerCase().includes(q);
+                const matchAgenda = (item.agendaSidang || '').toLowerCase().includes(q);
+                const matchSurat = (item.suratTugas || '').toLowerCase().includes(q);
+                const matchUnit = (item.unit || '').toLowerCase().includes(q);
+                if (!matchNomor && !matchPengadilan && !matchAgenda && !matchSurat && !matchUnit) return false;
+            }
+
+            // Periode
+            if (!isDateInRange(item.tanggalSidang, filters.startDate, filters.endDate)) return false;
+
+            // Pengadilan
+            if (filters.pengadilan.length > 0) {
+                const peng = (item.pengadilan || '').toLowerCase();
+                if (!filters.pengadilan.some(f => peng.includes(f.toLowerCase()))) return false;
+            }
+
+            // Tingkat Sidang
+            if (filters.tingkatSidang.length > 0) {
+                if (!filters.tingkatSidang.includes(item.tingkatSidang)) return false;
+            }
+
+            // Agenda Sidang
+            if (filters.agendaSidang.length > 0) {
+                const ag = (item.agendaSidang || '').toLowerCase();
+                if (!filters.agendaSidang.some(f => ag.includes(f.toLowerCase()))) return false;
+            }
+
+            // Status Sidang
+            if (filters.statusSidang.length > 0) {
+                if (!filters.statusSidang.includes(item.statusSidang)) return false;
+            }
+
+            // Unit Berperkara
+            if (!isUnitMatch(item.unit, filters.unitInstansi)) return false;
+
+            return true;
+        });
+
+        const pageSize = 10;
+        const totalPages = Math.ceil(filteredSidang.length / pageSize) || 1;
+        const displayed = filteredSidang.slice((persidanganPage - 1) * pageSize, persidanganPage * pageSize);
+
+        const totalTerjadwal = allSidangItems.filter(s => s.statusSidang === 'Terjadwal').length;
+        const totalSelesai = allSidangItems.filter(s => s.statusSidang === 'Selesai').length;
+        const totalPN = allSidangItems.filter(s => s.tingkatSidang === 'Tingkat Pertama').length;
+        const totalKasasiPK = allSidangItems.filter(s => s.tingkatSidang === 'Kasasi' || s.tingkatSidang === 'Peninjauan Kembali').length;
+
+        const activeFilterCount = (filters.startDate || filters.endDate ? 1 : 0) +
+            filters.pengadilan.length + filters.tingkatSidang.length + filters.agendaSidang.length +
+            filters.statusSidang.length + filters.unitInstansi.length;
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-2">
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <span className="p-2 bg-blue-50 text-[#0055A5] rounded-xl border border-blue-100">
+                                <CalendarIcon className="h-6 w-6" />
+                            </span>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Monitoring Jadwal Persidangan</h1>
+                                <p className="text-gray-500 text-xs mt-0.5">Pemantauan agenda sidang peradilan, kesiapan surat tugas kuasa hukum, dan jadwal sidang lanjutan.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="relative">
+                            <SearchIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Cari No. Perkara, Pengadilan, Agenda..."
+                                value={persidanganSearch}
+                                onChange={(e) => { setPersidanganSearch(e.target.value); setPersidanganPage(1); }}
+                                className="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs w-64 focus:ring-2 focus:ring-blue-100 outline-none"
+                            />
+                            {persidanganSearch && (
+                                <button onClick={() => setPersidanganSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <XIcon className="h-3.5 w-3.5" />
+                                </button>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg transition text-xs font-semibold shadow-xs border ${
+                                isFilterOpen ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                            }`}
+                        >
+                            <FilterIconPlaceholder className="h-4 w-4" />
+                            <span>Filter</span>
+                            {activeFilterCount > 0 && (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isFilterOpen ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'}`}>
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const headers = ['No', 'Tanggal Sidang', 'No. Perkara', 'Tingkat', 'Pengadilan', 'Agenda Sidang', 'Agenda Berikutnya', 'Surat Tugas', 'Unit', 'Status'];
+                                const rows = filteredSidang.map((item, i) => [
+                                    i + 1,
+                                    item.tanggalSidang,
+                                    item.nomorPerkara,
+                                    item.tingkatSidang,
+                                    item.pengadilan,
+                                    item.agendaSidang,
+                                    item.agendaBerikutnya,
+                                    item.suratTugas,
+                                    item.unit || '-',
+                                    item.statusSidang
+                                ]);
+                                exportToCSV('Monitoring_Persidangan_' + new Date().toISOString().slice(0, 10), headers, rows);
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg flex items-center justify-center space-x-1.5 transition text-xs font-semibold shadow-xs"
+                        >
+                            <DownloadIcon className="h-4 w-4" />
+                            <span>Ekspor CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Sesi Sidang</div>
+                        <div className="text-xl font-black text-gray-800 mt-1">{allSidangItems.length}</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">Semua tingkatan</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-blue-100 bg-blue-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Sidang Terjadwal</div>
+                        <div className="text-xl font-black text-blue-700 mt-1">{totalTerjadwal}</div>
+                        <div className="text-[10px] text-blue-600/80 mt-0.5">Mendatang / hari ini</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-emerald-100 bg-emerald-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Sidang Selesai</div>
+                        <div className="text-xl font-black text-emerald-700 mt-1">{totalSelesai}</div>
+                        <div className="text-[10px] text-emerald-600/80 mt-0.5">Berita acara terekam</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-purple-100 bg-purple-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-purple-600">Tk. Pertama (PN/PTUN)</div>
+                        <div className="text-xl font-black text-purple-700 mt-1">{totalPN}</div>
+                        <div className="text-[10px] text-purple-600/80 mt-0.5">Sidang yudisial</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-xl border border-amber-100 bg-amber-50/20 shadow-2xs">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Mahkamah Agung</div>
+                        <div className="text-xl font-black text-amber-700 mt-1">{totalKasasiPK}</div>
+                        <div className="text-[10px] text-amber-600/80 mt-0.5">Kasasi & PK</div>
+                    </div>
+                </div>
+
+                {/* Filter Box */}
+                {isFilterOpen && (
+                    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm animate-in slide-in-from-top-2 duration-300 space-y-4">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                            <span className="text-xs font-bold text-gray-700 flex items-center space-x-1.5">
+                                <FilterIconPlaceholder className="h-4 w-4 text-blue-600" />
+                                <span>Filter Lanjutan Monitoring Persidangan</span>
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setFilters(initialFilters)}
+                                className="text-xs font-bold text-blue-600 hover:text-blue-800"
+                            >
+                                Reset Semua Filter
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-1">Periode Sidang</label>
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Dari</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.startDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] text-gray-500 w-8">Sampai</span>
+                                        <input
+                                            type="date"
+                                            className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 outline-none"
+                                            value={filters.endDate}
+                                            onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <MultiSelectDropdown
+                                label="Pengadilan"
+                                options={FILTER_OPTIONS.pengadilan}
+                                selected={filters.pengadilan}
+                                onToggle={(val) => handleFilterToggle('pengadilan', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, pengadilan: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Tingkat Sidang"
+                                options={FILTER_OPTIONS.tingkatSidang}
+                                selected={filters.tingkatSidang}
+                                onToggle={(val) => handleFilterToggle('tingkatSidang', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, tingkatSidang: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Agenda Sidang"
+                                options={FILTER_OPTIONS.agendaSidang}
+                                selected={filters.agendaSidang}
+                                onToggle={(val) => handleFilterToggle('agendaSidang', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, agendaSidang: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Status Sidang"
+                                options={FILTER_OPTIONS.statusSidang}
+                                selected={filters.statusSidang}
+                                onToggle={(val) => handleFilterToggle('statusSidang', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, statusSidang: [] }))}
+                            />
+
+                            <MultiSelectDropdown
+                                label="Unit Berperkara"
+                                options={FILTER_OPTIONS.unitInstansi}
+                                selected={filters.unitInstansi}
+                                onToggle={(val) => handleFilterToggle('unitInstansi', val)}
+                                onReset={() => setFilters(prev => ({ ...prev, unitInstansi: [] }))}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Table Persidangan */}
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-gray-200">
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 w-12 text-center">No</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Jadwal Sidang</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">No. Perkara & Tingkat</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Pengadilan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Agenda Sidang</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Agenda Lanjutan</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Surat Tugas & Kuasa</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Unit Berperkara</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Status</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {displayed.length > 0 ? (
+                                    displayed.map((item, idx) => (
+                                        <tr key={item.id} className="hover:bg-blue-50/20 transition-colors">
+                                            <td className="px-4 py-3 text-center text-gray-400 font-semibold">
+                                                {(persidanganPage - 1) * pageSize + idx + 1}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <div className="font-bold text-gray-900">{item.tanggalSidang}</div>
+                                                <div className="text-[10px] text-gray-400 mt-0.5">Pukul 09:30 WIB</div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-bold text-gray-900">{item.nomorPerkara}</div>
+                                                <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded mt-0.5 inline-block border border-blue-100">
+                                                    {item.tingkatSidang}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[160px]">
+                                                <div className="font-semibold text-gray-800 truncate" title={item.pengadilan}>{item.pengadilan}</div>
+                                                <div className="text-[10px] text-gray-400">Ruang Sidang Utama</div>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[200px]">
+                                                <div className="font-semibold text-gray-900 leading-tight">{item.agendaSidang}</div>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[180px]">
+                                                <div className="text-gray-700 font-medium truncate" title={item.agendaBerikutnya}>
+                                                    {item.agendaBerikutnya}
+                                                </div>
+                                                {item.tanggalSidangBerikutnya !== '-' && (
+                                                    <div className="text-[10px] text-blue-600 font-bold mt-0.5">
+                                                        {item.tanggalSidangBerikutnya}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[160px]">
+                                                <div className="text-[10px] font-mono text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-200 inline-block">
+                                                    {item.suratTugas}
+                                                </div>
+                                                <div className="text-[10px] text-gray-500 mt-0.5 truncate" title={item.timHadir}>
+                                                    {item.timHadir}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-medium text-gray-700 truncate max-w-[140px]">{item.unit || '-'}</div>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    item.statusSidang === 'Terjadwal'
+                                                        ? 'bg-blue-100 text-blue-800'
+                                                        : 'bg-emerald-100 text-emerald-800'
+                                                }`}>
+                                                    {item.statusSidang}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSelectedPersidanganDetail(item)}
+                                                    className="text-blue-600 hover:text-white hover:bg-blue-600 p-2 rounded-lg transition border border-blue-200 hover:border-blue-600 shadow-2xs"
+                                                    title="Lihat Detail Sesi Sidang"
+                                                >
+                                                    <EyeIcon className="h-4 w-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={10} className="px-6 py-12 text-center text-gray-400">
+                                            Tidak ada jadwal persidangan yang cocok dengan parameter filter yang dipilih.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex justify-between items-center px-6 text-xs text-gray-500">
+                        <span>Menampilkan <strong className="text-gray-700">{filteredSidang.length === 0 ? 0 : (persidanganPage - 1) * pageSize + 1}</strong> - <strong className="text-gray-700">{Math.min(persidanganPage * pageSize, filteredSidang.length)}</strong> dari <strong className="text-gray-700">{filteredSidang.length}</strong> Agenda Sidang</span>
+                        <div className="flex items-center space-x-1.5">
+                            <button
+                                disabled={persidanganPage === 1}
+                                onClick={() => setPersidanganPage(p => p - 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                PREV
+                            </button>
+                            <span className="font-bold text-gray-700 px-2">{persidanganPage} / {totalPages}</span>
+                            <button
+                                disabled={persidanganPage >= totalPages}
+                                onClick={() => setPersidanganPage(p => p + 1)}
+                                className="px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 font-semibold"
+                            >
+                                NEXT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Modal Detail Persidangan */}
+                {selectedPersidanganDetail && (
+                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
+                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                        <CalendarIcon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-gray-900">Detail Sesi Persidangan</h3>
+                                        <span className="text-xs text-gray-500">{selectedPersidanganDetail.nomorPerkara} - {selectedPersidanganDetail.pengadilan}</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedPersidanganDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
+                                    <XIcon className="h-5 w-5" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
+                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Tanggal & Waktu</span>
+                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPersidanganDetail.tanggalSidang} (09:30 WIB)</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Tingkat Persidangan</span>
+                                        <p className="font-semibold text-blue-700 mt-0.5">{selectedPersidanganDetail.tingkatSidang}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Surat Tugas Kuasa</span>
+                                        <p className="font-mono text-gray-800 mt-0.5">{selectedPersidanganDetail.suratTugas}</p>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Status Sesi</span>
+                                        <p className="font-semibold text-emerald-700 mt-0.5">{selectedPersidanganDetail.statusSidang}</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span className="text-gray-400 font-bold uppercase text-[10px] block mb-1">Agenda Sidang Ini</span>
+                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-gray-800 font-semibold">
+                                        {selectedPersidanganDetail.agendaSidang}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="p-3 bg-blue-50/40 border border-blue-100 rounded-lg">
+                                        <span className="text-blue-700 font-bold block mb-1">Agenda Sidang Berikutnya</span>
+                                        <p className="text-gray-700">{selectedPersidanganDetail.agendaBerikutnya || '-'}</p>
+                                        <span className="text-xs font-bold text-blue-600 mt-1 block">Tgl: {selectedPersidanganDetail.tanggalSidangBerikutnya || '-'}</span>
+                                    </div>
+                                    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                        <span className="text-gray-700 font-bold block mb-1">Tim Kuasa Hukum Hadir</span>
+                                        <p className="text-gray-600">{selectedPersidanganDetail.timHadir || '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const rec = selectedPersidanganDetail.parentRecord;
+                                        setSelectedPersidanganDetail(null);
+                                        onNavigate('eAdvokasiPerkaraDetail', rec);
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
+                                >
+                                    Lihat Detail Perkara &rarr;
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedPersidanganDetail(null)}
+                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
+                                >
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==========================================
+    // 5. MONITORING RISIKO HUKUM
+    // ==========================================
+    const renderMonitoringRisikoHukum = () => {
+        const filteredRisiko = perkaraRecords.filter(rec => {
+            if (filters.unitInstansi.length > 0 && !isUnitMatch(rec.unit, filters.unitInstansi)) return false;
+            if (filters.jenisPerkara.length > 0) {
+                const jp = rec.abstraksiPerkara?.jenisPerkara || '';
+                if (!filters.jenisPerkara.some(f => jp.toLowerCase().includes(f.toLowerCase()))) return false;
+            }
+            if (filters.risiko.length > 0) {
+                const rsk = rec.analisisPerkara?.risiko || 'Sedang';
+                if (!filters.risiko.includes(rsk)) return false;
+            }
+            return true;
+        });
+
+        return (
+            <div className="space-y-6">
+                <Breadcrumb currentView={currentView} onNavigate={onNavigate} />
+
+                <div className="flex justify-between items-end px-2">
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <span className="p-2 bg-rose-50 text-rose-600 rounded-xl border border-rose-100">
+                                <InformationCircleIcon className="h-6 w-6" />
+                            </span>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Monitoring Risiko Hukum</h1>
+                                <p className="text-gray-500 text-xs mt-0.5">Pemantauan analisis risiko perkara, isu krusial finansial, dan rencana mitigasi hukum advokasi.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const headers = ['No', 'No. Perkara', 'Objek / Perihal', 'Unit Instansi', 'Tingkat Risiko', 'Isu Krusial', 'Potensi Kerugian', 'Mitigasi'];
+                            const rows = filteredRisiko.map((r, i) => [
+                                i + 1,
+                                r.abstraksiPerkara?.noPerkara || r.Nomor,
+                                r.perihal || '-',
+                                r.unit || '-',
+                                r.analisisPerkara?.risiko || 'Sedang',
+                                r.analisisPerkara?.isuKrusial || '-',
+                                r.analisisPerkara?.potensiDampak || '-',
+                                r.analisisPerkara?.analisaHukum || '-'
+                            ]);
+                            exportToCSV('Monitoring_Risiko_Hukum_' + new Date().toISOString().slice(0, 10), headers, rows);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg flex items-center justify-center space-x-1.5 transition text-xs font-semibold shadow-xs"
+                    >
+                        <DownloadIcon className="h-4 w-4" />
+                        <span>Ekspor CSV</span>
+                    </button>
+                </div>
+
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-gray-200">
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 w-12 text-center">No</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Objek Risiko & No. Perkara</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center">Tingkat Risiko</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Unit Instansi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Potensi Dampak</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500">Isu Krusial & Mitigasi</th>
+                                    <th className="px-4 py-3.5 text-[10px] font-black uppercase tracking-wider text-gray-500 text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {filteredRisiko.map((r, idx) => {
+                                    const rsk = r.analisisPerkara?.risiko || 'Sedang';
+                                    return (
+                                        <tr key={r.id} className="hover:bg-blue-50/20 transition-colors">
+                                            <td className="px-4 py-3 text-center text-gray-400 font-semibold">{idx + 1}</td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-bold text-gray-900">{r.abstraksiPerkara?.noPerkara || r.Nomor}</div>
+                                                <div className="text-[11px] text-gray-500 truncate max-w-[220px] mt-0.5">{r.perihal}</div>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                                    rsk === 'Tinggi' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
+                                                    rsk === 'Sedang' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                                                    'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                                }`}>
+                                                    {rsk}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="font-semibold text-gray-800">{r.unit || '-'}</div>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[200px]">
+                                                <div className="text-gray-800 line-clamp-2">{r.analisisPerkara?.potensiDampak || '-'}</div>
+                                            </td>
+                                            <td className="px-4 py-3 max-w-[240px]">
+                                                <div className="text-gray-700 line-clamp-2">{r.analisisPerkara?.isuKrusial || r.analisisPerkara?.analisaHukum || '-'}</div>
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onNavigate('eAdvokasiPerkaraDetail', r)}
+                                                    className="text-blue-600 hover:text-white hover:bg-blue-600 p-2 rounded-lg transition border border-blue-200 hover:border-blue-600 shadow-2xs"
+                                                    title="Lihat Detail Perkara"
+                                                >
+                                                    <EyeIcon className="h-4 w-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderStatistikPerkara = () => {
         const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -3189,13 +5305,13 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             case 'eAdvokasiPencarianPutusan': return renderSearchPage('Pencarian Penanganan Putusan', 'Cari berdasarkan Nomor Putusan, Amar, atau Klasifikasi...');
             case 'eAdvokasiPencarianDokumen': return <CariDokumen currentView={currentView} onNavigate={onNavigate} />;
             case 'eAdvokasiPencarianBankDalil': return <CariDokumen currentView={currentView} onNavigate={onNavigate} initialFilter="dalil" />;
-            case 'eAdvokasiMonitoringPersidangan': return renderMonitoringTable('Monitoring Persidangan', ['Jadwal Sidang', 'No. Perkara', 'Pengadilan', 'Agenda', 'Status']);
-            case 'eAdvokasiMonitoringPutusan': return renderMonitoringTable('Monitoring Putusan', ['Tgl. Putusan', 'No. Putusan', 'Amar Putusan', 'Status BHT', 'Tindak Lanjut']);
-            case 'eAdvokasiMonitoringPendampingan': return renderMonitoringTable('Monitoring Pendampingan', ['Tahun', 'Pihak Terkait', 'Pokok Permasalahan', 'Progress', 'Posisi']);
-            case 'eAdvokasiMonitoringPerkara': return renderMonitoringTable('Monitoring Perkara', ['No. Perkara', 'Klasifikasi', 'Nilai Tuntutan', 'Tahapan', 'Probabilitas']);
+            case 'eAdvokasiMonitoringPersidangan': return renderMonitoringPersidangan();
+            case 'eAdvokasiMonitoringPutusan': return renderMonitoringPutusan();
+            case 'eAdvokasiMonitoringPendampingan': return renderMonitoringPendampingan();
+            case 'eAdvokasiMonitoringPerkara': return renderMonitoringPerkara();
             case 'eAdvokasiMonitoringTelaahan': return renderMonitoringTelaahan();
             case 'eAdvokasiMonitoringKelengkapanData': return renderMonitoringKelengkapanData();
-            case 'eAdvokasiMonitoringRisikoHukum': return renderMonitoringTable('Monitoring Risiko Hukum', ['Objek Risiko', 'Tingkat Risiko', 'Potensi Kerugian', 'Mitigasi', 'Update Terakhir']);
+            case 'eAdvokasiMonitoringRisikoHukum': return renderMonitoringRisikoHukum();
             case 'eAdvokasiAuditTrail': return renderAuditTrail();
             case 'eAdvokasiStatistikPerkara': return renderStatistikPerkara();
             default: return renderDashboard();
@@ -3262,192 +5378,21 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                 </div>
             </main>
 
-            {/* Modal Detail Komprehensif Data Perkara & Telaahan Kasus */}
+            {/* Modal Detail Komprehensif Data Perkara & Telaahan Kasus - Menyesuaikan Penuh dengan Modul Telaahan */}
             {selectedTelaahanForDetail && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        {/* Header Modal */}
-                        <div className="px-6 py-4 bg-gradient-to-r from-[#0055A5] to-blue-800 text-white flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-white/10 rounded-lg">
-                                    <ScaleIcon className="h-5 w-5 text-blue-200" />
-                                </div>
-                                <div>
-                                    <div className="flex items-center space-x-2">
-                                        <h3 className="font-bold text-base">Rincian Komprehensif Data Perkara & Telaahan</h3>
-                                        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-mono">
-                                            {selectedTelaahanForDetail.id}
-                                        </span>
-                                    </div>
-                                    <p className="text-xs text-blue-100 mt-0.5">
-                                        Nomor Registrasi: {selectedTelaahanForDetail.nomor} • Unit: {selectedTelaahanForDetail.pengirim}
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => setSelectedTelaahanForDetail(null)}
-                                className="p-1.5 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition"
-                            >
-                                <XIcon className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        {/* Modal Body */}
-                        <div className="p-6 max-h-[78vh] overflow-y-auto space-y-6 custom-scrollbar text-xs">
-                            {/* Card Status & Urgensi */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                <div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Status Telaahan</span>
-                                    <div className="mt-1">
-                                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                                            (selectedTelaahanForDetail.statusTelaahan === 'Selesai' || selectedTelaahanForDetail.statusPosisi === 'Terkirim')
-                                                ? 'bg-emerald-100 text-emerald-800' 
-                                                : 'bg-amber-100 text-amber-800'
-                                        }`}>
-                                            {selectedTelaahanForDetail.statusPosisi || selectedTelaahanForDetail.statusTelaahan || 'Aktif'}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Urgensi Kasus</span>
-                                    <div className="mt-1">
-                                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                                            selectedTelaahanForDetail.urgensi === 'Sangat Segera' || selectedTelaahanForDetail.urgensi === 'Segera'
-                                                ? 'bg-rose-100 text-rose-800 font-black'
-                                                : selectedTelaahanForDetail.urgensi === 'Penting'
-                                                    ? 'bg-amber-100 text-amber-800'
-                                                    : 'bg-gray-100 text-gray-700'
-                                        }`}>
-                                            {selectedTelaahanForDetail.urgensi || 'Biasa'}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Status Naskah Dinas</span>
-                                    <div className="mt-1 font-semibold text-gray-800">
-                                        {selectedTelaahanForDetail.statusNaskah || selectedTelaahanForDetail.statusPosisi || 'Konsep Telaahan'}
-                                    </div>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Surat Balasan / TTE</span>
-                                    <div className="mt-1 font-mono text-[11px] font-bold text-indigo-700">
-                                        {selectedTelaahanForDetail.nomorNaskah || selectedTelaahanForDetail.tglTte || '-'}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Section 1: Rincian Data Perkara Terkait */}
-                            <div className="bg-white rounded-xl border border-blue-100 p-5 shadow-2xs space-y-4">
-                                <div className="flex items-center space-x-2 border-b border-blue-50 pb-3">
-                                    <ScaleIcon className="h-4 w-4 text-blue-600" />
-                                    <h4 className="font-bold text-sm text-gray-900 uppercase tracking-wide">
-                                        1. Rincian Data Perkara (Litigasi / Objek Gugatan)
-                                    </h4>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Nomor Register Perkara</span>
-                                        <div className="font-mono font-bold text-sm text-blue-700 bg-blue-50/60 p-2.5 rounded-lg border border-blue-100">
-                                            {selectedTelaahanForDetail.nomorPerkara || '-'}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Klasifikasi & Jenis Perkara</span>
-                                        <div className="font-semibold text-gray-800 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-                                            {selectedTelaahanForDetail.jenisPerkara || 'Gugatan Tata Usaha Negara (TUN)'}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Lembaga Peradilan / Pengadilan</span>
-                                        <div className="font-medium text-gray-800 bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-                                            {selectedTelaahanForDetail.tingkatPengadilan || 'Pengadilan Pajak / PTUN Jakarta'}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Kedudukan Hukum Pihak Kemenkeu</span>
-                                        <div className="font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
-                                            {selectedTelaahanForDetail.pihak || 'Tergugat / Termohon PK (Menteri Keuangan c.q. DJP)'}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Section 2: Substansi Pokok Permasalahan & Analisis Hukum */}
-                            <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-2xs space-y-4">
-                                <div className="flex items-center space-x-2 border-b border-gray-100 pb-3">
-                                    <DocumentTextIcon className="h-4 w-4 text-emerald-600" />
-                                    <h4 className="font-bold text-sm text-gray-900 uppercase tracking-wide">
-                                        2. Pokok Permasalahan Hukum & Hasil Kajian Telaahan
-                                    </h4>
-                                </div>
-                                <div className="space-y-3">
-                                    <div>
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Perihal / Subjek Permohonan Telaahan</span>
-                                        <p className="mt-1 font-semibold text-gray-900 bg-slate-50 p-3 rounded-lg border border-slate-200 leading-relaxed">
-                                            {selectedTelaahanForDetail.perihal}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase">Hasil Analisis & Abstraksi Yuridis</span>
-                                        <p className="mt-1 text-gray-700 bg-blue-50/30 p-3 rounded-lg border border-blue-100 leading-relaxed font-normal">
-                                            {selectedTelaahanForDetail.analisisHukum || 'Berdasarkan telaahan dokumen permohonan dan peraturan perundang-undangan terkait, telah disusun opsi tindak lanjut pembelaan serta penyusunan kontra-memori kasasi/PK untuk memitigasi potensi risiko keuangan negara.'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Section 3: Tim Penelaah & Administrasi */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
-                                    <span className="text-[11px] font-bold text-gray-500 uppercase">PIC Penelaah & Kuasa</span>
-                                    <div className="flex items-center space-x-3 pt-1">
-                                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">
-                                            {selectedTelaahanForDetail.pic.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <div className="font-bold text-gray-800">{selectedTelaahanForDetail.pic}</div>
-                                            <div className="text-[10px] text-gray-500">Biro Advokasi / Tim Litigasi Kemenkeu</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
-                                    <span className="text-[11px] font-bold text-gray-500 uppercase">Dokumen Pendukung & Lampiran</span>
-                                    <div className="flex items-center space-x-2 pt-1 text-blue-600 font-semibold">
-                                        <DocumentTextIcon className="h-4 w-4 text-blue-500" />
-                                        <span>{selectedTelaahanForDetail.dokumenCount || selectedTelaahanForDetail.dokumen || 1} Berkas Lampiran Tersimpan</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Modal Footer */}
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                            <span className="text-[11px] text-gray-500">
-                                Terakhir diperbarui: {selectedTelaahanForDetail.tanggal}
-                            </span>
-                            <div className="flex space-x-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedTelaahanForDetail(null)}
-                                    className="px-4 py-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg font-semibold text-xs transition"
-                                >
-                                    Tutup
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedTelaahanForDetail(null);
-                                        onNavigate('eAdvokasiTelaahanKasusHukum');
-                                    }}
-                                    className="px-4 py-2 bg-[#0055A5] hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition flex items-center space-x-1.5 shadow-2xs"
-                                >
-                                    <span>Buka Modul Telaahan</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <DetailTelaahan
+                    record={
+                        telaahanRecords.find(t => t.id === selectedTelaahanForDetail.id || t.Nomor === selectedTelaahanForDetail.nomor || t.nomorTelaahan === selectedTelaahanForDetail.nomor) ||
+                        selectedTelaahanForDetail.rawRecord ||
+                        selectedTelaahanForDetail
+                    }
+                    isModal={true}
+                    onClose={() => setSelectedTelaahanForDetail(null)}
+                    onOpenModul={() => {
+                        setSelectedTelaahanForDetail(null);
+                        onNavigate('eAdvokasiTelaahanKasusHukum');
+                    }}
+                />
             )}
 
             {/* Modal Detail Audit Checklist Kelengkapan Data */}
