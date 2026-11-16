@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { PendampinganRecord, FileData, PosisiUpdate, Riwayat, View } from '../types';
-import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon, PrintIcon } from './icons';
+import { ArrowLeftIcon, EyeIcon, DocumentTextIcon, DownloadIcon, XIcon, PrintIcon, UserGroupIcon } from './icons';
 import Breadcrumb from './Breadcrumb';
 import DocumentTable from './eadvo_DocumentTable';
 
@@ -319,7 +319,7 @@ const RiwayatTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {[...auditTrail].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).map((entry) => (
+                        {[...(auditTrail || [])].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).map((entry) => (
                             <tr key={entry.id}>
                                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{formatAuditTimestamp(entry.timestamp)}</td>
                                 <td className="px-4 py-4 text-sm text-gray-800">
@@ -342,34 +342,182 @@ const RiwayatTab: React.FC<{ record: PendampinganRecord }> = ({ record }) => {
 };
 
 
-interface DetailPendampinganProps {
-  record: PendampinganRecord;
-  onBack: () => void;
+export interface DetailPendampinganProps {
+  record: PendampinganRecord | any;
+  onBack?: () => void;
   onNavigate?: (view: View, record?: any) => void;
+  isModal?: boolean;
+  onClose?: () => void;
+  onOpenModul?: () => void;
 }
 
-const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ record, onBack, onNavigate }) => {
+export const DetailPendampingan: React.FC<DetailPendampinganProps> = ({ 
+  record, 
+  onBack, 
+  onNavigate,
+  isModal = false,
+  onClose,
+  onOpenModul
+}) => {
   const [activeTab, setActiveTab] = useState<DetailTab>('informasi');
 
   const handlePrint = () => {
     window.print();
   };
 
+  if (!record) {
+    return (
+      <div className="p-8 text-center text-gray-500">
+        Data pendampingan tidak ditemukan.
+        {onClose && (
+          <div className="mt-4">
+            <button onClick={onClose} className="text-blue-600 underline font-semibold">Tutup</button>
+          </div>
+        )}
+        {onBack && (
+          <div className="mt-4">
+            <button onClick={onBack} className="text-blue-600 underline font-semibold">Kembali</button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isModal) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+          {/* Modal Header */}
+          <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="p-2.5 bg-blue-50 text-blue-700 rounded-xl border border-blue-100 flex-shrink-0">
+                <UserGroupIcon className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-lg font-bold text-gray-900 truncate">
+                    Detail Pendampingan
+                  </h2>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-blue-50 text-blue-700 border border-blue-200 font-mono">
+                    {record.abstraksi?.nomorTiket || record.Nomor || record.id}
+                  </span>
+                  <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
+                    record.statusPendampingan === 'Aktif' || record.status === 'Aktif'
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                    {record.statusPendampingan || record.status || 'Aktif'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-0.5 max-w-2xl truncate" title={record.perihal}>
+                  {record.perihal}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              <button
+                onClick={handlePrint}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition shadow-2xs"
+                title="Download Resume / Cetak"
+              >
+                <PrintIcon className="h-4 w-4" />
+                <span>Download Resume / Cetak</span>
+              </button>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                  title="Tutup Modal"
+                >
+                  <XIcon className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Modal Tab Navigation */}
+          <div className="border-b border-gray-200 bg-white px-6 flex-shrink-0">
+            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+              <TabButton name="informasi" label="Informasi Umum" activeTab={activeTab} setActiveTab={setActiveTab} />
+              <TabButton name="posisi" label="Posisi Pendampingan" activeTab={activeTab} setActiveTab={setActiveTab} />
+              <TabButton name="dokumen" label="Dokumen" activeTab={activeTab} setActiveTab={setActiveTab} />
+              <TabButton name="riwayat" label="Riwayat" activeTab={activeTab} setActiveTab={setActiveTab} />
+            </nav>
+          </div>
+
+          {/* Modal Body */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/60 custom-scrollbar">
+            {activeTab === 'informasi' && <InformasiUmumTab record={record} />}
+            {activeTab === 'posisi' && <PosisiPendampinganTab posisi={record.posisi || []} />}
+            {activeTab === 'dokumen' && <DokumenTab record={record} />}
+            {activeTab === 'riwayat' && <RiwayatTab record={record} />}
+          </div>
+
+          {/* Modal Footer */}
+          <div className="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center space-x-2 text-xs text-gray-600">
+              <span className="font-semibold text-gray-700">Unit Pemohon:</span>
+              <span className="font-medium text-gray-800">{record.abstraksi?.unitPemohon || record.unit || '-'}</span>
+              {record.abstraksi?.unitPemanggil && (
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span className="font-semibold text-gray-700">Pemanggil:</span>
+                  <span className="font-medium text-indigo-700">{record.abstraksi?.unitPemanggil}</span>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={handlePrint}
+                className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium rounded-lg transition flex items-center space-x-1.5"
+              >
+                <PrintIcon className="h-4 w-4" />
+                <span>Print Resume</span>
+              </button>
+
+              {onOpenModul && (
+                <button
+                  onClick={onOpenModul}
+                  className="px-4 py-2 bg-[#0055A5] hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow-2xs"
+                >
+                  Buka di Modul Pendampingan &rarr;
+                </button>
+              )}
+
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition"
+                >
+                  Tutup
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 bg-white h-full flex flex-col print:p-0">
         {onNavigate && <Breadcrumb currentView="eAdvokasiPendampinganDetail" onNavigate={onNavigate} />}
         <header className="flex-shrink-0 mb-6 flex justify-between items-start border-b border-gray-100 pb-4 print:mb-4">
             <div className="flex items-start">
-                <button 
-                    onClick={onBack} 
-                    className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors mr-3 mt-1 print:hidden"
-                >
-                    <ArrowLeftIcon className="h-5 w-5" />
-                </button>
+                {onBack && (
+                  <button 
+                      onClick={onBack} 
+                      className="flex items-center text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors mr-3 mt-1 print:hidden"
+                  >
+                      <ArrowLeftIcon className="h-5 w-5" />
+                  </button>
+                )}
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800 print:text-xl">Informasi Pendampingan</h1>
                     <p className="text-sm text-gray-500 mt-1">
-                        {record.Nomor || record.id} - {record.perihal}
+                        {record.abstraksi?.nomorTiket || record.Nomor || record.id} - {record.perihal}
                     </p>
                 </div>
             </div>

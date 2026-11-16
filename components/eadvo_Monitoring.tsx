@@ -12,6 +12,8 @@ import Breadcrumb from './Breadcrumb';
 import { CariDokumen } from './eadvo_CariDokumen';
 import { useAdvokasiStore } from '../useAdvokasiStore';
 import { DetailTelaahan } from './eadvo_DetailTelaahan';
+import { DetailPerkara } from './eadvo_DetailPerkara';
+import { DetailPendampingan } from './eadvo_DetailPendampingan';
 import { 
     BarChart, 
     Bar, 
@@ -156,6 +158,10 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
     const [kelengkapanSearch, setKelengkapanSearch] = useState('');
     const [kelengkapanPage, setKelengkapanPage] = useState(1);
     const [selectedAuditRecordForModal, setSelectedAuditRecordForModal] = useState<any | null>(null);
+    const [modalChecklistFilter, setModalChecklistFilter] = useState<'all' | 'filled' | 'missing'>('all');
+    const [modalChecklistCategory, setModalChecklistCategory] = useState<string>('all');
+    const [modalChecklistSearch, setModalChecklistSearch] = useState<string>('');
+    const [modalSubModulView, setModalSubModulView] = useState<string>('current');
 
     // States for Modul Monitoring Perkara
     const [perkaraSearch, setPerkaraSearch] = useState('');
@@ -1200,98 +1206,22 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     </div>
                 </div>
 
-                {/* Modal Detail Perkara */}
+                {/* Modal Detail Perkara Komprehensif - Sesuai Modul Penanganan Perkara */}
                 {selectedPerkaraDetail && (
-                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
-                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                        <ShieldCheckIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-base font-bold text-gray-900">Detail Monitoring Perkara</h3>
-                                        <span className="text-xs text-gray-500">{selectedPerkaraDetail.abstraksiPerkara?.noPerkara || selectedPerkaraDetail.Nomor}</span>
-                                    </div>
-                                </div>
-                                <button onClick={() => setSelectedPerkaraDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
-                                    <XIcon className="h-5 w-5" />
-                                </button>
-                            </div>
-
-                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
-                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Perihal Gugatan</span>
-                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.perihal || '-'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Pengadilan & Wilayah</span>
-                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.abstraksiPerkara?.pengadilan || '-'} ({selectedPerkaraDetail.abstraksiPerkara?.wilayah || '-'})</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Unit Tergugat</span>
-                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPerkaraDetail.unit || '-'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Nilai Tuntutan Finansial</span>
-                                        <p className="font-semibold text-amber-700 mt-0.5">{formatRupiah(getTotalTuntutan(selectedPerkaraDetail))}</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h4 className="font-bold text-gray-700 mb-2 uppercase text-[11px]">Para Pihak Berperkara</h4>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="p-3 bg-blue-50/40 border border-blue-100 rounded-lg">
-                                            <span className="text-blue-700 font-bold block mb-1">Pihak Penggugat (P)</span>
-                                            {(selectedPerkaraDetail.pihakP || []).map((p: any, i: number) => (
-                                                <div key={i} className="text-gray-700 font-medium">{p.pihak}: {p.identitas}</div>
-                                            ))}
-                                        </div>
-                                        <div className="p-3 bg-amber-50/40 border border-amber-100 rounded-lg">
-                                            <span className="text-amber-700 font-bold block mb-1">Pihak Tergugat (T)</span>
-                                            {(selectedPerkaraDetail.pihakT || []).map((t: any, i: number) => (
-                                                <div key={i} className="text-gray-700 font-medium">{t.pihak}: {t.identitas}</div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {selectedPerkaraDetail.analisisPerkara && (
-                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-bold text-gray-800">Analisis Yuridis & Mitigasi Risiko</span>
-                                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
-                                                Risiko {selectedPerkaraDetail.analisisPerkara.risiko || 'Sedang'}
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-600 leading-relaxed">{selectedPerkaraDetail.analisisPerkara.isuKrusial || selectedPerkaraDetail.analisisPerkara.analisaHukum || '-'}</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const rec = selectedPerkaraDetail;
-                                        setSelectedPerkaraDetail(null);
-                                        onNavigate('eAdvokasiPerkaraDetail', rec);
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
-                                >
-                                    Buka di Modul Penanganan Perkara &rarr;
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedPerkaraDetail(null)}
-                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
-                                >
-                                    Tutup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <DetailPerkara
+                        record={
+                            perkaraRecords.find(p => p.id === selectedPerkaraDetail.id || p.Nomor === selectedPerkaraDetail.Nomor || (p.abstraksiPerkara?.noPerkara && p.abstraksiPerkara.noPerkara === (selectedPerkaraDetail.abstraksiPerkara?.noPerkara || selectedPerkaraDetail.Nomor))) ||
+                            selectedPerkaraDetail
+                        }
+                        isModal={true}
+                        onClose={() => setSelectedPerkaraDetail(null)}
+                        onNavigate={onNavigate}
+                        onOpenModul={() => {
+                            const rec = selectedPerkaraDetail;
+                            setSelectedPerkaraDetail(null);
+                            onNavigate('eAdvokasiPerkaraDetail', rec);
+                        }}
+                    />
                 )}
             </div>
         );
@@ -1686,93 +1616,22 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     </div>
                 </div>
 
-                {/* Modal Detail Pendampingan */}
+                {/* Modal Detail Pendampingan Komprehensif - Sesuai Modul Pendampingan */}
                 {selectedPendampinganDetail && (
-                    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
-                            <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                        <UserGroupIcon className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-base font-bold text-gray-900">Detail Monitoring Pendampingan</h3>
-                                        <span className="text-xs text-gray-500">{selectedPendampinganDetail.abstraksi?.nomorTiket || selectedPendampinganDetail.Nomor}</span>
-                                    </div>
-                                </div>
-                                <button onClick={() => setSelectedPendampinganDetail(null)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg">
-                                    <XIcon className="h-5 w-5" />
-                                </button>
-                            </div>
-
-                            <div className="p-6 overflow-y-auto space-y-4 text-xs">
-                                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Unit Pemohon</span>
-                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPendampinganDetail.abstraksi?.unitPemohon || selectedPendampinganDetail.unit || '-'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Instansi Pemanggil</span>
-                                        <p className="font-semibold text-indigo-700 mt-0.5">{selectedPendampinganDetail.abstraksi?.unitPemanggil || '-'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Pihak Terpanggil / Saksi</span>
-                                        <p className="font-semibold text-gray-800 mt-0.5">{selectedPendampinganDetail.abstraksi?.pihakDipanggil || selectedPendampinganDetail.pemohon || '-'}</p>
-                                    </div>
-                                    <div>
-                                        <span className="text-gray-400 font-bold uppercase text-[10px]">Status Pendampingan</span>
-                                        <p className="font-semibold text-blue-700 mt-0.5">{selectedPendampinganDetail.statusPendampingan || 'Aktif'}</p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <span className="text-gray-400 font-bold uppercase text-[10px] block mb-1">Pokok Permasalahan & Latar Belakang</span>
-                                    <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-gray-700 leading-relaxed">
-                                        {selectedPendampinganDetail.abstraksi?.pokokPermasalahan || selectedPendampinganDetail.uraian || '-'}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h4 className="font-bold text-gray-700 mb-2 uppercase text-[11px]">Timeline Agenda Pemanggilan ({(selectedPendampinganDetail.posisi || []).length} Sesi)</h4>
-                                    <div className="space-y-2">
-                                        {(selectedPendampinganDetail.posisi || []).map((p: any, i: number) => (
-                                            <div key={i} className="p-3 bg-white border border-gray-200 rounded-lg flex justify-between items-start">
-                                                <div>
-                                                    <div className="font-bold text-gray-900">{p.agenda}</div>
-                                                    <div className="text-[11px] text-gray-500 mt-0.5">Lokasi: {p.lokasi || '-'} | Durasi: {p.durasi || 120} Menit</div>
-                                                    <div className="text-[11px] text-gray-400 mt-0.5 font-mono">{p.suratTugas || '-'} | Surat Panggilan: {p.suratPemanggilan || '-'}</div>
-                                                </div>
-                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0 ml-2">
-                                                    {p.tanggalAgenda}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="px-6 py-3.5 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const rec = selectedPendampinganDetail;
-                                        setSelectedPendampinganDetail(null);
-                                        onNavigate('eAdvokasiPendampinganDetail', rec);
-                                    }}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition"
-                                >
-                                    Buka di Modul Pendampingan &rarr;
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedPendampinganDetail(null)}
-                                    className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-medium text-xs transition"
-                                >
-                                    Tutup
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <DetailPendampingan
+                        record={
+                            pendampinganRecords.find(p => p.id === selectedPendampinganDetail.id || p.Nomor === selectedPendampinganDetail.Nomor || (p.abstraksi?.nomorTiket && p.abstraksi.nomorTiket === (selectedPendampinganDetail.abstraksi?.nomorTiket || selectedPendampinganDetail.Nomor))) ||
+                            selectedPendampinganDetail
+                        }
+                        isModal={true}
+                        onClose={() => setSelectedPendampinganDetail(null)}
+                        onNavigate={onNavigate}
+                        onOpenModul={() => {
+                            const rec = selectedPendampinganDetail;
+                            setSelectedPendampinganDetail(null);
+                            onNavigate('eAdvokasiPendampinganDetail', rec);
+                        }}
+                    />
                 )}
             </div>
         );
@@ -4593,267 +4452,615 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
         );
     };
 
+    // Definisi Master Field Standar sesuai 4 Sub-Modul pada Modul Penanganan (Perkara, Pendampingan, Putusan, Telaahan)
+    const PENANGANAN_SUB_MODUL_FIELDS = {
+        'Perkara': [
+            { name: 'Tahun Masuk', category: 'Informasi Umum', mandatory: true },
+            { name: 'Nomor Perkara', category: 'Informasi Umum', mandatory: true },
+            { name: 'Tanggal Pendaftaran Perkara', category: 'Informasi Umum', mandatory: true },
+            { name: 'Nomor Surat Kuasa Khusus (SKU)', category: 'Informasi Umum', mandatory: true },
+            { name: 'Wilayah', category: 'Informasi Umum', mandatory: true },
+            { name: 'Pengadilan', category: 'Informasi Umum', mandatory: true },
+            { name: 'Jenis Perkara', category: 'Klasifikasi Perkara', mandatory: true },
+            { name: 'Klasifikasi Perkara', category: 'Klasifikasi Perkara', mandatory: true },
+            { name: 'Sub Klasifikasi Perkara', category: 'Klasifikasi Perkara', mandatory: false },
+            { name: 'Sub-Sub Klasifikasi Perkara', category: 'Klasifikasi Perkara', mandatory: false },
+            { name: 'Jenis Pokok Perkara', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Sub Pokok Perkara', category: 'Pokok Perkara', mandatory: false },
+            { name: 'Sub-Sub Pokok Perkara', category: 'Pokok Perkara', mandatory: false },
+            { name: 'Rincian Pokok Perkara', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Unit Principal (Unit Berperkara)', category: 'Para Pihak', mandatory: true },
+            { name: 'Tags Perkara', category: 'Metadata', mandatory: false },
+            { name: 'Pihak Penggugat / Pemohon', category: 'Para Pihak', mandatory: true },
+            { name: 'Pihak Tergugat / Termohon', category: 'Para Pihak', mandatory: true },
+            { name: 'Pihak Turut Tergugat', category: 'Para Pihak', mandatory: false },
+            { name: 'Susunan Majelis Hakim', category: 'Majelis Hakim', mandatory: true },
+            { name: 'Posisi Kasus / Tahapan Terakhir', category: 'Posisi Kasus', mandatory: true },
+            { name: 'Jadwal & Agenda Sidang Berikutnya', category: 'Jadwal Persidangan', mandatory: true },
+            { name: 'Dokumen Salinan Gugatan & Bukti Surat', category: 'Dokumen Perkara', mandatory: true },
+            { name: 'Tim Kuasa Hukum (PIC & Anggota)', category: 'Tim Advokasi', mandatory: true }
+        ],
+        'Pendampingan': [
+            { name: 'Tahun Masuk', category: 'Informasi Umum', mandatory: true },
+            { name: 'Nomor Tiket / Surat Permohonan', category: 'Informasi Umum', mandatory: true },
+            { name: 'Unit Pemohon', category: 'Informasi Umum', mandatory: true },
+            { name: 'Unit Pemanggil', category: 'Informasi Umum', mandatory: true },
+            { name: 'Wilayah', category: 'Informasi Umum', mandatory: true },
+            { name: 'Jenis Pokok Perkara', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Sub Pokok Perkara', category: 'Pokok Perkara', mandatory: false },
+            { name: 'Sub-Sub Pokok Perkara', category: 'Pokok Perkara', mandatory: false },
+            { name: 'Rincian Pokok Permasalahan', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Tags Pendampingan', category: 'Metadata', mandatory: false },
+            { name: 'Pihak Terpanggil (Nama & Jabatan Pegawai)', category: 'Pihak Terpanggil', mandatory: true },
+            { name: 'Pihak Pemanggil (Instansi Penegak Hukum)', category: 'Pihak Pemanggil', mandatory: true },
+            { name: 'Informasi Awal Kasus', category: 'Informasi Pihak Terpanggil', mandatory: true },
+            { name: 'Keterangan Pihak Terpanggil', category: 'Informasi Pihak Terpanggil', mandatory: true },
+            { name: 'Surat Tugas Pendampingan', category: 'Posisi & Pelaksanaan', mandatory: true },
+            { name: 'Agenda & Waktu Pemanggilan', category: 'Posisi & Pelaksanaan', mandatory: true },
+            { name: 'Posisi Kasus Pendampingan', category: 'Posisi & Pelaksanaan', mandatory: true },
+            { name: 'Rincian Pelaksanaan Pendampingan', category: 'Posisi & Pelaksanaan', mandatory: true },
+            { name: 'Dokumen Surat Panggilan & Lampiran', category: 'Dokumen Pendampingan', mandatory: true },
+            { name: 'Tim Pendamping Hukum (PIC & Anggota)', category: 'Tim Pendamping', mandatory: true }
+        ],
+        'Penanganan Putusan': [
+            { name: 'Tahun Masuk', category: 'Informasi Perkara Terkait', mandatory: true },
+            { name: 'Nomor Perkara Terkait', category: 'Informasi Perkara Terkait', mandatory: true },
+            { name: 'Tanggal Pendaftaran Gugatan', category: 'Informasi Perkara Terkait', mandatory: true },
+            { name: 'Nomor Surat Kuasa Khusus (SKU)', category: 'Informasi Perkara Terkait', mandatory: true },
+            { name: 'Wilayah & Pengadilan', category: 'Informasi Perkara Terkait', mandatory: true },
+            { name: 'Jenis Perkara & Klasifikasi Perkara', category: 'Klasifikasi Perkara', mandatory: true },
+            { name: 'Jenis Pokok Perkara & Sub Pokok Perkara', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Rincian Pokok Perkara', category: 'Pokok Perkara', mandatory: true },
+            { name: 'Unit Principal', category: 'Para Pihak', mandatory: true },
+            { name: 'Tags Putusan', category: 'Metadata', mandatory: false },
+            { name: 'Tingkat Peradilan (Pertama / Banding / Kasasi / PK)', category: 'Data Putusan', mandatory: true },
+            { name: 'Nomor Putusan Pengadilan', category: 'Data Putusan', mandatory: true },
+            { name: 'Tanggal Putusan Diucapkan', category: 'Data Putusan', mandatory: true },
+            { name: 'Lembaga Peradilan Pemutus', category: 'Data Putusan', mandatory: true },
+            { name: 'Klasifikasi Amar Putusan', category: 'Amar Putusan', mandatory: true },
+            { name: 'Isi Amar & Pertimbangan Hukum Putusan', category: 'Amar Putusan', mandatory: true },
+            { name: 'Status Berkekuatan Hukum Tetap (BHT)', category: 'Status Hukum & Eksekusi', mandatory: true },
+            { name: 'Tanggal Penerimaan Salinan Putusan / Relaas', category: 'Status Hukum & Eksekusi', mandatory: true },
+            { name: 'Keterangan Dampak Putusan / Finansial', category: 'Status Hukum & Eksekusi', mandatory: true },
+            { name: 'Rekomendasi Tindak Lanjut Eksekusi', category: 'Status Hukum & Eksekusi', mandatory: true },
+            { name: 'Salinan Resmi Amar Putusan Pengadilan', category: 'Dokumen Putusan', mandatory: true },
+            { name: 'Tim Kuasa Penanganan Putusan (PIC & Anggota)', category: 'Tim Advokasi', mandatory: true }
+        ],
+        'Telaahan': [
+            { name: 'Tahun Masuk', category: 'Informasi Umum', mandatory: true },
+            { name: 'Nomor Surat Permohonan', category: 'Informasi Umum', mandatory: true },
+            { name: 'Tanggal Surat Permohonan', category: 'Informasi Umum', mandatory: true },
+            { name: 'Nama Pengirim / Pemohon', category: 'Informasi Umum', mandatory: true },
+            { name: 'Unit Pengirim / Pemohon', category: 'Informasi Umum', mandatory: true },
+            { name: 'Perihal Naskah Dinas Telaahan', category: 'Informasi Umum', mandatory: true },
+            { name: 'Status Posisi Telaahan', category: 'Status Posisi', mandatory: true },
+            { name: 'Tingkat Urgensi Kasus', category: 'Klasifikasi', mandatory: true },
+            { name: 'Kategori Bidang Hukum', category: 'Klasifikasi', mandatory: true },
+            { name: 'Nomor Perkara Terkait (bila ada)', category: 'Keterkaitan Perkara', mandatory: false },
+            { name: 'Pokok Permasalahan Hukum', category: 'Summary Naskah', mandatory: true },
+            { name: 'Fakta Hukum & Kronologi Kasus', category: 'Summary Naskah', mandatory: true },
+            { name: 'Dasar Peraturan Perundang-undangan', category: 'Summary Naskah', mandatory: true },
+            { name: 'Analisis Yuridis & Kajian Hukum', category: 'Summary Naskah', mandatory: true },
+            { name: 'Kesimpulan & Rekomendasi Advokasi', category: 'Summary Naskah', mandatory: true },
+            { name: 'Nomor Naskah Telaahan Nadine', category: 'Validasi Nadine', mandatory: true },
+            { name: 'Tanggal TTE Nadine', category: 'Validasi Nadine', mandatory: true },
+            { name: 'Dokumen Permohonan (Nadine)', category: 'Dokumen', mandatory: true },
+            { name: 'Dokumen Telaahan & Data Dukung', category: 'Dokumen', mandatory: true },
+            { name: 'Susunan Anggota Tim Penelaah (PIC & Editor)', category: 'Tim Penelaah', mandatory: true }
+        ]
+    };
+
     const renderMonitoringKelengkapanData = () => {
-        const auditRecords = [
-            {
-                id: 'AUD-001',
-                registerId: 'REG/PKR/2026/0142',
-                modul: 'Perkara',
-                perihal: 'Gugatan PMH Ganti Rugi Lahan Bendungan Jatigede',
-                unit: 'Direktorat Jenderal Kekayaan Negara',
-                totalFields: 12,
-                filledFields: 12,
-                missingFields: [] as string[],
-                score: 100,
-                status: 'Lengkap',
-                viewTarget: 'eAdvokasiPenangananPerkara' as View,
-                checklist: [
-                    { name: 'Nomor Register & Administrasi', category: 'Administrasi', isFilled: true, value: 'REG/PKR/2026/0142' },
-                    { name: 'Tanggal Registrasi Masuk', category: 'Administrasi', isFilled: true, value: '10 Januari 2026' },
-                    { name: 'Unit Kerja Pemohon', category: 'Administrasi', isFilled: true, value: 'DJKN Jawa Barat' },
-                    { name: 'Identitas Para Pihak Penggugat', category: 'Para Pihak', isFilled: true, value: 'Warga Terdampak Waduk' },
-                    { name: 'Identitas Para Pihak Tergugat', category: 'Para Pihak', isFilled: true, value: 'Menkeu RI cq DJKN' },
-                    { name: 'Objek Sengketa & Posisi Kasus', category: 'Substansi', isFilled: true, value: 'Klaim ganti rugi tanah adat' },
-                    { name: 'Nilai Tuntutan / Ganti Kerugian', category: 'Substansi', isFilled: true, value: 'Rp 14.500.000.000' },
-                    { name: 'Jadwal & Agenda Sidang Pertama', category: 'Persidangan', isFilled: true, value: '04 Februari 2026 (Mediasi)' },
-                    { name: 'Dokumen Salinan Gugatan & Relaas', category: 'Lampiran', isFilled: true, value: 'Gugatan_Resmi_Jatigede.pdf' },
-                    { name: 'Alat Bukti Surat & Kepemilikan (P-1)', category: 'Lampiran', isFilled: true, value: 'Warkah_Tanah_1982.pdf' },
-                    { name: 'NIP & Surat Kuasa Tim Advokasi', category: 'Tim Hukum', isFilled: true, value: 'SK-Adv/014/2026' },
-                    { name: 'Resume Analisis & Strategi Hukum', category: 'Analisis', isFilled: true, value: 'Eksepsi Kompetensi Absolut' }
-                ]
-            },
-            {
-                id: 'AUD-002',
-                registerId: 'REG/PKR/2026/0155',
-                modul: 'Perkara',
-                perihal: 'Sengketa Tata Usaha Negara Pembatalan Izin Impor Garam Industri',
-                unit: 'Direktorat Jenderal Bea dan Cukai',
-                totalFields: 12,
-                filledFields: 10,
-                missingFields: ['Nilai Tuntutan Ganti Rugi', 'Dokumen Bukti P-1'],
-                score: 83,
-                status: 'Perlu Dilengkapi',
-                viewTarget: 'eAdvokasiPenangananPerkara' as View,
-                checklist: [
-                    { name: 'Nomor Register & Administrasi', category: 'Administrasi', isFilled: true, value: 'REG/PKR/2026/0155' },
-                    { name: 'Tanggal Registrasi Masuk', category: 'Administrasi', isFilled: true, value: '18 Januari 2026' },
-                    { name: 'Unit Kerja Pemohon', category: 'Administrasi', isFilled: true, value: 'KPPBC Tanjung Priok' },
-                    { name: 'Identitas Para Pihak Penggugat', category: 'Para Pihak', isFilled: true, value: 'PT Garam Samudera' },
-                    { name: 'Identitas Para Pihak Tergugat', category: 'Para Pihak', isFilled: true, value: 'Kepala Kantor DJBC' },
-                    { name: 'Objek Sengketa & Posisi Kasus', category: 'Substansi', isFilled: true, value: 'Pembatalan SPTNP Garam' },
-                    { name: 'Nilai Tuntutan Ganti Rugi', category: 'Substansi', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Jadwal & Agenda Sidang Pertama', category: 'Persidangan', isFilled: true, value: '12 Februari 2026' },
-                    { name: 'Dokumen Salinan Gugatan & Relaas', category: 'Lampiran', isFilled: true, value: 'Gugatan_PTUN_0155.pdf' },
-                    { name: 'Dokumen Bukti P-1', category: 'Lampiran', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'NIP & Surat Kuasa Tim Advokasi', category: 'Tim Hukum', isFilled: true, value: 'SK-BC/88/2026' },
-                    { name: 'Resume Analisis & Strategi Hukum', category: 'Analisis', isFilled: true, value: 'Kajian Dokumen Pabean' }
-                ]
-            },
-            {
-                id: 'AUD-003',
-                registerId: 'REG/PKR/2026/0168',
-                modul: 'Perkara',
-                perihal: 'Permohonan PKPU PT Nusantara Prima Energy kepada Kemenkeu',
-                unit: 'Sekretariat Jenderal',
-                totalFields: 12,
-                filledFields: 7,
-                missingFields: ['Jadwal Sidang Pertama', 'Amar Putusan Sela', 'NIP Tim Advokasi', 'Dokumen Gugatan Asli', 'Objek Tuntutan'],
-                score: 58,
-                status: 'Kritis',
-                viewTarget: 'eAdvokasiPenangananPerkara' as View,
-                checklist: [
-                    { name: 'Nomor Register & Administrasi', category: 'Administrasi', isFilled: true, value: 'REG/PKR/2026/0168' },
-                    { name: 'Tanggal Registrasi Masuk', category: 'Administrasi', isFilled: true, value: '25 Januari 2026' },
-                    { name: 'Unit Kerja Pemohon', category: 'Administrasi', isFilled: true, value: 'Biro Hukum Setjen' },
-                    { name: 'Identitas Para Pihak Penggugat', category: 'Para Pihak', isFilled: true, value: 'PT Nusantara Prima Energy' },
-                    { name: 'Identitas Para Pihak Tergugat', category: 'Para Pihak', isFilled: true, value: 'Menteri Keuangan RI' },
-                    { name: 'Objek Tuntutan', category: 'Substansi', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Nilai Tuntutan / Ganti Kerugian', category: 'Substansi', isFilled: true, value: 'Rp 32.000.000.000' },
-                    { name: 'Jadwal Sidang Pertama', category: 'Persidangan', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Amar Putusan Sela', category: 'Persidangan', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Dokumen Gugatan Asli', category: 'Lampiran', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'NIP Tim Advokasi', category: 'Tim Hukum', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Resume Analisis & Strategi Hukum', category: 'Analisis', isFilled: true, value: 'Analisis awal piutang' }
-                ]
-            },
-            {
-                id: 'AUD-004',
-                registerId: 'REG/PDP/2026/0073',
-                modul: 'Pendampingan',
-                perihal: 'Pendampingan Saksi Dugaan Penyimpangan Pengadaan IT Core Tax',
-                unit: 'Direktorat Jenderal Pajak',
-                totalFields: 10,
-                filledFields: 10,
-                missingFields: [] as string[],
-                score: 100,
-                status: 'Lengkap',
-                viewTarget: 'eAdvokasiPendampingan' as View,
-                checklist: [
-                    { name: 'Nomor Tiket & Tanggal Masuk', category: 'Administrasi', isFilled: true, value: 'REG/PDP/2026/0073' },
-                    { name: 'Instansi / Unit Pemohon', category: 'Administrasi', isFilled: true, value: 'Direktorat KITSDA DJP' },
-                    { name: 'Identitas Pegawai yang Dipanggil', category: 'Personel', isFilled: true, value: 'Ahmad Fauzi (Pranata Komputer)' },
-                    { name: 'Surat Panggilan Pemeriksaan', category: 'Dokumen', isFilled: true, value: 'SP-Bareskrim/09/2026.pdf' },
-                    { name: 'Pokok Masalah Pemanggilan', category: 'Substansi', isFilled: true, value: 'Klarifikasi spesifikasi teknis server' },
-                    { name: 'Jadwal Tanggal Pemanggilan', category: 'Jadwal', isFilled: true, value: '14 Februari 2026' },
-                    { name: 'Instansi Penegak Hukum Pemanggil', category: 'Pihak Eksternal', isFilled: true, value: 'Bareskrim Polri Dit Tipikor' },
-                    { name: 'Tim Pendamping Hukum Kemenkeu', category: 'Tim Advokasi', isFilled: true, value: 'Dedi Irawan & Rini Astuti' },
-                    { name: 'Resume / Berita Acara Konseling', category: 'Laporan', isFilled: true, value: 'Resume_Pra_Pemeriksaan.pdf' },
-                    { name: 'Rekomendasi Tindak Lanjut', category: 'Laporan', isFilled: true, value: 'Menyiapkan dokumen adendum kontrak' }
-                ]
-            },
-            {
-                id: 'AUD-005',
-                registerId: 'REG/PDP/2026/0081',
-                modul: 'Pendampingan',
-                perihal: 'Klarifikasi Pemanggilan Pegawai oleh Bareskrim Polri',
-                unit: 'Direktorat Jenderal Bea dan Cukai',
-                totalFields: 10,
-                filledFields: 8,
-                missingFields: ['Salinan Surat Panggilan Resmi', 'Resume Hasil Pemeriksaan'],
-                score: 80,
-                status: 'Perlu Dilengkapi',
-                viewTarget: 'eAdvokasiPendampingan' as View,
-                checklist: [
-                    { name: 'Nomor Tiket & Tanggal Masuk', category: 'Administrasi', isFilled: true, value: 'REG/PDP/2026/0081' },
-                    { name: 'Instansi / Unit Pemohon', category: 'Administrasi', isFilled: true, value: 'KPPBC Merak' },
-                    { name: 'Identitas Pegawai yang Dipanggil', category: 'Personel', isFilled: true, value: 'Bambang Sudiro (Pemeriksa Bea Cukai)' },
-                    { name: 'Salinan Surat Panggilan Resmi', category: 'Dokumen', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'Pokok Masalah Pemanggilan', category: 'Substansi', isFilled: true, value: 'Pemeriksaan jalur hijau kontainer tekstil' },
-                    { name: 'Jadwal Tanggal Pemanggilan', category: 'Jadwal', isFilled: true, value: '20 Februari 2026' },
-                    { name: 'Instansi Penegak Hukum Pemanggil', category: 'Pihak Eksternal', isFilled: true, value: 'Polda Banten' },
-                    { name: 'Tim Pendamping Hukum Kemenkeu', category: 'Tim Advokasi', isFilled: true, value: 'Admin Tuban Kum' },
-                    { name: 'Resume Hasil Pemeriksaan', category: 'Laporan', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'Rekomendasi Tindak Lanjut', category: 'Laporan', isFilled: true, value: 'Koordinasi Bidang Hukum DJBC' }
-                ]
-            },
-            {
-                id: 'AUD-006',
-                registerId: 'REG/PDP/2026/0089',
-                modul: 'Pendampingan',
-                perihal: 'Konsultasi Perjanjian Kerjasama Kereta Cepat Jakarta-Surabaya',
-                unit: 'Direktorat Jenderal Perbendaharaan',
-                totalFields: 10,
-                filledFields: 6,
-                missingFields: ['Draft Nota Kesepahaman Final', 'Analisis Risiko Hukum Kontrak', 'NIP PIC Pendamping', 'Tindak Lanjut Rekomendasi'],
-                score: 60,
-                status: 'Kritis',
-                viewTarget: 'eAdvokasiPendampingan' as View,
-                checklist: [
-                    { name: 'Nomor Tiket & Tanggal Masuk', category: 'Administrasi', isFilled: true, value: 'REG/PDP/2026/0089' },
-                    { name: 'Instansi / Unit Pemohon', category: 'Administrasi', isFilled: true, value: 'Dit. SMI DJPb' },
-                    { name: 'Identitas Pegawai yang Dipanggil', category: 'Personel', isFilled: true, value: 'Direktur Sistem Manajemen Investasi' },
-                    { name: 'Draft Nota Kesepahaman Final', category: 'Dokumen', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'Pokok Masalah Pemanggilan', category: 'Substansi', isFilled: true, value: 'Klausul jaminan penyertaan modal negara' },
-                    { name: 'Analisis Risiko Hukum Kontrak', category: 'Substansi', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Instansi Penegak Hukum Pemanggil', category: 'Pihak Eksternal', isFilled: true, value: 'Kementerian Perhubungan RI' },
-                    { name: 'NIP PIC Pendamping', category: 'Tim Advokasi', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Resume / Berita Acara Konseling', category: 'Laporan', isFilled: true, value: 'Notula_Rapat_Harmonisasi.pdf' },
-                    { name: 'Tindak Lanjut Rekomendasi', category: 'Laporan', isFilled: false, value: 'Belum diisi (Missing)' }
-                ]
-            },
-            {
-                id: 'AUD-007',
-                registerId: 'TLH/2026/01/0088',
-                modul: 'Telaahan',
-                perihal: 'Kajian Yuridis Pengajuan Keberatan Pajak PPh Badan PT Sumber Alfaria',
-                unit: 'Direktorat Jenderal Pajak',
-                totalFields: 10,
-                filledFields: 10,
-                missingFields: [] as string[],
-                score: 100,
-                status: 'Lengkap',
-                viewTarget: 'eAdvokasiTelaahanKasusHukum' as View,
-                checklist: [
-                    { name: 'Nomor Registrasi Telaahan', category: 'Administrasi', isFilled: true, value: 'TLH/2026/01/0088' },
-                    { name: 'Tanggal Surat Masuk', category: 'Administrasi', isFilled: true, value: '14 Januari 2026' },
-                    { name: 'Unit Pengirim / Pemohon', category: 'Administrasi', isFilled: true, value: 'Ditjen Pajak' },
-                    { name: 'Nomor Perkara Terkait', category: 'Data Perkara', isFilled: true, value: '142/G/2026/PTUN.JKT' },
-                    { name: 'Pokok Permasalahan Hukum', category: 'Substansi', isFilled: true, value: 'Koreksi Positif Biaya Promosi 3M' },
-                    { name: 'Tingkat Urgensi Kasus', category: 'Substansi', isFilled: true, value: 'Sangat Segera' },
-                    { name: 'Tim & PIC Penelaah', category: 'Tim Penelaah', isFilled: true, value: 'Admin Tuban Kum (Ketua Tim)' },
-                    { name: 'Dokumen Berkas Lampiran', category: 'Lampiran', isFilled: true, value: '5 Berkas Lengkap' },
-                    { name: 'Hasil Analisis & Abstraksi Yuridis', category: 'Hasil Kajian', isFilled: true, value: 'Analisis Pasal 6 ayat 1 UU PPh' },
-                    { name: 'Nomor Registrasi Nadine TTE', category: 'Validasi Nadine', isFilled: true, value: 'ND-882/SET.1/2026' }
-                ]
-            },
-            {
-                id: 'AUD-008',
-                registerId: 'TLH/2026/02/0112',
-                modul: 'Telaahan',
-                perihal: 'Harmonisasi dan Kajian Uji Materiil Peraturan Pemerintah terkait Tarif PNBP',
-                unit: 'Biro Hukum, Setjen',
-                totalFields: 10,
-                filledFields: 9,
-                missingFields: ['Nomor Registrasi Nadine TTE'],
-                score: 90,
-                status: 'Perlu Dilengkapi',
-                viewTarget: 'eAdvokasiTelaahanKasusHukum' as View,
-                checklist: [
-                    { name: 'Nomor Registrasi Telaahan', category: 'Administrasi', isFilled: true, value: 'TLH/2026/02/0112' },
-                    { name: 'Tanggal Surat Masuk', category: 'Administrasi', isFilled: true, value: '18 Februari 2026' },
-                    { name: 'Unit Pengirim / Pemohon', category: 'Administrasi', isFilled: true, value: 'Biro Hukum Setjen' },
-                    { name: 'Nomor Perkara Terkait', category: 'Data Perkara', isFilled: true, value: '12/HUM/2026/MA' },
-                    { name: 'Pokok Permasalahan Hukum', category: 'Substansi', isFilled: true, value: 'Uji materiil tarif royalti progresif' },
-                    { name: 'Tingkat Urgensi Kasus', category: 'Substansi', isFilled: true, value: 'Sangat Segera' },
-                    { name: 'Tim & PIC Penelaah', category: 'Tim Penelaah', isFilled: true, value: 'Budi Santoso' },
-                    { name: 'Dokumen Berkas Lampiran', category: 'Lampiran', isFilled: true, value: '6 Berkas Termasuk Salinan PP' },
-                    { name: 'Hasil Analisis & Abstraksi Yuridis', category: 'Hasil Kajian', isFilled: true, value: 'Kajian UU No. 9 Tahun 2018 PNBP' },
-                    { name: 'Nomor Registrasi Nadine TTE', category: 'Validasi Nadine', isFilled: false, value: 'Belum diisi (TTE Pending)' }
-                ]
-            },
-            {
-                id: 'AUD-009',
-                registerId: 'REG/PUT/2026/0045',
-                modul: 'Penanganan Putusan',
-                perihal: 'Eksekusi Putusan Mahkamah Agung Gugatan Sengketa Pajak Rokok',
-                unit: 'Direktorat Jenderal Bea dan Cukai',
-                totalFields: 11,
-                filledFields: 11,
-                missingFields: [] as string[],
-                score: 100,
-                status: 'Lengkap',
-                viewTarget: 'eAdvokasiPenangananPutusan' as View,
-                checklist: [
-                    { name: 'Nomor Putusan Pengadilan', category: 'Administrasi Putusan', isFilled: true, value: '45/B/PK/PJK/2025' },
-                    { name: 'Tanggal Putusan Diucapkan', category: 'Administrasi Putusan', isFilled: true, value: '08 November 2025' },
-                    { name: 'Lembaga Peradilan Pemutus', category: 'Administrasi Putusan', isFilled: true, value: 'Mahkamah Agung RI' },
-                    { name: 'Para Pihak Pemohon PK vs Termohon PK', category: 'Para Pihak', isFilled: true, value: 'Menkeu RI vs PT Djarum' },
-                    { name: 'Klasifikasi Amar Putusan', category: 'Amar Putusan', isFilled: true, value: 'Menolak Permohonan PK Wajib Pajak (Menang)' },
-                    { name: 'Status Berkekuatan Hukum Tetap (BHT)', category: 'Status Hukum', isFilled: true, value: 'Inkracht van Gewijsde' },
-                    { name: 'Tanggal Penerimaan Salinan Relaas', category: 'Dokumen', isFilled: true, value: '15 Januari 2026' },
-                    { name: 'Salinan Resmi Amar Putusan Kasasi/PK', category: 'Dokumen', isFilled: true, value: 'Salinan_Resmi_MA_45PK.pdf' },
-                    { name: 'Rekomendasi Tindak Lanjut Eksekusi', category: 'Tindak Lanjut', isFilled: true, value: 'Penerbitan Surat Tagihan Cukai Final' },
-                    { name: 'Tim Kuasa Penanganan Putusan', category: 'Tim Advokasi', isFilled: true, value: 'Dedi Irawan & Hendra Wijaya' },
-                    { name: 'Catatan Dampak Fiskal / Keuangan Negara', category: 'Dampak Finansial', isFilled: true, value: 'Penyelamatan Keuangan Negara Rp 28,4 Miliar' }
-                ]
-            },
-            {
-                id: 'AUD-010',
-                registerId: 'REG/PUT/2026/0052',
-                modul: 'Penanganan Putusan',
-                perihal: 'Tindak Lanjut Putusan PTUN Pembatalan SK Pemecatan Pegawai',
-                unit: 'Sekretariat Jenderal',
-                totalFields: 11,
-                filledFields: 8,
-                missingFields: ['Salinan Resmi Amar Putusan Kasasi', 'Tanggal Penerimaan Salinan Relaas', 'Dokumen Rekomendasi Eksekusi'],
-                score: 72,
-                status: 'Perlu Dilengkapi',
-                viewTarget: 'eAdvokasiPenangananPutusan' as View,
-                checklist: [
-                    { name: 'Nomor Putusan Pengadilan', category: 'Administrasi Putusan', isFilled: true, value: '52/G/2025/PTUN.JKT' },
-                    { name: 'Tanggal Putusan Diucapkan', category: 'Administrasi Putusan', isFilled: true, value: '12 Desember 2025' },
-                    { name: 'Lembaga Peradilan Pemutus', category: 'Administrasi Putusan', isFilled: true, value: 'PTUN Jakarta' },
-                    { name: 'Para Pihak Pemohon PK vs Termohon PK', category: 'Para Pihak', isFilled: true, value: 'Eks Pegawai vs Sekretaris Jenderal' },
-                    { name: 'Klasifikasi Amar Putusan', category: 'Amar Putusan', isFilled: true, value: 'Mengabulkan Gugatan Penggugat Sebagian' },
-                    { name: 'Status Berkekuatan Hukum Tetap (BHT)', category: 'Status Hukum', isFilled: true, value: 'Belum Inkracht (Proses Banding PTTUN)' },
-                    { name: 'Tanggal Penerimaan Salinan Relaas', category: 'Dokumen', isFilled: false, value: 'Belum diisi (Missing)' },
-                    { name: 'Salinan Resmi Amar Putusan Kasasi', category: 'Dokumen', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'Dokumen Rekomendasi Eksekusi', category: 'Tindak Lanjut', isFilled: false, value: 'Belum diunggah (Missing)' },
-                    { name: 'Tim Kuasa Penanganan Putusan', category: 'Tim Advokasi', isFilled: true, value: 'Budi Santoso & Siti Rahma' },
-                    { name: 'Catatan Dampak Fiskal / Keuangan Negara', category: 'Dampak Finansial', isFilled: true, value: 'Rehabilitasi hak kepegawaian dan gaji' }
-                ]
-            }
-        ];
+        // Transform data record dari 4 Sub-Modul Penanganan menjadi data audit kelengkapan terintegrasi & terkoneksi lintas modul
+        const buildAuditRecords = () => {
+            const list: any[] = [];
+
+            // 1. Sub-Modul Penanganan Perkara (Litigasi)
+            perkaraRecords.forEach((r) => {
+                const regNo = r.abstraksiPerkara?.noPerkara || r.Nomor;
+                const fieldDefs = PENANGANAN_SUB_MODUL_FIELDS['Perkara'];
+                
+                // Cross-module connections
+                const koneksi: any[] = [];
+                if (r.putusan && r.putusan.length > 0) {
+                    koneksi.push({
+                        modul: 'Penanganan Putusan',
+                        nomor: r.putusan[0].nomor,
+                        targetView: 'eAdvokasiPutusanDetail' as View,
+                        record: r,
+                        label: `Putusan: ${r.putusan[0].nomor}`
+                    });
+                }
+                if (r.id === 'pk-1') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-002');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-02'}` });
+                } else if (r.id === 'pk-2') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-003');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-03'}` });
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-1');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: `Pendampingan: ${pdp.abstraksi?.nomorTiket || 'ND22'}` });
+                } else if (r.id === 'pk-3') {
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-2');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: `Pendampingan: ${pdp.abstraksi?.nomorTiket || 'ND-104'}` });
+                } else if (r.id === 'pk-4') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-004');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-04'}` });
+                } else if (r.id === 'pk-5') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-001');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-01'}` });
+                } else if (r.id === 'pk-6') {
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-3');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: `Pendampingan: ${pdp.abstraksi?.nomorTiket || 'ND-88'}` });
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-008');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-08'}` });
+                }
+
+                // Field value mapping
+                const getFieldValue = (fieldName: string): { isFilled: boolean; value: string } => {
+                    switch (fieldName) {
+                        case 'Tahun Masuk':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.tahunMasuk), value: r.abstraksiPerkara?.tahunMasuk ? String(r.abstraksiPerkara.tahunMasuk) : '' };
+                        case 'Nomor Perkara':
+                            return { isFilled: Boolean(regNo), value: regNo || '' };
+                        case 'Tanggal Pendaftaran Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.tanggalPendaftaranGugatan || r.tanggal), value: r.abstraksiPerkara?.tanggalPendaftaranGugatan || r.tanggal || '' };
+                        case 'Nomor Surat Kuasa Khusus (SKU)':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.nomorSuratKuasaKhusus), value: r.abstraksiPerkara?.nomorSuratKuasaKhusus || '' };
+                        case 'Wilayah':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.wilayah), value: r.abstraksiPerkara?.wilayah || '' };
+                        case 'Pengadilan':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.pengadilan), value: r.abstraksiPerkara?.pengadilan || '' };
+                        case 'Jenis Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.jenisPerkara), value: r.abstraksiPerkara?.jenisPerkara || '' };
+                        case 'Klasifikasi Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.klasifikasiPerkara || r.abstraksiPerkara?.jenisPerkara), value: r.abstraksiPerkara?.klasifikasiPerkara || r.abstraksiPerkara?.jenisPerkara || '' };
+                        case 'Sub Klasifikasi Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.subKlasifikasiPerkara), value: r.abstraksiPerkara?.subKlasifikasiPerkara || '' };
+                        case 'Sub-Sub Klasifikasi Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.subSubKlasifikasiPerkara), value: r.abstraksiPerkara?.subSubKlasifikasiPerkara || '' };
+                        case 'Jenis Pokok Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.jenisPokokPerkara), value: r.abstraksiPerkara?.jenisPokokPerkara || '' };
+                        case 'Sub Pokok Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.subPokokPerkara), value: r.abstraksiPerkara?.subPokokPerkara || '' };
+                        case 'Sub-Sub Pokok Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.subSubPokokPerkara), value: r.abstraksiPerkara?.subSubPokokPerkara || '' };
+                        case 'Rincian Pokok Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.rincianPokokPerkara || r.uraian), value: r.abstraksiPerkara?.rincianPokokPerkara || r.uraian || '' };
+                        case 'Unit Principal (Unit Berperkara)':
+                            return { isFilled: Boolean(r.unit), value: r.unit || '' };
+                        case 'Tags Perkara':
+                            return { isFilled: Boolean(r.abstraksiPerkara?.tagsPerkara && r.abstraksiPerkara.tagsPerkara.length > 0), value: r.abstraksiPerkara?.tagsPerkara?.join(', ') || '' };
+                        case 'Pihak Penggugat / Pemohon':
+                            return { isFilled: Boolean(r.pihakP && r.pihakP.length > 0), value: r.pihakP?.map(p => p.identitas).join('; ') || '' };
+                        case 'Pihak Tergugat / Termohon':
+                            return { isFilled: Boolean(r.pihakT && r.pihakT.length > 0), value: r.pihakT?.map(p => p.identitas).join('; ') || '' };
+                        case 'Pihak Turut Tergugat': {
+                            const turut = r.pihakT?.filter(p => p.pihak.toLowerCase().includes('turut'));
+                            return { isFilled: Boolean(turut && turut.length > 0), value: turut && turut.length > 0 ? turut.map(p => p.identitas).join('; ') : '' };
+                        }
+                        case 'Susunan Majelis Hakim': {
+                            const majelis = r.putusan?.[0]?.susunanMajelis;
+                            return { isFilled: Boolean(majelis && majelis.length > 0), value: majelis && majelis.length > 0 ? majelis.map(m => `${m.jabatan}: ${m.identitas}`).join('; ') : '' };
+                        }
+                        case 'Posisi Kasus / Tahapan Terakhir': {
+                            const lastSidang = r.posisiSidang?.tkPertama?.[r.posisiSidang.tkPertama.length - 1];
+                            const pos = lastSidang?.agendaSidang || r.statusPerkara;
+                            return { isFilled: Boolean(pos), value: pos || '' };
+                        }
+                        case 'Jadwal & Agenda Sidang Berikutnya': {
+                            const lastSidang = r.posisiSidang?.tkPertama?.[r.posisiSidang.tkPertama.length - 1];
+                            return { isFilled: Boolean(lastSidang?.agendaBerikutnya), value: lastSidang?.agendaBerikutnya ? `${lastSidang.agendaBerikutnya} (${lastSidang.tanggalSidangBerikutnya || ''})` : '' };
+                        }
+                        case 'Dokumen Salinan Gugatan & Bukti Surat': {
+                            const files = r.files?.map(f => f.name).concat(r.dokumenLitigasi?.map(d => d.jenis) || []).filter(Boolean);
+                            return { isFilled: Boolean(files && files.length > 0), value: files && files.length > 0 ? files.join(', ') : '' };
+                        }
+                        case 'Tim Kuasa Hukum (PIC & Anggota)':
+                            return { isFilled: Boolean(r.team && r.team.length > 0), value: r.team?.map(t => `${t.nama} (${t.teamRole || t.role})`).join('; ') || '' };
+                        default:
+                            return { isFilled: false, value: '' };
+                    }
+                };
+
+                const checklist = fieldDefs.map(fd => {
+                    const res = getFieldValue(fd.name);
+                    return {
+                        name: fd.name,
+                        category: fd.category,
+                        mandatory: fd.mandatory,
+                        isFilled: res.isFilled,
+                        value: res.isFilled ? res.value : 'Belum diisi (Missing)'
+                    };
+                });
+
+                const filledCount = checklist.filter(c => c.isFilled).length;
+                const missingList = checklist.filter(c => !c.isFilled).map(c => c.name);
+                const score = Math.round((filledCount / fieldDefs.length) * 100);
+
+                list.push({
+                    id: r.id,
+                    registerId: regNo,
+                    modul: 'Perkara',
+                    perihal: r.perihal,
+                    unit: r.unit,
+                    totalFields: fieldDefs.length,
+                    filledFields: filledCount,
+                    missingFields: missingList,
+                    score,
+                    status: score === 100 ? 'Lengkap' : score >= 70 ? 'Perlu Dilengkapi' : 'Kritis',
+                    viewTarget: 'eAdvokasiPenangananPerkara' as View,
+                    detailViewTarget: 'eAdvokasiPerkaraDetail' as View,
+                    originalRecord: r,
+                    koneksiLintasModul: koneksi,
+                    checklist
+                });
+            });
+
+            // 2. Sub-Modul Pendampingan Hukum (Non-Litigasi)
+            pendampinganRecords.forEach((r) => {
+                const regNo = r.abstraksi?.nomorTiket || r.Nomor;
+                const fieldDefs = PENANGANAN_SUB_MODUL_FIELDS['Pendampingan'];
+
+                const koneksi: any[] = [];
+                if (r.id === 'pd-1') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-2');
+                    if (pk) koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Pajak: ${pk.abstraksiPerkara?.noPerkara || '142/G'}` });
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-003');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan: ${tel.nomorTelaahan || 'TLH-03'}` });
+                } else if (r.id === 'pd-2') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-3');
+                    if (pk) {
+                        koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Pabean: ${pk.abstraksiPerkara?.noPerkara || '88/G'}` });
+                        koneksi.push({ modul: 'Penanganan Putusan', nomor: '412 K/TUN/2025', targetView: 'eAdvokasiPutusanDetail' as View, record: pk, label: 'Putusan Kasasi Pabean' });
+                    }
+                } else if (r.id === 'pd-3') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-6');
+                    if (pk) koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Aset BMN: ${pk.abstraksiPerkara?.noPerkara || '215/Pdt'}` });
+                } else if (r.id === 'pd-4') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-004');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan Sanksi AP: ${tel.nomorTelaahan || 'TLH-04'}` });
+                } else if (r.id === 'pd-5') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-005');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: `Telaahan Retur SP2D: ${tel.nomorTelaahan || 'TLH-05'}` });
+                }
+
+                const getFieldValue = (fieldName: string): { isFilled: boolean; value: string } => {
+                    const abs = r.abstraksi;
+                    const pos0 = r.posisi?.[0];
+                    switch (fieldName) {
+                        case 'Tahun Masuk':
+                            return { isFilled: Boolean(abs?.tahunMasuk), value: abs?.tahunMasuk ? String(abs.tahunMasuk) : '' };
+                        case 'Nomor Tiket / Surat Permohonan':
+                            return { isFilled: Boolean(regNo), value: regNo || '' };
+                        case 'Unit Pemohon':
+                            return { isFilled: Boolean(abs?.unitPemohon || r.unit), value: abs?.unitPemohon || r.unit || '' };
+                        case 'Unit Pemanggil':
+                            return { isFilled: Boolean(abs?.unitPemanggil), value: abs?.unitPemanggil || '' };
+                        case 'Wilayah':
+                            return { isFilled: Boolean(abs?.wilayah), value: abs?.wilayah || '' };
+                        case 'Jenis Pokok Perkara':
+                            return { isFilled: Boolean(abs?.jenisPokokPerkara || r.jenis), value: abs?.jenisPokokPerkara || r.jenis || '' };
+                        case 'Sub Pokok Perkara':
+                            return { isFilled: Boolean(abs?.subPokokPerkara), value: abs?.subPokokPerkara || '' };
+                        case 'Sub-Sub Pokok Perkara':
+                            return { isFilled: Boolean(abs?.subSubPokokPerkara), value: abs?.subSubPokokPerkara || '' };
+                        case 'Rincian Pokok Permasalahan':
+                            return { isFilled: Boolean(abs?.pokokPermasalahan || r.uraian), value: abs?.pokokPermasalahan || r.uraian || '' };
+                        case 'Tags Pendampingan':
+                            return { isFilled: Boolean(abs?.tags && abs.tags.length > 0), value: abs?.tags?.join(', ') || '' };
+                        case 'Pihak Terpanggil (Nama & Jabatan Pegawai)':
+                            return { isFilled: Boolean(abs?.pihakDipanggil || pos0?.terpanggil?.[0]), value: abs?.pihakDipanggil || pos0?.terpanggil?.join('; ') || '' };
+                        case 'Pihak Pemanggil (Instansi Penegak Hukum)':
+                            return { isFilled: Boolean(pos0?.pemanggil?.[0] || abs?.unitPemanggil), value: pos0?.pemanggil?.join('; ') || abs?.unitPemanggil || '' };
+                        case 'Informasi Awal Kasus':
+                            return { isFilled: Boolean(abs?.keterangan || r.uraian), value: abs?.keterangan || r.uraian || '' };
+                        case 'Keterangan Pihak Terpanggil':
+                            return { isFilled: Boolean(pos0?.rincian), value: pos0?.rincian || '' };
+                        case 'Surat Tugas Pendampingan':
+                            return { isFilled: Boolean(pos0?.suratTugas), value: pos0?.suratTugas || '' };
+                        case 'Agenda & Waktu Pemanggilan':
+                            return { isFilled: Boolean(pos0?.agenda), value: pos0?.agenda ? `${pos0.agenda} (${pos0.tanggalAgenda || ''})` : '' };
+                        case 'Posisi Kasus Pendampingan':
+                            return { isFilled: Boolean(pos0?.posisiKasus || r.statusPendampingan), value: pos0?.posisiKasus || r.statusPendampingan || '' };
+                        case 'Rincian Pelaksanaan Pendampingan':
+                            return { isFilled: Boolean(pos0?.rincian), value: pos0?.rincian || '' };
+                        case 'Dokumen Surat Panggilan & Lampiran': {
+                            const files = r.files?.map(f => f.name);
+                            return { isFilled: Boolean(files && files.length > 0), value: files && files.length > 0 ? files.join(', ') : '' };
+                        }
+                        case 'Tim Pendamping Hukum (PIC & Anggota)':
+                            return { isFilled: Boolean(r.team && r.team.length > 0), value: r.team?.map(t => `${t.nama} (${t.teamRole || t.role})`).join('; ') || '' };
+                        default:
+                            return { isFilled: false, value: '' };
+                    }
+                };
+
+                const checklist = fieldDefs.map(fd => {
+                    const res = getFieldValue(fd.name);
+                    return {
+                        name: fd.name,
+                        category: fd.category,
+                        mandatory: fd.mandatory,
+                        isFilled: res.isFilled,
+                        value: res.isFilled ? res.value : 'Belum diisi (Missing)'
+                    };
+                });
+
+                const filledCount = checklist.filter(c => c.isFilled).length;
+                const missingList = checklist.filter(c => !c.isFilled).map(c => c.name);
+                const score = Math.round((filledCount / fieldDefs.length) * 100);
+
+                list.push({
+                    id: r.id,
+                    registerId: regNo,
+                    modul: 'Pendampingan',
+                    perihal: r.perihal,
+                    unit: r.unit,
+                    totalFields: fieldDefs.length,
+                    filledFields: filledCount,
+                    missingFields: missingList,
+                    score,
+                    status: score === 100 ? 'Lengkap' : score >= 70 ? 'Perlu Dilengkapi' : 'Kritis',
+                    viewTarget: 'eAdvokasiPendampingan' as View,
+                    detailViewTarget: 'eAdvokasiPendampinganDetail' as View,
+                    originalRecord: r,
+                    koneksiLintasModul: koneksi,
+                    checklist
+                });
+            });
+
+            // 3. Sub-Modul Telaahan Kasus Hukum
+            telaahanRecords.forEach((r) => {
+                const regNo = r.nomorTelaahan || r.Nomor;
+                const fieldDefs = PENANGANAN_SUB_MODUL_FIELDS['Telaahan'];
+
+                const koneksi: any[] = [];
+                if (r.id === 'TLH-2026-001') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-5');
+                    if (pk) {
+                        koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Programmer BLU: ${pk.abstraksiPerkara?.noPerkara || '56/Pdt'}` });
+                        koneksi.push({ modul: 'Penanganan Putusan', nomor: '56/Pdt.Sus-PHI/2025', targetView: 'eAdvokasiPutusanDetail' as View, record: pk, label: 'Putusan PHI Pusintek' });
+                    }
+                } else if (r.id === 'TLH-2026-002') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-1');
+                    if (pk) {
+                        koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Tanah BMN: ${pk.abstraksiPerkara?.noPerkara || '37/PUU'}` });
+                        koneksi.push({ modul: 'Penanganan Putusan', nomor: '37/Pdt.G/2021/PN', targetView: 'eAdvokasiPutusanDetail' as View, record: pk, label: 'Putusan Sengketa Tanah' });
+                    }
+                } else if (r.id === 'TLH-2026-003') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-2');
+                    if (pk) koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Keberatan DJP: ${pk.abstraksiPerkara?.noPerkara || '142/G'}` });
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-1');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: `Pendampingan Saksi: ${pdp.abstraksi?.nomorTiket || 'ND22'}` });
+                } else if (r.id === 'TLH-2026-004') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-4');
+                    if (pk) {
+                        koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara HUM SBM: ${pk.abstraksiPerkara?.noPerkara || '24/HUM'}` });
+                        koneksi.push({ modul: 'Penanganan Putusan', nomor: '24 P/HUM/2025', targetView: 'eAdvokasiPutusanDetail' as View, record: pk, label: 'Putusan MA SBM' });
+                    }
+                } else if (r.id === 'TLH-2026-005') {
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-5');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: `Pendampingan SP2D KPPN: ${pdp.abstraksi?.nomorTiket || 'ND-33'}` });
+                } else if (r.id === 'TLH-2026-008') {
+                    const pk = perkaraRecords.find(p => p.id === 'pk-6');
+                    if (pk) koneksi.push({ modul: 'Perkara', nomor: pk.abstraksiPerkara?.noPerkara || pk.Nomor, targetView: 'eAdvokasiPerkaraDetail' as View, record: pk, label: `Perkara Eksekusi BMN: ${pk.abstraksiPerkara?.noPerkara || '215/Pdt'}` });
+                }
+
+                const getFieldValue = (fieldName: string): { isFilled: boolean; value: string } => {
+                    const abs = r.abstraksiTelaahan;
+                    const nsk = r.naskahTelaahan;
+                    switch (fieldName) {
+                        case 'Tahun Masuk':
+                            return { isFilled: Boolean(r.tahunMasuk), value: r.tahunMasuk ? String(r.tahunMasuk) : '' };
+                        case 'Nomor Surat Permohonan':
+                            return { isFilled: Boolean(r.Nomor), value: r.Nomor || '' };
+                        case 'Tanggal Surat Permohonan':
+                            return { isFilled: Boolean(r.tanggal), value: r.tanggal || '' };
+                        case 'Nama Pengirim / Pemohon':
+                            return { isFilled: Boolean(r.pemohon), value: r.pemohon || '' };
+                        case 'Unit Pengirim / Pemohon':
+                            return { isFilled: Boolean(r.unit), value: r.unit || '' };
+                        case 'Perihal Naskah Dinas Telaahan':
+                            return { isFilled: Boolean(r.perihal), value: r.perihal || '' };
+                        case 'Status Posisi Telaahan':
+                            return { isFilled: Boolean(r.statusTelaahan), value: r.statusTelaahan || '' };
+                        case 'Tingkat Urgensi Kasus':
+                            return { isFilled: Boolean(abs?.tingkatUrgensi), value: abs?.tingkatUrgensi || '' };
+                        case 'Kategori Bidang Hukum':
+                            return { isFilled: Boolean(abs?.kategoriHukum), value: abs?.kategoriHukum || '' };
+                        case 'Nomor Perkara Terkait (bila ada)':
+                            return { isFilled: Boolean(koneksi.length > 0), value: koneksi.map(k => k.nomor).join('; ') || '' };
+                        case 'Pokok Permasalahan Hukum':
+                            return { isFilled: Boolean(abs?.pokokPermasalahan || r.uraian), value: abs?.pokokPermasalahan || r.uraian || '' };
+                        case 'Fakta Hukum & Kronologi Kasus':
+                            return { isFilled: Boolean(abs?.faktaHukum), value: abs?.faktaHukum || '' };
+                        case 'Dasar Peraturan Perundang-undangan':
+                            return { isFilled: Boolean(abs?.dasarHukum && abs.dasarHukum.length > 0), value: abs?.dasarHukum?.join('; ') || '' };
+                        case 'Analisis Yuridis & Kajian Hukum':
+                            return { isFilled: Boolean(abs?.analisisKajian), value: abs?.analisisKajian || '' };
+                        case 'Kesimpulan & Rekomendasi Advokasi':
+                            return { isFilled: Boolean(abs?.rekomendasi), value: abs?.rekomendasi || '' };
+                        case 'Nomor Naskah Telaahan Nadine':
+                            return { isFilled: Boolean(r.nomorTelaahan || nsk?.nomorNaskah), value: r.nomorTelaahan || nsk?.nomorNaskah || '' };
+                        case 'Tanggal TTE Nadine':
+                            return { isFilled: Boolean(nsk?.tglTte), value: nsk?.tglTte || '' };
+                        case 'Dokumen Permohonan (Nadine)': {
+                            const files = r.files?.map(f => f.name);
+                            return { isFilled: Boolean(files && files.length > 0), value: files && files.length > 0 ? files.join(', ') : '' };
+                        }
+                        case 'Dokumen Telaahan & Data Dukung': {
+                            const docs = r.dokumenTelaahan?.map(d => d.name);
+                            return { isFilled: Boolean(docs && docs.length > 0), value: docs && docs.length > 0 ? docs.join(', ') : '' };
+                        }
+                        case 'Susunan Anggota Tim Penelaah (PIC & Editor)':
+                            return { isFilled: Boolean(r.team && r.team.length > 0), value: r.team?.map(t => `${t.nama} (${t.teamRole || t.role})`).join('; ') || '' };
+                        default:
+                            return { isFilled: false, value: '' };
+                    }
+                };
+
+                const checklist = fieldDefs.map(fd => {
+                    const res = getFieldValue(fd.name);
+                    return {
+                        name: fd.name,
+                        category: fd.category,
+                        mandatory: fd.mandatory,
+                        isFilled: res.isFilled,
+                        value: res.isFilled ? res.value : 'Belum diisi (Missing)'
+                    };
+                });
+
+                const filledCount = checklist.filter(c => c.isFilled).length;
+                const missingList = checklist.filter(c => !c.isFilled).map(c => c.name);
+                const score = Math.round((filledCount / fieldDefs.length) * 100);
+
+                list.push({
+                    id: r.id,
+                    registerId: regNo,
+                    modul: 'Telaahan',
+                    perihal: r.perihal,
+                    unit: r.unit,
+                    totalFields: fieldDefs.length,
+                    filledFields: filledCount,
+                    missingFields: missingList,
+                    score,
+                    status: score === 100 ? 'Lengkap' : score >= 70 ? 'Perlu Dilengkapi' : 'Kritis',
+                    viewTarget: 'eAdvokasiTelaahanKasusHukum' as View,
+                    detailViewTarget: 'eAdvokasiTelaahanDetail' as View,
+                    originalRecord: r,
+                    koneksiLintasModul: koneksi,
+                    checklist
+                });
+            });
+
+            // 4. Sub-Modul Penanganan Putusan Pengadilan
+            putusanRecords.forEach((r) => {
+                const putusan0 = r.putusan?.[0];
+                const regNo = putusan0?.nomor || r.Nomor;
+                const fieldDefs = PENANGANAN_SUB_MODUL_FIELDS['Penanganan Putusan'];
+
+                const koneksi: any[] = [];
+                koneksi.push({
+                    modul: 'Perkara',
+                    nomor: r.abstraksiPerkara?.noPerkara || r.Nomor,
+                    targetView: 'eAdvokasiPerkaraDetail' as View,
+                    record: r,
+                    label: `Perkara Terkait: ${r.abstraksiPerkara?.noPerkara || r.Nomor}`
+                });
+                if (r.id === 'pk-1') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-002');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: 'Telaahan Tanah BMN' });
+                } else if (r.id === 'pk-2') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-003');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: 'Telaahan Keberatan DJP' });
+                } else if (r.id === 'pk-3') {
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-2');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: 'Pendampingan Pabean Batam' });
+                } else if (r.id === 'pk-4') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-004');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: 'Telaahan Regulasi SBM' });
+                } else if (r.id === 'pk-5') {
+                    const tel = telaahanRecords.find(t => t.id === 'TLH-2026-001');
+                    if (tel) koneksi.push({ modul: 'Telaahan', nomor: tel.nomorTelaahan || tel.Nomor, targetView: 'eAdvokasiTelaahanDetail' as View, record: tel, label: 'Telaahan Kontrak IT' });
+                } else if (r.id === 'pk-6') {
+                    const pdp = pendampinganRecords.find(p => p.id === 'pd-3');
+                    if (pdp) koneksi.push({ modul: 'Pendampingan', nomor: pdp.abstraksi?.nomorTiket || pdp.Nomor, targetView: 'eAdvokasiPendampinganDetail' as View, record: pdp, label: 'Pendampingan BMN BLK' });
+                }
+
+                const getFieldValue = (fieldName: string): { isFilled: boolean; value: string } => {
+                    const abs = r.abstraksiPerkara;
+                    const bht = r.statusBHT;
+                    const tl0 = r.tindakLanjut?.[0];
+                    switch (fieldName) {
+                        case 'Tahun Masuk':
+                            return { isFilled: Boolean(abs?.tahunMasuk), value: abs?.tahunMasuk ? String(abs.tahunMasuk) : '' };
+                        case 'Nomor Perkara Terkait':
+                            return { isFilled: Boolean(abs?.noPerkara || r.Nomor), value: abs?.noPerkara || r.Nomor || '' };
+                        case 'Tanggal Pendaftaran Gugatan':
+                            return { isFilled: Boolean(abs?.tanggalPendaftaranGugatan || r.tanggal), value: abs?.tanggalPendaftaranGugatan || r.tanggal || '' };
+                        case 'Nomor Surat Kuasa Khusus (SKU)':
+                            return { isFilled: Boolean(abs?.nomorSuratKuasaKhusus), value: abs?.nomorSuratKuasaKhusus || '' };
+                        case 'Wilayah & Pengadilan':
+                            return { isFilled: Boolean(abs?.wilayah && abs?.pengadilan), value: `${abs?.wilayah || ''} / ${abs?.pengadilan || ''}` };
+                        case 'Jenis Perkara & Klasifikasi Perkara':
+                            return { isFilled: Boolean(abs?.jenisPerkara), value: `${abs?.jenisPerkara || ''} - ${abs?.klasifikasiPerkara || abs?.jenisPokokPerkara || ''}` };
+                        case 'Jenis Pokok Perkara & Sub Pokok Perkara':
+                            return { isFilled: Boolean(abs?.jenisPokokPerkara), value: `${abs?.jenisPokokPerkara || ''} / ${abs?.subPokokPerkara || ''}` };
+                        case 'Rincian Pokok Perkara':
+                            return { isFilled: Boolean(abs?.rincianPokokPerkara || r.uraian), value: abs?.rincianPokokPerkara || r.uraian || '' };
+                        case 'Unit Principal':
+                            return { isFilled: Boolean(r.unit), value: r.unit || '' };
+                        case 'Tags Putusan':
+                            return { isFilled: Boolean(abs?.tagsPerkara && abs.tagsPerkara.length > 0), value: abs?.tagsPerkara?.join(', ') || '' };
+                        case 'Tingkat Peradilan (Pertama / Banding / Kasasi / PK)':
+                            return { isFilled: Boolean(putusan0?.posisi), value: putusan0?.posisi || 'Tingkat Pertama' };
+                        case 'Nomor Putusan Pengadilan':
+                            return { isFilled: Boolean(regNo), value: regNo || '' };
+                        case 'Tanggal Putusan Diucapkan':
+                            return { isFilled: Boolean(putusan0?.tanggal), value: putusan0?.tanggal || '' };
+                        case 'Lembaga Peradilan Pemutus':
+                            return { isFilled: Boolean(abs?.pengadilan), value: abs?.pengadilan || '' };
+                        case 'Klasifikasi Amar Putusan':
+                            return { isFilled: Boolean(putusan0?.status), value: putusan0?.status || '' };
+                        case 'Isi Amar & Pertimbangan Hukum Putusan':
+                            return { isFilled: Boolean(putusan0?.amar), value: putusan0?.amar || '' };
+                        case 'Status Berkekuatan Hukum Tetap (BHT)':
+                            return { isFilled: Boolean(bht?.status), value: bht?.status || '' };
+                        case 'Tanggal Penerimaan Salinan Putusan / Relaas':
+                            return { isFilled: Boolean(putusan0?.tanggal), value: putusan0?.tanggal ? `Diterima: ${putusan0.tanggal}` : '' };
+                        case 'Keterangan Dampak Putusan / Finansial':
+                            return { isFilled: Boolean(bht?.keteranganDampak), value: bht?.keteranganDampak || '' };
+                        case 'Rekomendasi Tindak Lanjut Eksekusi':
+                            return { isFilled: Boolean(tl0?.tindakLanjut), value: tl0?.tindakLanjut ? `${tl0.tindakLanjut}: ${tl0.uraian || ''}` : '' };
+                        case 'Salinan Resmi Amar Putusan Pengadilan': {
+                            const files = r.files?.map(f => f.name).concat(r.dokumenLitigasi?.map(d => d.jenis) || []).filter(Boolean);
+                            return { isFilled: Boolean(files && files.length > 0), value: files && files.length > 0 ? files.join(', ') : '' };
+                        }
+                        case 'Tim Kuasa Penanganan Putusan (PIC & Anggota)':
+                            return { isFilled: Boolean(r.team && r.team.length > 0), value: r.team?.map(t => `${t.nama} (${t.teamRole || t.role})`).join('; ') || '' };
+                        default:
+                            return { isFilled: false, value: '' };
+                    }
+                };
+
+                const checklist = fieldDefs.map(fd => {
+                    const res = getFieldValue(fd.name);
+                    return {
+                        name: fd.name,
+                        category: fd.category,
+                        mandatory: fd.mandatory,
+                        isFilled: res.isFilled,
+                        value: res.isFilled ? res.value : 'Belum diisi (Missing)'
+                    };
+                });
+
+                const filledCount = checklist.filter(c => c.isFilled).length;
+                const missingList = checklist.filter(c => !c.isFilled).map(c => c.name);
+                const score = Math.round((filledCount / fieldDefs.length) * 100);
+
+                list.push({
+                    id: `put-${r.id}`,
+                    registerId: regNo,
+                    modul: 'Penanganan Putusan',
+                    perihal: `Putusan ${putusan0?.nomor || regNo}: ${r.perihal}`,
+                    unit: r.unit,
+                    totalFields: fieldDefs.length,
+                    filledFields: filledCount,
+                    missingFields: missingList,
+                    score,
+                    status: score === 100 ? 'Lengkap' : score >= 70 ? 'Perlu Dilengkapi' : 'Kritis',
+                    viewTarget: 'eAdvokasiPenangananPutusan' as View,
+                    detailViewTarget: 'eAdvokasiPutusanDetail' as View,
+                    originalRecord: r,
+                    koneksiLintasModul: koneksi,
+                    checklist
+                });
+            });
+
+            return list;
+        };
+
+        const auditRecords = buildAuditRecords();
 
         const filtered = auditRecords.filter(item => {
             const matchModul = kelengkapanModul === 'Semua Modul' || item.modul === kelengkapanModul;
@@ -4866,7 +5073,8 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                 item.registerId.toLowerCase().includes(kelengkapanSearch.toLowerCase()) ||
                 item.perihal.toLowerCase().includes(kelengkapanSearch.toLowerCase()) ||
                 item.unit.toLowerCase().includes(kelengkapanSearch.toLowerCase()) ||
-                item.missingFields.some(m => m.toLowerCase().includes(kelengkapanSearch.toLowerCase()));
+                item.missingFields.some((m: string) => m.toLowerCase().includes(kelengkapanSearch.toLowerCase())) ||
+                item.koneksiLintasModul.some((k: any) => k.nomor.toLowerCase().includes(kelengkapanSearch.toLowerCase()) || k.label.toLowerCase().includes(kelengkapanSearch.toLowerCase()));
 
             return matchModul && matchLevel && matchSearch;
         });
@@ -4875,9 +5083,29 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
         const totalPages = Math.ceil(filtered.length / pageSize) || 1;
         const pagedData = filtered.slice((kelengkapanPage - 1) * pageSize, kelengkapanPage * pageSize);
 
-        const overallScore = 92.4;
-        const totalLengkap = 785;
-        const totalIncomplete = 177;
+        // Agregasi Real-Time Audit Completeness Lintas Modul
+        const totalRecordsCount = auditRecords.length;
+        const totalLengkap = auditRecords.filter(r => r.score === 100).length;
+        const totalIncomplete = totalRecordsCount - totalLengkap;
+        const totalFieldsAudit = auditRecords.reduce((acc, r) => acc + r.totalFields, 0);
+        const terisiFieldsAudit = auditRecords.reduce((acc, r) => acc + r.filledFields, 0);
+        const missingFieldsAudit = totalFieldsAudit - terisiFieldsAudit;
+        const overallScore = totalFieldsAudit > 0 ? (Math.round((terisiFieldsAudit / totalFieldsAudit) * 1000) / 10).toFixed(1) : '92.4';
+
+        // Breakdown per Modul Real
+        const getModulStats = (modName: string) => {
+            const subset = auditRecords.filter(r => r.modul === modName);
+            const totalF = subset.reduce((acc, r) => acc + r.totalFields, 0);
+            const terisiF = subset.reduce((acc, r) => acc + r.filledFields, 0);
+            const lengkap = subset.filter(r => r.score === 100).length;
+            const pct = totalF > 0 ? (Math.round((terisiF / totalF) * 1000) / 10).toFixed(1) : '90.0';
+            return { total: subset.length, lengkap, pct };
+        };
+
+        const perkaraStats = getModulStats('Perkara');
+        const pendampinganStats = getModulStats('Pendampingan');
+        const telaahanStats = getModulStats('Telaahan');
+        const putusanStats = getModulStats('Penanganan Putusan');
 
         return (
             <div className="space-y-6">
@@ -4895,11 +5123,11 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                     Sub-Modul Monitoring: Kelengkapan Data
                                 </h1>
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                    Audit Completeness
+                                    Audit Lintas Modul Terkoneksi
                                 </span>
                             </div>
                             <p className="text-sm text-gray-500 mt-0.5">
-                                Persentase kelengkapan pengisian data dan audit list field yang missing dengan tingkat completeness di seluruh proses advokasi
+                                Persentase kelengkapan pengisian data dan audit list field yang missing terintegrasi langsung dengan record aktif di modul Penanganan (Perkara, Pendampingan, Putusan, Telaahan)
                             </p>
                         </div>
                     </div>
@@ -4920,31 +5148,31 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     {/* Overall Score Box */}
                     <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 rounded-xl shadow-sm flex flex-col justify-between">
                         <div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Audit Status Sistem</span>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Audit Status Terintegrasi</span>
                             <h3 className="text-lg font-bold mt-1">Skor Kelengkapan Pengisian Data</h3>
-                            <p className="text-xs text-slate-300 mt-1">Akumulasi pengisian field wajib dari 962 berkas advokasi terdaftar</p>
+                            <p className="text-xs text-slate-300 mt-1">Akumulasi pengisian field wajib dari {totalRecordsCount} berkas record terhubung di 4 sub-modul</p>
                         </div>
                         <div className="my-5 flex items-baseline space-x-3">
                             <span className="text-5xl font-black text-white tracking-tight">{overallScore}%</span>
                             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                Sangat Baik (Grade A)
+                                {Number(overallScore) >= 90 ? 'Sangat Baik (Grade A)' : Number(overallScore) >= 75 ? 'Baik (Grade B)' : 'Perlu Evaluasi (Grade C)'}
                             </span>
                         </div>
                         <div className="space-y-2 border-t border-slate-700/60 pt-4 text-xs text-slate-300">
                             <div className="flex justify-between">
-                                <span>Total Field Wajib Dimonitor:</span>
-                                <span className="font-bold text-white">9,620 Field</span>
+                                <span>Total Field Dimonitor:</span>
+                                <span className="font-bold text-white">{totalFieldsAudit} Field</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Field Terisi Lengkap (100%):</span>
-                                <span className="font-bold text-emerald-400">8,890 Field (92.4%)</span>
+                                <span>Field Terisi Lengkap:</span>
+                                <span className="font-bold text-emerald-400">{terisiFieldsAudit} Field ({overallScore}%)</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Field Missing / Belum Lengkap:</span>
-                                <span className="font-bold text-rose-400">730 Field (7.6%)</span>
+                                <span className="font-bold text-rose-400">{missingFieldsAudit} Field</span>
                             </div>
                             <div className="flex justify-between border-t border-slate-700/40 pt-2 text-[11px]">
-                                <span>Berkas Lengkap vs Belum:</span>
+                                <span>Berkas Lengkap vs Perlu Dilengkapi:</span>
                                 <span className="font-bold text-white">{totalLengkap} Lengkap / {totalIncomplete} Belum</span>
                             </div>
                         </div>
@@ -4954,45 +5182,45 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between space-y-4">
                         <div>
                             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-                                1. Persentase Kelengkapan per Modul
+                                1. Persentase Kelengkapan per Sub-Modul
                             </h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Tingkat pengisian field wajib pada masing-masing proses advokasi</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Tingkat pengisian field wajib pada data record di 4 proses advokasi</p>
                         </div>
                         <div className="space-y-3.5">
                             <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                     <span className="text-gray-700">1. Penanganan Perkara (Litigasi)</span>
-                                    <span className="text-blue-600 font-bold">93.8% (405/432 Lengkap)</span>
+                                    <span className="text-blue-600 font-bold">{perkaraStats.pct}% ({perkaraStats.lengkap}/{perkaraStats.total} Lengkap)</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                                    <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '93.8%' }}></div>
+                                    <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${perkaraStats.pct}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                     <span className="text-gray-700">2. Pendampingan Hukum (Non-Litigasi)</span>
-                                    <span className="text-emerald-600 font-bold">88.5% (79/89 Lengkap)</span>
+                                    <span className="text-emerald-600 font-bold">{pendampinganStats.pct}% ({pendampinganStats.lengkap}/{pendampinganStats.total} Lengkap)</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                                    <div className="bg-emerald-600 h-2.5 rounded-full" style={{ width: '88.5%' }}></div>
+                                    <div className="bg-emerald-600 h-2.5 rounded-full" style={{ width: `${pendampinganStats.pct}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                     <span className="text-gray-700">3. Telaahan Kasus Hukum</span>
-                                    <span className="text-indigo-600 font-bold">95.1% (147/156 Lengkap)</span>
+                                    <span className="text-indigo-600 font-bold">{telaahanStats.pct}% ({telaahanStats.lengkap}/{telaahanStats.total} Lengkap)</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                                    <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: '95.1%' }}></div>
+                                    <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${telaahanStats.pct}%` }}></div>
                                 </div>
                             </div>
                             <div>
                                 <div className="flex justify-between text-xs font-bold mb-1">
                                     <span className="text-gray-700">4. Penanganan Putusan Pengadilan</span>
-                                    <span className="text-amber-600 font-bold">89.4% (254/285 Lengkap)</span>
+                                    <span className="text-amber-600 font-bold">{putusanStats.pct}% ({putusanStats.lengkap}/{putusanStats.total} Lengkap)</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                                    <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: '89.4%' }}></div>
+                                    <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: `${putusanStats.pct}%` }}></div>
                                 </div>
                             </div>
                         </div>
@@ -5002,30 +5230,30 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between space-y-4">
                         <div>
                             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-                                2. Top Field Missing yang Paling Sering Kosong
+                                2. Top Field Missing yang Perlu Dilengkapi
                             </h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Prioritas audit perbaikan data bagi Satker dan Tim Kuasa</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Prioritas audit kelengkapan berdasarkan master field 4 sub-modul</p>
                         </div>
                         <div className="space-y-2.5 text-xs">
                             <div className="flex items-center justify-between p-2 rounded-lg bg-rose-50/70 border border-rose-100">
-                                <span className="font-semibold text-rose-900">1. Nilai Tuntutan / Objek Kerugian</span>
-                                <span className="font-bold text-rose-700 bg-white px-2 py-0.5 rounded border border-rose-200">42 Berkas Kosong</span>
+                                <span className="font-semibold text-rose-900">1. Sub Klasifikasi & Sub-Sub Pokok</span>
+                                <span className="font-bold text-rose-700 bg-white px-2 py-0.5 rounded border border-rose-200">Perkara & Pendampingan</span>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/70 border border-amber-100">
-                                <span className="font-semibold text-amber-900">2. Jadwal Sidang Lanjutan &amp; Sela</span>
-                                <span className="font-bold text-amber-700 bg-white px-2 py-0.5 rounded border border-amber-200">35 Berkas Kosong</span>
+                                <span className="font-semibold text-amber-900">2. Jadwal & Agenda Sidang Berikutnya</span>
+                                <span className="font-bold text-amber-700 bg-white px-2 py-0.5 rounded border border-amber-200">Perkara Litigasi</span>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded-lg bg-orange-50/70 border border-orange-100">
-                                <span className="font-semibold text-orange-900">3. Salinan Resmi Putusan / Relaas Asli</span>
-                                <span className="font-bold text-orange-700 bg-white px-2 py-0.5 rounded border border-orange-200">28 Berkas Kosong</span>
+                                <span className="font-semibold text-orange-900">3. Tanggal TTE & Validasi Nadine</span>
+                                <span className="font-bold text-orange-700 bg-white px-2 py-0.5 rounded border border-orange-200">Telaahan Kasus</span>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200">
-                                <span className="font-semibold text-slate-800">4. NIP &amp; Surat Tugas Tim Kuasa</span>
-                                <span className="font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">22 Berkas Kosong</span>
+                                <span className="font-semibold text-slate-800">4. Rekomendasi Tindak Lanjut Eksekusi</span>
+                                <span className="font-bold text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-200">Penanganan Putusan</span>
                             </div>
                             <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50/60 border border-blue-100">
-                                <span className="font-semibold text-blue-900">5. Nomor Registrasi TTE Nadine</span>
-                                <span className="font-bold text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">18 Berkas Kosong</span>
+                                <span className="font-semibold text-blue-900">5. Dokumen Salinan & Bukti Surat</span>
+                                <span className="font-bold text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">Lampiran Berkas</span>
                             </div>
                         </div>
                     </div>
@@ -5037,10 +5265,10 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                         <div>
                             <h3 className="text-sm font-bold text-gray-800 flex items-center space-x-2">
                                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                                <span>Daftar Record &amp; List Field yang Missing dengan Tingkat Completeness</span>
+                                <span>Filter Audit Data Record Penanganan Terkoneksi</span>
                             </h3>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Pantau dan audit kelengkapan setiap berkas perkara, pendampingan, telaahan, dan putusan
+                                Pantau dan audit kelengkapan setiap record aktif di sub-modul Perkara, Pendampingan, Telaahan, dan Putusan
                             </p>
                         </div>
                         {(kelengkapanModul !== 'Semua Modul' || kelengkapanLevel !== 'Semua Tingkat' || kelengkapanSearch) && (
@@ -5061,16 +5289,18 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide block mb-1">Filter Modul</label>
+                            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide block mb-1">Filter Sub-Modul</label>
                             <div className="relative">
                                 <select
                                     value={kelengkapanModul}
                                     onChange={(e) => { setKelengkapanModul(e.target.value); setKelengkapanPage(1); }}
                                     className="w-full appearance-none px-3 py-2 pr-8 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50/50 font-medium text-gray-700"
                                 >
-                                    {['Semua Modul', 'Perkara', 'Pendampingan', 'Telaahan', 'Penanganan Putusan'].map(m => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))}
+                                    <option value="Semua Modul">Semua Sub-Modul ({auditRecords.length} Record)</option>
+                                    <option value="Perkara">1. Penanganan Perkara ({perkaraRecords.length} Record)</option>
+                                    <option value="Pendampingan">2. Pendampingan ({pendampinganRecords.length} Record)</option>
+                                    <option value="Telaahan">3. Telaahan Kasus ({telaahanRecords.length} Record)</option>
+                                    <option value="Penanganan Putusan">4. Penanganan Putusan ({putusanRecords.length} Record)</option>
                                 </select>
                                 <ChevronDownIcon className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                             </div>
@@ -5093,14 +5323,14 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                         </div>
 
                         <div>
-                            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide block mb-1">Pencarian Cepat</label>
+                            <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wide block mb-1">Pencarian Lintas Modul</label>
                             <div className="relative">
                                 <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <input
                                     type="text"
                                     value={kelengkapanSearch}
                                     onChange={(e) => { setKelengkapanSearch(e.target.value); setKelengkapanPage(1); }}
-                                    placeholder="Cari ID register, perihal, unit kerja, atau field missing..."
+                                    placeholder="Cari nomor perkara, tiket, telaahan, unit, atau field..."
                                     className="w-full pl-9 pr-3 py-2 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-50/50 text-gray-800 font-medium"
                                 />
                             </div>
@@ -5108,12 +5338,12 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                     </div>
                 </div>
 
-                {/* Audit Tabular Table */}
+                {/* Audit Tabular Table - Synchronized with Penanganan Sub-Modules */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div className="px-6 py-4 bg-[#F8FAFC] border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center space-x-2">
                             <span className="font-bold text-gray-800 text-xs uppercase tracking-wide">
-                                Data Audit Completeness Pengisian Field
+                                Data Audit Completeness Record Penanganan
                             </span>
                             <span className="text-xs text-gray-500">
                                 ({filtered.length} Berkas Ditemukan)
@@ -5138,10 +5368,10 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                 <tr>
                                     <th scope="col" className="py-3.5 px-3 text-center w-10">No</th>
                                     <th scope="col" className="py-3.5 px-4 w-44">No. Register &amp; Modul</th>
-                                    <th scope="col" className="py-3.5 px-4 max-w-xs">Perihal Kasus</th>
+                                    <th scope="col" className="py-3.5 px-4 max-w-sm">Perihal Kasus &amp; Koneksi Lintas Modul</th>
                                     <th scope="col" className="py-3.5 px-3.5">Unit Kerja</th>
                                     <th scope="col" className="py-3.5 px-4 w-44">Tingkat Completeness</th>
-                                    <th scope="col" className="py-3.5 px-4 min-w-[260px]">List Field yang Missing</th>
+                                    <th scope="col" className="py-3.5 px-4 min-w-[240px]">List Field yang Missing</th>
                                     <th scope="col" className="py-3.5 px-3 text-center w-28">Status Audit</th>
                                     <th scope="col" className="py-3.5 px-3.5 text-center w-36">Aksi Cepat</th>
                                 </tr>
@@ -5167,10 +5397,31 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                                     {item.modul}
                                                 </span>
                                             </td>
-                                            <td className="py-3.5 px-4 max-w-xs">
+                                            <td className="py-3.5 px-4 max-w-sm">
                                                 <div className="font-semibold text-gray-900 line-clamp-2" title={item.perihal}>
                                                     {item.perihal}
                                                 </div>
+                                                {/* Cross-Module Connection Indicators */}
+                                                {item.koneksiLintasModul && item.koneksiLintasModul.length > 0 && (
+                                                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                                                        <span className="text-[10px] text-gray-400 font-medium">Terkoneksi:</span>
+                                                        {item.koneksiLintasModul.map((k: any, ki: number) => (
+                                                            <button
+                                                                key={ki}
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onNavigate(k.targetView, k.record);
+                                                                }}
+                                                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition"
+                                                                title={`Buka ${k.label}`}
+                                                            >
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1"></span>
+                                                                {k.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </td>
                                             <td className="py-3.5 px-3.5 font-medium text-gray-600">
                                                 {item.unit}
@@ -5206,17 +5457,22 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                             <td className="py-3.5 px-4">
                                                 {item.missingFields.length > 0 ? (
                                                     <div className="flex flex-wrap gap-1">
-                                                        {item.missingFields.map((f, i) => (
+                                                        {item.missingFields.slice(0, 3).map((f: string, i: number) => (
                                                             <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                                                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>
                                                                 {f}
                                                             </span>
                                                         ))}
+                                                        {item.missingFields.length > 3 && (
+                                                            <span className="px-1.5 py-0.5 text-[10px] font-bold text-gray-500 bg-gray-100 rounded border border-gray-200">
+                                                                +{item.missingFields.length - 3} lainnya
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 ) : (
                                                     <span className="inline-flex items-center space-x-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
                                                         <CheckCircleIcon className="h-3.5 w-3.5 text-emerald-600" />
-                                                        <span>Semua 12 Field Terisi Lengkap</span>
+                                                        <span>Semua {item.totalFields} Field Terisi Lengkap</span>
                                                     </span>
                                                 )}
                                             </td>
@@ -5238,16 +5494,16 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                                     <button
                                                         type="button"
                                                         onClick={() => setSelectedAuditRecordForModal(item)}
-                                                        className="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-md font-semibold text-[11px] transition"
+                                                        className="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-md font-semibold text-[11px] transition shadow-2xs"
                                                     >
                                                         Audit Checklist
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => onNavigate(item.viewTarget)}
+                                                        onClick={() => onNavigate(item.detailViewTarget || item.viewTarget, item.originalRecord)}
                                                         className="px-2.5 py-1 bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-700 rounded-md font-medium text-[11px] transition"
                                                     >
-                                                        {item.score === 100 ? 'Buka Data' : 'Lengkapi Field'}
+                                                        {item.score === 100 ? 'Buka Berkas' : 'Lengkapi Field'}
                                                     </button>
                                                 </div>
                                             </td>
@@ -5279,7 +5535,9 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                 >
                                     Sebelumnya
                                 </button>
-                                <span className="font-bold text-gray-800 px-2">{kelengkapanPage} / {totalPages}</span>
+                                <span className="px-2 font-bold text-gray-700">
+                                    Halaman {kelengkapanPage} dari {totalPages}
+                                </span>
                                 <button
                                     type="button"
                                     disabled={kelengkapanPage === totalPages}
@@ -5295,7 +5553,6 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             </div>
         );
     };
-
     const renderContent = () => {
         switch (currentView) {
             case 'eAdvokasiDashboard': return renderDashboard();
@@ -5398,7 +5655,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
             {/* Modal Detail Audit Checklist Kelengkapan Data */}
             {selectedAuditRecordForModal && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         {/* Header Modal */}
                         <div className="px-6 py-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
                             <div className="flex items-center space-x-3">
@@ -5413,7 +5670,7 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                         </span>
                                     </div>
                                     <p className="text-xs text-slate-300 mt-0.5">
-                                        Modul: {selectedAuditRecordForModal.modul} • Unit: {selectedAuditRecordForModal.unit}
+                                        Sub-Modul: <span className="font-bold text-white">{selectedAuditRecordForModal.modul}</span> • Unit: {selectedAuditRecordForModal.unit}
                                     </p>
                                 </div>
                             </div>
@@ -5457,6 +5714,36 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                 </div>
                             </div>
 
+                            {/* Cross-Module Connections Banner in Modal */}
+                            {selectedAuditRecordForModal.koneksiLintasModul && selectedAuditRecordForModal.koneksiLintasModul.length > 0 && (
+                                <div className="bg-blue-50/70 border border-blue-200 p-4 rounded-xl">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center space-x-2 text-blue-900 font-bold text-xs">
+                                            <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                                            <span>Koneksi Lintas Modul Terkait (Data Dummy Sinkron):</span>
+                                        </div>
+                                        <span className="text-[10px] text-blue-600 font-semibold">Terkoneksi Lintas Proses</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedAuditRecordForModal.koneksiLintasModul.map((k: any, i: number) => (
+                                            <button
+                                                key={i}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedAuditRecordForModal(null);
+                                                    onNavigate(k.targetView, k.record);
+                                                }}
+                                                className="px-3 py-1.5 bg-white hover:bg-blue-600 hover:text-white text-blue-800 font-semibold text-xs rounded-lg border border-blue-300 shadow-2xs flex items-center space-x-1.5 transition"
+                                            >
+                                                <span className="font-bold">[{k.modul}]</span>
+                                                <span>{k.nomor}</span>
+                                                <EyeIcon className="h-3.5 w-3.5 ml-1" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Missing Fields Alert Banner */}
                             {selectedAuditRecordForModal.missingFields.length > 0 && (
                                 <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl">
@@ -5475,68 +5762,254 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                 </div>
                             )}
 
-                            {/* Detailed Checklist Table */}
-                            <div>
-                                <h4 className="font-bold text-sm text-gray-800 mb-3 uppercase tracking-wide">
-                                    Rincian Audit Seluruh Field Standar
-                                </h4>
-                                <div className="border border-gray-200 rounded-xl overflow-hidden">
-                                    <table className="w-full text-left text-xs">
-                                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold text-[11px]">
-                                            <tr>
-                                                <th className="py-2.5 px-3 w-10 text-center">No</th>
-                                                <th className="py-2.5 px-3">Nama Field Standar</th>
-                                                <th className="py-2.5 px-3">Kategori</th>
-                                                <th className="py-2.5 px-3 text-center">Status</th>
-                                                <th className="py-2.5 px-3">Nilai / Isi Field Saat Ini</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {selectedAuditRecordForModal.checklist.map((item: any, idx: number) => (
-                                                <tr key={idx} className={item.isFilled ? 'hover:bg-gray-50/50' : 'bg-rose-50/40 hover:bg-rose-50/70'}>
-                                                    <td className="py-2.5 px-3 text-center text-gray-400 font-mono text-[10px]">
-                                                        {idx + 1}
-                                                    </td>
-                                                    <td className="py-2.5 px-3 font-semibold text-gray-800">
-                                                        {item.name}
-                                                    </td>
-                                                    <td className="py-2.5 px-3 text-gray-500">
-                                                        <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px]">
-                                                            {item.category}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-2.5 px-3 text-center">
-                                                        {item.isFilled ? (
-                                                            <span className="inline-flex items-center text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-200">
-                                                                <CheckCircleIcon className="h-3 w-3 mr-1" />
-                                                                Terisi
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full text-[10px] font-bold border border-rose-300">
-                                                                <ExclamationIcon className="h-3 w-3 mr-1" />
-                                                                Missing
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="py-2.5 px-3">
-                                                        <span className={item.isFilled ? 'text-gray-700 font-normal' : 'text-rose-600 italic font-medium'}>
-                                                            {item.value}
-                                                        </span>
-                                                    </td>
-                                                </tr>
+                            {/* Detailed Checklist Table - Sesuai Field Modul Penanganan per Sub Modul */}
+                            {(() => {
+                                // Resolve which field checklist to display
+                                const currentModul = selectedAuditRecordForModal.modul;
+                                const targetModulKey = modalSubModulView === 'current' ? currentModul : modalSubModulView;
+                                
+                                let activeList: any[] = [];
+                                if (modalSubModulView === 'current' || modalSubModulView === currentModul) {
+                                    activeList = selectedAuditRecordForModal.checklist || [];
+                                } else {
+                                    // Generate standard field checklist for selected sub-modul
+                                    const template = (PENANGANAN_SUB_MODUL_FIELDS as any)[targetModulKey] || [];
+                                    activeList = template.map((f: any) => ({
+                                        name: f.name,
+                                        category: f.category,
+                                        mandatory: f.mandatory,
+                                        isFilled: false,
+                                        value: `Standard field template sub modul ${targetModulKey}`
+                                    }));
+                                }
+
+                                const categoriesList = Array.from(new Set(activeList.map((i: any) => i.category))).filter(Boolean);
+                                const filledCount = activeList.filter((i: any) => i.isFilled).length;
+                                const missingCount = activeList.filter((i: any) => !i.isFilled).length;
+
+                                const filteredItems = activeList.filter((item: any) => {
+                                    const matchStatus = 
+                                        modalChecklistFilter === 'all' ? true :
+                                        modalChecklistFilter === 'filled' ? item.isFilled :
+                                        !item.isFilled;
+                                    
+                                    const matchCategory = 
+                                        modalChecklistCategory === 'all' ? true :
+                                        item.category === modalChecklistCategory;
+
+                                    const matchSearch = 
+                                        !modalChecklistSearch ? true :
+                                        item.name.toLowerCase().includes(modalChecklistSearch.toLowerCase()) ||
+                                        item.category.toLowerCase().includes(modalChecklistSearch.toLowerCase()) ||
+                                        (item.value && item.value.toLowerCase().includes(modalChecklistSearch.toLowerCase()));
+
+                                    return matchStatus && matchCategory && matchSearch;
+                                });
+
+                                return (
+                                    <div className="space-y-3">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <h4 className="font-bold text-sm text-gray-800 uppercase tracking-wide flex items-center space-x-2">
+                                                    <span>Rincian Field Standar Sub Modul {targetModulKey}</span>
+                                                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0055A5]">
+                                                        {activeList.length} Field Standar
+                                                    </span>
+                                                </h4>
+                                                <p className="text-[11px] text-gray-500 mt-0.5">
+                                                    Daftar rincian field diverifikasi secara presisi sesuai seluruh fields pada form input dan view modul Penanganan ({targetModulKey})
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setModalChecklistFilter('all');
+                                                        setModalChecklistCategory('all');
+                                                        setModalChecklistSearch('');
+                                                        setModalSubModulView('current');
+                                                    }}
+                                                    className="text-[11px] text-gray-500 hover:text-blue-600 underline font-medium"
+                                                >
+                                                    Reset Filter
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Sub-Modul Selector Pills */}
+                                        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1.5 border-b border-gray-100">
+                                            <span className="text-[11px] font-bold text-gray-400 mr-1 flex-shrink-0">Sub Modul:</span>
+                                            {[
+                                                { id: 'current', label: `Berkas Ini (${selectedAuditRecordForModal.modul})` },
+                                                { id: 'Perkara', label: '1. Penanganan Perkara (24 Field)' },
+                                                { id: 'Pendampingan', label: '2. Pendampingan (20 Field)' },
+                                                { id: 'Penanganan Putusan', label: '3. Penanganan Putusan (22 Field)' },
+                                                { id: 'Telaahan', label: '4. Telaahan Kasus Hukum (20 Field)' }
+                                            ].map(tab => (
+                                                <button
+                                                    key={tab.id}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setModalSubModulView(tab.id);
+                                                        setModalChecklistCategory('all');
+                                                        setModalChecklistSearch('');
+                                                    }}
+                                                    className={`px-2.5 py-1 text-xs rounded-lg font-semibold transition whitespace-nowrap ${
+                                                        modalSubModulView === tab.id
+                                                            ? 'bg-[#0055A5] text-white shadow-xs'
+                                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                    }`}
+                                                >
+                                                    {tab.label}
+                                                </button>
                                             ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                        </div>
+
+                                        {/* Filter Controls Bar */}
+                                        <div className="flex flex-col sm:flex-row gap-2.5 bg-gray-50 p-2.5 rounded-xl border border-gray-200">
+                                            {/* Status Filter Tabs */}
+                                            <div className="flex items-center space-x-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setModalChecklistFilter('all')}
+                                                    className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition ${
+                                                        modalChecklistFilter === 'all'
+                                                            ? 'bg-white text-gray-900 shadow-xs border border-gray-200'
+                                                            : 'text-gray-500 hover:text-gray-700'
+                                                    }`}
+                                                >
+                                                    Semua Field ({activeList.length})
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setModalChecklistFilter('filled')}
+                                                    className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition ${
+                                                        modalChecklistFilter === 'filled'
+                                                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xs'
+                                                            : 'text-emerald-700 hover:bg-emerald-50/50'
+                                                    }`}
+                                                >
+                                                    Terisi ({filledCount})
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setModalChecklistFilter('missing')}
+                                                    className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition ${
+                                                        modalChecklistFilter === 'missing'
+                                                            ? 'bg-rose-50 text-rose-800 border border-rose-200 shadow-xs'
+                                                            : 'text-rose-700 hover:bg-rose-50/50'
+                                                    }`}
+                                                >
+                                                    Missing ({missingCount})
+                                                </button>
+                                            </div>
+
+                                            {/* Category Filter */}
+                                            <div className="sm:w-44">
+                                                <select
+                                                    value={modalChecklistCategory}
+                                                    onChange={(e) => setModalChecklistCategory(e.target.value)}
+                                                    className="w-full text-xs py-1 px-2 border border-gray-200 rounded-md bg-white text-gray-700 font-medium"
+                                                >
+                                                    <option value="all">Semua Kategori ({categoriesList.length})</option>
+                                                    {categoriesList.map((cat: any) => (
+                                                        <option key={cat} value={cat}>{cat}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            {/* Search input */}
+                                            <div className="flex-1 relative">
+                                                <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    value={modalChecklistSearch}
+                                                    onChange={(e) => setModalChecklistSearch(e.target.value)}
+                                                    placeholder="Cari field atau nilai..."
+                                                    className="w-full pl-8 pr-3 py-1 text-xs border border-gray-200 rounded-md bg-white text-gray-800"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Table */}
+                                        <div className="border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
+                                            <table className="w-full text-left text-xs">
+                                                <thead className="bg-gray-100/80 border-b border-gray-200 text-gray-700 font-bold text-[11px]">
+                                                    <tr>
+                                                        <th className="py-2.5 px-3 w-10 text-center">No</th>
+                                                        <th className="py-2.5 px-3 w-56">Nama Field Standar</th>
+                                                        <th className="py-2.5 px-3 w-44">Kategori Sub Modul</th>
+                                                        <th className="py-2.5 px-3 text-center w-24">Status</th>
+                                                        <th className="py-2.5 px-3">Nilai / Isi Field Saat Ini</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100">
+                                                    {filteredItems.length > 0 ? (
+                                                        filteredItems.map((item: any, idx: number) => (
+                                                            <tr key={idx} className={item.isFilled ? 'hover:bg-gray-50/50' : 'bg-rose-50/30 hover:bg-rose-50/60'}>
+                                                                <td className="py-2.5 px-3 text-center text-gray-400 font-mono text-[10px]">
+                                                                    {idx + 1}
+                                                                </td>
+                                                                <td className="py-2.5 px-3 font-semibold text-gray-900">
+                                                                    <div className="flex items-center space-x-1.5">
+                                                                        <span>{item.name}</span>
+                                                                        {item.mandatory && (
+                                                                            <span className="text-rose-500 font-bold" title="Field Wajib / Mandatory">*</span>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="py-2.5 px-3 text-gray-500">
+                                                                    <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-medium border border-slate-200">
+                                                                        {item.category}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="py-2.5 px-3 text-center">
+                                                                    {item.isFilled ? (
+                                                                        <span className="inline-flex items-center text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-200">
+                                                                            <CheckCircleIcon className="h-3 w-3 mr-1" />
+                                                                            Terisi
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full text-[10px] font-bold border border-rose-300">
+                                                                            <ExclamationIcon className="h-3 w-3 mr-1" />
+                                                                            Missing
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2.5 px-3">
+                                                                    {item.isFilled ? (
+                                                                        <span className="text-gray-800 font-medium">
+                                                                            {item.value}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-rose-600 italic font-medium flex items-center space-x-1">
+                                                                            <span>{item.value || 'Belum diisi (Wajib Dilengkapi)'}</span>
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan={5} className="py-8 text-center text-gray-400 italic">
+                                                                Tidak ada field yang sesuai dengan filter pencarian.
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                            <span className="text-[11px] text-gray-500">
-                                Subject: {selectedAuditRecordForModal.perihal}
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <span className="text-[11px] text-gray-500 max-w-md truncate">
+                                Subjek: {selectedAuditRecordForModal.perihal}
                             </span>
-                            <div className="flex space-x-2">
+                            <div className="flex items-center space-x-2">
                                 <button
                                     type="button"
                                     onClick={() => setSelectedAuditRecordForModal(null)}
@@ -5547,12 +6020,15 @@ const Monitoring: React.FC<MonitoringProps> = ({ currentView, onNavigate }) => {
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        const rec = selectedAuditRecordForModal.originalRecord;
+                                        const target = selectedAuditRecordForModal.detailViewTarget || selectedAuditRecordForModal.viewTarget;
                                         setSelectedAuditRecordForModal(null);
-                                        onNavigate(selectedAuditRecordForModal.viewTarget);
+                                        onNavigate(target, rec);
                                     }}
                                     className="px-4 py-2 bg-[#0055A5] hover:bg-blue-700 text-white rounded-lg font-semibold text-xs transition flex items-center space-x-1.5 shadow-2xs"
                                 >
-                                    <span>Buka Modul & Lengkapi Data</span>
+                                    <span>Buka Berkas di Sub-Modul</span>
+                                    <EyeIcon className="h-4 w-4" />
                                 </button>
                             </div>
                         </div>
